@@ -23,3 +23,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Security ###
+**/application-common.properties
