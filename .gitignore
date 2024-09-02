@@ -26,3 +26,5 @@ out/
 
 ### Security ###
 **/application-common.properties
+**/application-secret.properties
+**/application-local.properties
