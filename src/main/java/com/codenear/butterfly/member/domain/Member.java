@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class Member extends BaseEntity {
 
@@ -14,7 +17,7 @@ public class Member extends BaseEntity {
 
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     @Column(unique = true)
