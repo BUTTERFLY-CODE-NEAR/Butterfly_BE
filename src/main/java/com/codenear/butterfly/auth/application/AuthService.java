@@ -1,13 +1,15 @@
 package com.codenear.butterfly.auth.application;
 
+import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -33,6 +35,7 @@ public class AuthService {
                 .point(0)
                 .grade(Grade.LEVEL_1)
                 .platform(requestDTO.getPlatform())
+                .roles(Collections.singleton(Role.USER))
                 .build();
     }
 }
