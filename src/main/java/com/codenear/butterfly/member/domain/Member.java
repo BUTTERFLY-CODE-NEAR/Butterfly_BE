@@ -23,7 +23,6 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String phoneNumber;
 
-    //todo : 비밀번호 암호화
     private String password;
 
     @Column(nullable = false)
