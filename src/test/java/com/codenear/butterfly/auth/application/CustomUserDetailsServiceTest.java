@@ -1,6 +1,7 @@
 package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -45,6 +47,7 @@ class CustomUserDetailsServiceTest {
                 .username("testuser")
                 .password("password123")
                 .nickname("TestNickname")
+                .roles(Collections.singleton(Role.USER))
                 .build();
         when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
 
@@ -59,12 +62,12 @@ class CustomUserDetailsServiceTest {
         Locale locale = LocaleContextHolder.getLocale();
         when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(messageSource.getMessage("error.userNotFound", new Object[]{email}, locale))
-                .thenReturn("User with email " + email + " was not found.");
+                .thenReturn("이메일 " + email + "을(를) 찾을 수 없습니다.");
 
         UsernameNotFoundException exception = assertThrows(UsernameNotFoundException.class, () -> {
             customUserDetailsService.loadUserByUsername(email);
         });
 
-        assertEquals("User with email " + email + " was not found.", exception.getMessage());
+        assertEquals("이메일 " + email + "을(를) 찾을 수 없습니다.", exception.getMessage());
     }
 }
