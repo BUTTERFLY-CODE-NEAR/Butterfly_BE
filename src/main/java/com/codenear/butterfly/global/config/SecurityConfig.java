@@ -21,13 +21,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] whiteList = securityProperties.getWhitelistArray();
+
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(securityProperties.getWhitelistArray()).permitAll()
+                        .requestMatchers(whiteList).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(securityProperties.getWhitelistArray())
+                        .ignoringRequestMatchers(whiteList)
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
