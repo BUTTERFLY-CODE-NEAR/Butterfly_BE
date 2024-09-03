@@ -27,15 +27,13 @@ class CustomUserDetailsServiceTest {
     @Mock
     private MessageSource messageSource;
 
-    private ErrorMessageService errorMessageService;
-
     @InjectMocks
     private CustomUserDetailsService customUserDetailsService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        errorMessageService = new ErrorMessageService(messageSource);
+        ErrorMessageService errorMessageService = new ErrorMessageService(messageSource);
         customUserDetailsService = new CustomUserDetailsService(memberRepository, errorMessageService);
     }
 
