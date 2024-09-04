@@ -28,3 +28,4 @@ out/
 **/application-common.properties
 **/application-secret.properties
 **/application-local.properties
+**/messages.properties
