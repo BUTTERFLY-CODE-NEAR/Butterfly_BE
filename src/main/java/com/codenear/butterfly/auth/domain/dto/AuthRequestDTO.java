@@ -4,7 +4,7 @@ import com.codenear.butterfly.member.domain.Platform;
 import lombok.Getter;
 
 @Getter
-public class OAuthRequestDTO {
+public class AuthRequestDTO {
     private String email;
     private String password;
     private String nickname;
