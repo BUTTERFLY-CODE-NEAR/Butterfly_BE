@@ -2,6 +2,9 @@ package com.codenear.butterfly.global.property;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
 
 @Component
 public class SecurityProperties {
@@ -9,6 +12,12 @@ public class SecurityProperties {
     private String whitelist;
 
     public String[] getWhitelistArray() {
-        return whitelist.split(",");
+        if (whitelist == null) {
+            return new String[]{};
+        }
+
+        return Arrays.stream(whitelist.split(","))
+                .filter(StringUtils::hasText)
+                .toArray(String[]::new);
     }
 }
