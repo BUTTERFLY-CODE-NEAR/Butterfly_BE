@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class OAuthRequestDTO {
     private String email;
+    private String password;
     private String nickname;
     private Platform platform;
 }

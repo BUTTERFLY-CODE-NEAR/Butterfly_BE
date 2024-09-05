@@ -3,7 +3,7 @@ package com.codenear.butterfly.auth.application;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
-import com.codenear.butterfly.auth.domain.dto.OAuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +13,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class OAuthService {
+public class AuthService {
 
     private final MemberRepository memberRepository;
 
-    public void registerOrLogin(OAuthRequestDTO requestDTO) {
+    public void registerOrLogin(AuthRequestDTO requestDTO) {
         Optional<Member> member = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform());
 
         if (member.isEmpty()) { // 회원 정보 DB 저장
@@ -26,7 +26,7 @@ public class OAuthService {
         }
     }
 
-    private Member register(OAuthRequestDTO requestDTO) {
+    private Member register(AuthRequestDTO requestDTO) {
         return Member.builder()
                 .email(requestDTO.getEmail())
                 .nickname(requestDTO.getNickname())
