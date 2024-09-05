@@ -1,7 +1,6 @@
 package com.codenear.butterfly.auth.jwt;
 
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
-import com.codenear.butterfly.member.domain.Platform;
+import com.codenear.butterfly.auth.domain.dto.OAuthRequestDTO;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +63,7 @@ public class JwtUtil {
                 .before(new Date());
     }
 
-    public String createJwt(AuthRequestDTO authRequestDTO) {
+    public String createJwt(OAuthRequestDTO authRequestDTO) {
         return Jwts.builder()
                 .claim("mail", authRequestDTO.getEmail())
                 .claim("nickname", authRequestDTO.getNickname())
