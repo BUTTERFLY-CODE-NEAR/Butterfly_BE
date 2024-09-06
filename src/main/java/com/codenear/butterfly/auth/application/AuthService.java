@@ -17,18 +17,13 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
 
-    public Member registerOrLogin(AuthRequestDTO requestDTO) {
+    public void registerOrLogin(AuthRequestDTO requestDTO) {
         Optional<Member> OptMember = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform());
-        Member member;
 
         if (OptMember.isEmpty()) { // 회원 정보 DB 저장
             Member registerMember = register(requestDTO);
-            member = memberRepository.save(registerMember);
-        } else {
-            member = OptMember.get();
+            memberRepository.save(registerMember);
         }
-
-        return member;
     }
 
     private Member register(AuthRequestDTO requestDTO) {

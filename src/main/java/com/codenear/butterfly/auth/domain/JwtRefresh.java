@@ -1,6 +1,7 @@
 package com.codenear.butterfly.auth.domain;
 
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,10 +18,15 @@ public class JwtRefresh {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @Column(nullable = false)
+    private String email;
 
+    @Column(nullable = false)
+    private Platform platform;
+
+    @Column(nullable = false)
     private String refresh;
+
+    @Column(nullable = false)
     private Date expiration;
 }
