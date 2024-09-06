@@ -1,5 +1,6 @@
-package com.codenear.butterfly.auth.application;
+package com.codenear.butterfly.auth.application.email;
 
+import com.codenear.butterfly.auth.application.MessageService;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Role;
@@ -17,13 +18,13 @@ import java.util.stream.Collectors;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-    private final ErrorMessageService errorMessageService;
+    private final MessageService messageService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        errorMessageService.getErrorMessage("error.userNotFound", email)
+                        messageService.getMessage("error.userNotFound", email)
                 ));
 
         return new CustomUserDetails(
