@@ -26,7 +26,7 @@ public class EmailRegisterService {
     public Member emailRegister(AuthRequestDTO authRequestDTO) {
         if (hasMember(authRequestDTO)) {
             String errorMessage = messageService.getMessage("error.emailAlreadyInUse");
-            log.info(errorMessage);
+            log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
