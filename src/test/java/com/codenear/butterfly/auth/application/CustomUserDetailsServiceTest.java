@@ -1,5 +1,6 @@
 package com.codenear.butterfly.auth.application;
 
+import com.codenear.butterfly.auth.application.email.CustomUserDetailsService;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
@@ -35,8 +36,8 @@ class CustomUserDetailsServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ErrorMessageService errorMessageService = new ErrorMessageService(messageSource);
-        customUserDetailsService = new CustomUserDetailsService(memberRepository, errorMessageService);
+        MessageService messageService = new MessageService(messageSource);
+        customUserDetailsService = new CustomUserDetailsService(memberRepository, messageService);
     }
 
     @Test

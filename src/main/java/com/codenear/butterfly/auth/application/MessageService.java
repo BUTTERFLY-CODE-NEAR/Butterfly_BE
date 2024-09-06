@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ErrorMessageService {
+public class MessageService {
 
     private final MessageSource messageSource;
 
-    public String getErrorMessage(String code, Object... args) {
+    public String getMessage(String code, Object... args) {
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
     }
 }
