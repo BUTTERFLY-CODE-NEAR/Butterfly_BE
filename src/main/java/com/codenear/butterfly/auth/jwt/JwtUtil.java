@@ -1,7 +1,7 @@
 package com.codenear.butterfly.auth.jwt;
 
 import com.codenear.butterfly.auth.domain.JwtRefresh;
-import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,56 +36,61 @@ public class JwtUtil {
                     .getAlgorithm());
     }
 
-    public String createAccessJwt(Long memberId) {
-        return createJwt("Access", memberId, accessTokenExpirationMillis);
+    public String createAccessJwt(String email, String platform) {
+        return createJwt("Access", email, platform, accessTokenExpirationMillis);
     }
 
-    public String createRefreshJwt(Long memberId) {
-        return createJwt("Refresh", memberId, refreshTokenExpirationMillis);
+    public String createRefreshJwt(String email, String platform) {
+        return createJwt("Refresh", email, platform, refreshTokenExpirationMillis);
     }
 
-    private String createJwt(String category, Long memberId, Long tokenExpirationMillis) {
+    public String getCategory(String token) {
+        return getTokenInfo(token, "category");
+    }
+
+    public String getEmail(String token) {
+        return getTokenInfo(token, "email");
+    }
+
+    public String getPlatform(String token) {
+        return getTokenInfo(token, "platform");
+    }
+
+    public void isExpired(String token) {
+        Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
+    }
+
+    public JwtRefresh buildRefreshEntity(String email, Platform platform, String refresh) {
+        return JwtRefresh.builder()
+                .email(email)
+                .platform(platform)
+                .refresh(refresh)
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMillis))
+                .build();
+    }
+
+    private String createJwt(String category, String email, String platform, Long tokenExpirationMillis) {
         return Jwts.builder()
                 .claim("category", category)
-                .claim("memberId", String.valueOf(memberId))
+                .claim("email", email)
+                .claim("platform", platform)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + tokenExpirationMillis))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String getCategory(String token) {
-        return getMemberInfo(token, "category");
-    }
-
-    public Long getMemberId(String token) {
-        return Long.parseLong(getMemberInfo(token, "memberId"));
-    }
-
-    private String getMemberInfo(String token, String info) {
+    private String getTokenInfo(String token, String info) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .get(info, String.class);
-    }
-
-    public Boolean isExpired(String token) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration()
-                .before(new Date());
-    }
-
-    public JwtRefresh buildRefreshEntity(Member member, String refresh) {
-        return JwtRefresh.builder()
-                .member(member)
-                .refresh(refresh)
-                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMillis))
-                .build();
     }
 }
