@@ -5,9 +5,7 @@ import com.codenear.butterfly.auth.application.MessageService;
 import com.codenear.butterfly.auth.application.email.EmailRegisterService;
 import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
-import com.codenear.butterfly.auth.jwt.JwtUtil;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +18,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final JwtUtil jwtUtil;
     private final AuthService authService;
     private final JwtService jwtService;
     private final EmailRegisterService emailRegisterService;
     private final MessageService messageService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/auth/register")
     public ResponseEntity<String> register(@RequestBody AuthRequestDTO authRequestDTO) {
@@ -46,33 +40,15 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     @ResponseStatus(HttpStatus.OK)
-    public void login(@RequestBody AuthRequestDTO authRequestDTO, HttpServletResponse response) {
-        Member member = authService.registerOrLogin(authRequestDTO);
-
-        String access = jwtUtil.createAccessJwt(member.getId());
-        String refresh = jwtUtil.createRefreshJwt(member.getId());
-
-        jwtService.addRefreshEntity(member, refresh);
-
-        jwtService.setResponse(access, refresh, response);
+    public void login(@RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
+        authService.registerOrLogin(requestDTO);
+        jwtService.processTokens(requestDTO.getEmail(), requestDTO.getPlatform().name(), response);
     }
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        String refresh = jwtService.getRefreshCookie(request);
-
         try {
-            jwtService.validateRefreshToken(refresh);
-            Long memberId = jwtUtil.getMemberId(refresh);
-            Optional<Member> member = memberRepository.findById(memberId);
-            String accessJwt = jwtUtil.createAccessJwt(memberId);
-            String refreshJwt = jwtUtil.createRefreshJwt(memberId);
-
-            jwtService.deleteRefresh(refresh);
-
-            jwtService.addRefreshEntity(member.get(), refreshJwt);
-            jwtService.setResponse(accessJwt, refreshJwt, response);
-
+            jwtService.processReissue(request, response);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
