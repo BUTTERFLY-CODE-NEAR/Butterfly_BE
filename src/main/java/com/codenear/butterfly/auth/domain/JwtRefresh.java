@@ -1,6 +1,5 @@
 package com.codenear.butterfly.auth.domain;
 
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
 import jakarta.persistence.*;
 import lombok.*;
