@@ -1,6 +1,6 @@
 package com.codenear.butterfly.global.config;
 
-import com.codenear.butterfly.auth.jwt.JwtFilter;
+import com.codenear.butterfly.auth.presentation.JwtFilter;
 import com.codenear.butterfly.auth.jwt.JwtUtil;
 import com.codenear.butterfly.global.property.SecurityProperties;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .addFilterBefore(new JwtFilter(memberRepository, jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, memberRepository), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
