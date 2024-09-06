@@ -1,6 +1,8 @@
-package com.codenear.butterfly.auth.jwt;
+package com.codenear.butterfly.auth.presentation;
 
+import com.codenear.butterfly.auth.jwt.JwtUtil;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -23,39 +25,50 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorization = request.getHeader("Authorization");
+        String accessToken = request.getHeader("Authorization");
 
-        if (authorization == null) {
+        if (accessToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            jwtUtil.isExpired(authorization);
+            jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
             PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
+            writer.print("토큰이 만료 되었습니다.");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        String category = jwtUtil.getCategory(authorization);
+        String category = jwtUtil.getCategory(accessToken);
 
         if (!category.equals("Access")) {
             PrintWriter writer = response.getWriter();
-            writer.print("invalid access token");
+            writer.print("유효하지 않은 토큰 입니다.");
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
-        Long memberId = jwtUtil.getMemberId(authorization);
-        Optional<Member> member = memberRepository.findById(memberId);
+        String email = jwtUtil.getEmail(accessToken);
+        String platform = jwtUtil.getPlatform(accessToken);
+
+        Optional<Member> member = memberRepository.findByEmailAndPlatform(email, Platform.valueOf(platform));
+
+        if (member.isEmpty()) {
+            PrintWriter writer = response.getWriter();
+            writer.print("알맞은 회원 정보가 없습니다.");
+
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 member.get(),
