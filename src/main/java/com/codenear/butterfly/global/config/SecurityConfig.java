@@ -3,6 +3,7 @@ package com.codenear.butterfly.global.config;
 import com.codenear.butterfly.auth.jwt.JwtFilter;
 import com.codenear.butterfly.auth.jwt.JwtUtil;
 import com.codenear.butterfly.global.property.SecurityProperties;
+import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     private final SecurityProperties securityProperties;
     private final JwtUtil jwtUtil;
+    private final MemberRepository memberRepository;
 
 
     @Bean
@@ -60,7 +62,7 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(memberRepository, jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

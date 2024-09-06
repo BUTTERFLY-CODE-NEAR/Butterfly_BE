@@ -1,9 +1,9 @@
 package com.codenear.butterfly.auth.application;
 
+import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +17,18 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
 
-    public void registerOrLogin(AuthRequestDTO requestDTO) {
-        Optional<Member> member = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform());
+    public Member registerOrLogin(AuthRequestDTO requestDTO) {
+        Optional<Member> OptMember = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform());
+        Member member;
 
-        if (member.isEmpty()) { // 회원 정보 DB 저장
+        if (OptMember.isEmpty()) { // 회원 정보 DB 저장
             Member registerMember = register(requestDTO);
-            memberRepository.save(registerMember);
+            member = memberRepository.save(registerMember);
+        } else {
+            member = OptMember.get();
         }
+
+        return member;
     }
 
     private Member register(AuthRequestDTO requestDTO) {
