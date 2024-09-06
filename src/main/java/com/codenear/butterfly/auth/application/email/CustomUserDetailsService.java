@@ -3,7 +3,6 @@ package com.codenear.butterfly.auth.application.email;
 import com.codenear.butterfly.auth.application.MessageService;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 member.getId(),
                 member.getEmail(),
                 member.getPassword(),
-                member.getRoles().stream().map(Role::name).collect(Collectors.toSet())
+                member.getGrade()
         );
     }
 }

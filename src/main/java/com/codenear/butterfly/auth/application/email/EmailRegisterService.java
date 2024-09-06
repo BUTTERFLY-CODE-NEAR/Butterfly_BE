@@ -4,7 +4,6 @@ import com.codenear.butterfly.auth.application.MessageService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 
 @Slf4j
 @Service
@@ -29,7 +26,7 @@ public class EmailRegisterService {
     public Member emailRegister(AuthRequestDTO authRequestDTO) {
         if (hasMember(authRequestDTO)) {
             String errorMessage = messageService.getMessage("error.emailAlreadyInUse");
-            log.info(errorMessage);
+            log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
@@ -54,7 +51,6 @@ public class EmailRegisterService {
                 .point(0)
                 .grade(Grade.LEVEL_1)
                 .platform(requestDTO.getPlatform())
-                .roles(Collections.singleton(Role.USER))
                 .build();
     }
 }

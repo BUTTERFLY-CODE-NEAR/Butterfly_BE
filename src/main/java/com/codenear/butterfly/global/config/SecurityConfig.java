@@ -53,7 +53,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers("/test").hasAuthority("ROLE_USER")
+                        .requestMatchers("/test").hasAuthority("ROLE_LEVEL_1")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf

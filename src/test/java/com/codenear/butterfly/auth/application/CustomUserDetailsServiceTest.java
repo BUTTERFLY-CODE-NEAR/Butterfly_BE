@@ -2,7 +2,6 @@ package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.email.CustomUserDetailsService;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.Role;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,6 @@ class CustomUserDetailsServiceTest {
                 .username("testuser")
                 .password("password123")
                 .nickname("TestNickname")
-                .roles(Collections.singleton(Role.USER))
                 .build();
         when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
 

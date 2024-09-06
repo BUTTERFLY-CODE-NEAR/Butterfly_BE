@@ -1,6 +1,6 @@
 package com.codenear.butterfly.auth.domain.dto;
 
-import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Grade;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,13 +19,11 @@ public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
-    private final Set<String> roles;
+    private final Grade grade;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
+        return List.of(new SimpleGrantedAuthority("ROLE_" + grade.name()));
     }
 
     @Override
