@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -22,6 +24,9 @@ public class JwtService {
     public void processTokens(String email, String platform, HttpServletResponse response) {
         String accessToken = jwtUtil.createAccessJwt(email, platform);
         String refreshToken = jwtUtil.createRefreshJwt(email, platform);
+
+        Optional<JwtRefresh> optJwtRefresh = jwtRefreshRepository.findByEmailAndPlatform(email, Platform.valueOf(platform));
+        optJwtRefresh.ifPresent(jwtRefresh -> jwtRefreshRepository.deleteByRefresh(jwtRefresh.getRefresh()));
 
         addRefreshEntity(email, platform, refreshToken); // Refresh 토큰은 DB 저장
 
