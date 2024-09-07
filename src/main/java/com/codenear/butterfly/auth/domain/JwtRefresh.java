@@ -21,6 +21,7 @@ public class JwtRefresh {
     private String email;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Platform platform;
 
     @Column(nullable = false)
