@@ -16,23 +16,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class AuthController {
+@RequestMapping("/auth")
+public class AuthController implements AuthControllerSwagger{
     private final AuthService authService;
     private final JwtService jwtService;
     private final EmailRegisterService emailRegisterService;
     private final MessageService messageService;
     private final EmailLoginService emailLoginService;
 
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody AuthRequestDTO authRequestDTO) {
         log.info(messageService.getMessage("log.registerRequest", authRequestDTO.getEmail()));
 
@@ -49,7 +47,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
         log.info(messageService.getMessage("log.loginRequest", requestDTO.getEmail(), requestDTO.getPlatform()));
