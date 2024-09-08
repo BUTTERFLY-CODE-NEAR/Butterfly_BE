@@ -2,13 +2,8 @@ package com.codenear.butterfly.auth.presentation;
 
 import com.codenear.butterfly.auth.application.AuthService;
 import com.codenear.butterfly.auth.application.MessageService;
-import com.codenear.butterfly.auth.application.email.EmailLoginService;
-import com.codenear.butterfly.auth.application.email.EmailRegisterService;
 import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
-import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
-import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.Platform;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,23 +18,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class AuthController implements AuthControllerSwagger{
+public class AuthController implements AuthControllerSwagger {
     private final AuthService authService;
     private final JwtService jwtService;
-    private final EmailRegisterService emailRegisterService;
     private final MessageService messageService;
-    private final EmailLoginService emailLoginService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequestDTO authRequestDTO) {
-        log.info(messageService.getMessage("log.registerRequest", authRequestDTO.getEmail()));
+    public ResponseEntity<String> register(@RequestBody AuthRequestDTO requestDTO) {
+        log.info(messageService.getMessage("log.registerRequest", requestDTO.getEmail()));
 
         try {
-            Member member = emailRegisterService.emailRegister(authRequestDTO);
-            log.info(messageService.getMessage("log.registerSuccess", member.getId()));
-
+            authService.handleRegistration(requestDTO);
+            log.info(messageService.getMessage("log.registerSuccess", requestDTO.getEmail()));
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(messageService.getMessage("success.register", member.getEmail()));
+                    .body(messageService.getMessage("success.register", requestDTO.getEmail()));
         } catch (RuntimeException e) {
             log.error(messageService.getMessage("log.registerFailure", e.getMessage()));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -53,25 +45,8 @@ public class AuthController implements AuthControllerSwagger{
         log.info(messageService.getMessage("log.loginRequest", requestDTO.getEmail(), requestDTO.getPlatform()));
 
         try {
-            if (requestDTO.getPlatform() == Platform.CODENEAR) {
-                log.info(messageService.getMessage("log.loginEmailAttempt", requestDTO.getEmail()));
-
-                CustomUserDetails loginUser = emailLoginService.login(requestDTO.getEmail(), requestDTO.getPassword());
-                jwtService.processTokens(requestDTO.getEmail(), requestDTO.getPlatform().name(), response);
-                log.info(messageService.getMessage("log.jwtCreated", loginUser.getEmail()));
-                log.info(messageService.getMessage("log.loginEmailSuccess", loginUser.getEmail()));
-
-                return ResponseEntity.ok(messageService.getMessage("log.loginEmailSuccess", loginUser.getEmail()));
-            } else {
-                log.info(messageService.getMessage("log.loginSocialAttempt", requestDTO.getEmail()));
-
-                authService.registerOrLogin(requestDTO);
-                jwtService.processTokens(requestDTO.getEmail(), requestDTO.getPlatform().name(), response);
-                log.info(messageService.getMessage("log.jwtCreated", requestDTO.getEmail()));
-                log.info(messageService.getMessage("log.loginSocialSuccess", requestDTO.getEmail()));
-
-                return ResponseEntity.ok(messageService.getMessage("log.loginSocialSuccess", requestDTO.getEmail()));
-            }
+            authService.handleLogin(requestDTO, response);
+            return ResponseEntity.ok(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
         } catch (BadCredentialsException e) {
             log.error(messageService.getMessage("error.badCredentials", requestDTO.getEmail()));
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
