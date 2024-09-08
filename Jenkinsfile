@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo/spring-boot-app.git'
+                git credentialsId: 'github-credentials', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE.git'
             }
         }
 
