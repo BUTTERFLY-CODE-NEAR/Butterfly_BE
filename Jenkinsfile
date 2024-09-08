@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE.git'
+                git credentialsId: 'github-credentials', branch: 'main', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE'
             }
         }
 
