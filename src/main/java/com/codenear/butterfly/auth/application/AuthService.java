@@ -12,6 +12,7 @@ import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,27 +32,46 @@ public class AuthService {
     private final MessageService messageService;
 
     public void handleRegistration(AuthRequestDTO requestDTO) {
-        Map<Platform, Runnable> platformActions = Map.of(
-                Platform.CODENEAR, () -> emailRegisterService.emailRegister(requestDTO),
-                Platform.KAKAO, () -> registerOrLogin(requestDTO),
-                Platform.GOOGLE, () -> registerOrLogin(requestDTO)
-        );
+        log.info(messageService.getMessage("log.registerRequest", requestDTO.getEmail()));
 
-        Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
-                .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
-                .run();
+        try {
+            Map<Platform, Runnable> platformActions = Map.of(
+                    Platform.CODENEAR, () -> emailRegisterService.emailRegister(requestDTO),
+                    Platform.KAKAO, () -> registerOrLogin(requestDTO),
+                    Platform.GOOGLE, () -> registerOrLogin(requestDTO)
+            );
+            Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
+                    .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
+                    .run();
+            log.info(messageService.getMessage("log.registerSuccess", requestDTO.getEmail()));
+        } catch (RuntimeException e) {
+            log.error(messageService.getMessage("log.registerFailure", e.getMessage()));
+            throw e;
+        }
     }
 
     public void handleLogin(AuthRequestDTO requestDTO, HttpServletResponse response) {
-        Map<Platform, Runnable> loginActions = Map.of(
-                Platform.CODENEAR, () -> emailLoginAndIssueJwt(requestDTO, response),
-                Platform.KAKAO, () -> socialLoginAndIssueJwt(requestDTO, response),
-                Platform.GOOGLE, () -> socialLoginAndIssueJwt(requestDTO, response)
-        );
+        log.info(messageService.getMessage("log.loginRequest", requestDTO.getEmail(), requestDTO.getPlatform()));
 
-        Optional.ofNullable(loginActions.get(requestDTO.getPlatform()))
-                .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
-                .run();
+        try {
+            Map<Platform, Runnable> loginActions = Map.of(
+                    Platform.CODENEAR, () -> emailLoginAndIssueJwt(requestDTO, response),
+                    Platform.KAKAO, () -> socialLoginAndIssueJwt(requestDTO, response),
+                    Platform.GOOGLE, () -> socialLoginAndIssueJwt(requestDTO, response)
+            );
+
+            Optional.ofNullable(loginActions.get(requestDTO.getPlatform()))
+                    .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
+                    .run();
+
+            log.info(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
+        } catch (BadCredentialsException e) {
+            log.error(messageService.getMessage("error.badCredentials", requestDTO.getEmail()));
+            throw e;
+        } catch (Exception e) {
+            log.error(messageService.getMessage("error.internalServerError", e.getMessage()));
+            throw e;
+        }
     }
 
     private void emailLoginAndIssueJwt(AuthRequestDTO requestDTO, HttpServletResponse response) {
