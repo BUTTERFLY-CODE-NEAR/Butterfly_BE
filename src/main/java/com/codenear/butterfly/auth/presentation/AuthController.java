@@ -27,37 +27,20 @@ public class AuthController implements AuthControllerSwagger {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody AuthRequestDTO requestDTO) {
-        try {
-            authService.handleRegistration(requestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(messageService.getMessage("success.register", requestDTO.getEmail()));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(messageService.getMessage("error.register"));
-        }
+        authService.handleRegistration(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(messageService.getMessage("success.register", requestDTO.getEmail()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
-        try {
-            authService.handleLogin(requestDTO, response);
-            return ResponseEntity.ok(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(messageService.getMessage("error.badCredentials", requestDTO.getEmail()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(messageService.getMessage("error.internalServerError", e.getMessage()));
-        }
+        authService.handleLogin(requestDTO, response);
+        return ResponseEntity.ok(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
     }
 
     @PostMapping("/reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            jwtService.processReissue(request, response);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(e.getMessage(), e.getStatusCode());
-        }
+        jwtService.processReissue(request, response);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
