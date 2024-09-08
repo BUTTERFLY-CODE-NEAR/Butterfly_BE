@@ -45,7 +45,7 @@ public class AuthService {
                     .run();
             log.info(messageService.getMessage("log.registerSuccess", requestDTO.getEmail()));
         } catch (RuntimeException e) {
-            log.error(messageService.getMessage("log.registerFailure", e.getMessage()));
+            log.error(messageService.getMessage("error.emailAlreadyInUse"));
             throw e;
         }
     }
@@ -66,10 +66,10 @@ public class AuthService {
 
             log.info(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
         } catch (BadCredentialsException e) {
-            log.error(messageService.getMessage("error.badCredentials", requestDTO.getEmail()));
+            log.error(e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error(messageService.getMessage("error.internalServerError", e.getMessage()));
+            log.error(messageService.getMessage("error.internalServerError"));
             throw e;
         }
     }

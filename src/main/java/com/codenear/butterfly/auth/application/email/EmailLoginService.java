@@ -23,8 +23,7 @@ public class EmailLoginService {
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(email);
 
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            log.warn(messageService.getMessage("log.invalidCredentials", email));
-            throw new BadCredentialsException(messageService.getMessage("error.invalidCredentials", email));
+            throw new BadCredentialsException(messageService.getMessage("error.badCredentials"));
         }
 
         log.info(messageService.getMessage("log.loginSuccess", email));
