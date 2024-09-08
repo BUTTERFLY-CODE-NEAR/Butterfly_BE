@@ -6,6 +6,7 @@ import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class AuthController implements AuthControllerSwagger {
     private final MessageService messageService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequestDTO requestDTO) {
+    public ResponseEntity<String> register(@Valid @RequestBody AuthRequestDTO requestDTO) {
         try {
             authService.handleRegistration(requestDTO);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -37,7 +38,7 @@ public class AuthController implements AuthControllerSwagger {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
         try {
             authService.handleLogin(requestDTO, response);
             return ResponseEntity.ok(messageService.getMessage("log.loginSuccess", requestDTO.getEmail()));
