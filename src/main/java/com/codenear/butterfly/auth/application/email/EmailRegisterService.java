@@ -23,20 +23,20 @@ public class EmailRegisterService {
     private final PasswordEncoder passwordEncoder;
     private final MessageService messageService;
 
-    public Member emailRegister(AuthRequestDTO authRequestDTO) {
-        if (hasMember(authRequestDTO)) {
+    public void emailRegister(AuthRequestDTO authRequestDTO) {
+        if (hasMember(authRequestDTO.getEmail())) {
             String errorMessage = messageService.getMessage("error.emailAlreadyInUse");
             log.error(errorMessage);
             throw new RuntimeException(errorMessage);
         }
 
         Member newMember = register(authRequestDTO);
-        return memberRepository.save(newMember);
+        memberRepository.save(newMember);
     }
 
-    private boolean hasMember(AuthRequestDTO authRequestDTO) {
+    private boolean hasMember(String email) {
         try {
-            userDetailsService.loadUserByUsername(authRequestDTO.getEmail());
+            userDetailsService.loadUserByUsername(email);
             return true;
         } catch (UsernameNotFoundException e) {
             return false;
