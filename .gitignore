@@ -29,6 +29,3 @@ out/
 **/application-secret.properties
 **/application-local.properties
 **/messages.properties
-
-### Jenkins ###
-Jenkinsfile
