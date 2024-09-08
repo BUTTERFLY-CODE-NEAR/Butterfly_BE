@@ -50,7 +50,7 @@ public class AuthService {
         );
 
         Optional.ofNullable(loginActions.get(requestDTO.getPlatform()))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid platform"))
+                .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
                 .run();
     }
 
