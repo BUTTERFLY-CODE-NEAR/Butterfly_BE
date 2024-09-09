@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.application;
+package com.codenear.butterfly.auth.exception.message;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class MessageUtil {
 
     private final MessageSource messageSource;
 

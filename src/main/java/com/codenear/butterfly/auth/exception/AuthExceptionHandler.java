@@ -1,6 +1,6 @@
 package com.codenear.butterfly.auth.exception;
 
-import com.codenear.butterfly.auth.application.MessageService;
+import com.codenear.butterfly.auth.exception.message.MessageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +13,11 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AuthExceptionHandler {
 
-    private final MessageService messageService;
+    private final MessageUtil messageUtil;
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException() {
-        String message = messageService.getMessage("error.emailAlreadyInUse");
+        String message = messageUtil.getMessage("error.emailAlreadyInUse");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(message);
     }
 
@@ -28,7 +28,7 @@ public class AuthExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<String> handleResponseStatusException() {
-        String message = messageService.getMessage("error.responseStatusException");
+        String message = messageUtil.getMessage("error.responseStatusException");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(message);
     }
 }
