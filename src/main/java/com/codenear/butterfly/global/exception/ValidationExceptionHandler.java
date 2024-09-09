@@ -20,10 +20,4 @@ public class ValidationExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleHttpMessageNotReadableException() {
-        String errorMessage = "직렬화 오류입니다. 요청 데이터를 확인해주세요.";
-        return ResponseEntity.badRequest().body(errorMessage);
-    }
 }
