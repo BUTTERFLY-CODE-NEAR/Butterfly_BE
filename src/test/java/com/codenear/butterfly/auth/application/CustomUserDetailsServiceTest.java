@@ -1,6 +1,7 @@
 package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.email.CustomUserDetailsService;
+import com.codenear.butterfly.auth.exception.message.MessageUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -35,8 +35,8 @@ class CustomUserDetailsServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        MessageService messageService = new MessageService(messageSource);
-        customUserDetailsService = new CustomUserDetailsService(memberRepository, messageService);
+        MessageUtil messageUtil = new MessageUtil(messageSource);
+        customUserDetailsService = new CustomUserDetailsService(memberRepository, messageUtil);
     }
 
     @Test
