@@ -1,4 +1,4 @@
-package com.codenear.butterfly.common.domain;
+package com.codenear.butterfly.global.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

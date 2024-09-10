@@ -104,7 +104,7 @@ public class AuthService {
                 .email(requestDTO.getEmail())
                 .nickname(requestDTO.getNickname())
                 .point(0)
-                .grade(Grade.LEVEL_1)
+                .grade(Grade.EGG)
                 .platform(requestDTO.getPlatform())
                 .build();
     }

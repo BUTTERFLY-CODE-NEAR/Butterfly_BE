@@ -1,6 +1,6 @@
 package com.codenear.butterfly.member.domain;
 
-import com.codenear.butterfly.common.domain.BaseEntity;
+import com.codenear.butterfly.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
