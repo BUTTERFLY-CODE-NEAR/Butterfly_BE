@@ -43,7 +43,7 @@ public class EmailRegisterService {
                 .nickname(requestDTO.getNickname())
                 .password(passwordEncoder.encode(requestDTO.getPassword()))
                 .point(0)
-                .grade(Grade.LEVEL_1)
+                .grade(Grade.EGG)
                 .platform(requestDTO.getPlatform())
                 .build();
     }
