@@ -12,7 +12,13 @@ public enum NicknameList {
     구름,
     달빛,
     강물,
-    햇살;
+    햇살,
+    노을,
+    반짝,
+    아침,
+    은하,
+    솔잎,
+    조각;
 
     private static final List<NicknameList> VALUES = List.of(values());
     private static final Random RANDOM = new Random();
