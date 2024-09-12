@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/nickname")
-public class NicknameApi {
+@RequestMapping("/member")
+public class NicknameApi implements NicknameApiSwagger {
 
     private final NicknameService nicknameService;
 
-    @GetMapping("/generate")
+    @GetMapping("/nickname/generate")
     public String nicknameGenerate() {
         return nicknameService.nicknameGenerator();
     }
