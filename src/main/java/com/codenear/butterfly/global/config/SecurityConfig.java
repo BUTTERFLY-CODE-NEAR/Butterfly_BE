@@ -3,7 +3,6 @@ package com.codenear.butterfly.global.config;
 import com.codenear.butterfly.auth.presentation.JwtFilter;
 import com.codenear.butterfly.auth.jwt.JwtUtil;
 import com.codenear.butterfly.global.property.SecurityProperties;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
