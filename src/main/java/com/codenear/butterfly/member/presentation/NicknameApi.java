@@ -2,19 +2,22 @@ package com.codenear.butterfly.member.presentation;
 
 import com.codenear.butterfly.member.application.NicknameService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/nickname")
-public class NicknameApi {
+@RequestMapping("/member")
+public class NicknameApi implements NicknameApiSwagger {
 
     private final NicknameService nicknameService;
 
-    @GetMapping("/generate")
-    public String nicknameGenerate() {
+    @GetMapping("/nickname/generate")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, String> nicknameGenerate() {
         return nicknameService.nicknameGenerator();
     }
 }

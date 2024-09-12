@@ -5,6 +5,8 @@ import com.codenear.butterfly.member.util.NicknameList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -13,18 +15,19 @@ public class NicknameService {
 
     private final MemberRepository memberRepository;
 
-    public String nicknameGenerator() {
+    public Map<String, String> nicknameGenerator() {
         String baseNickname = generateBaseNickname();
 
         if (!isNicknameExists(baseNickname)) {
-            return baseNickname;
+            return createResponse(baseNickname);
         }
 
         int maxNumber = findMaxNumberedNickname(baseNickname)
                 .map(this::extractNumberFromNickname)
                 .orElse(0);
 
-        return maxNumber == 0 ? baseNickname + "1" : baseNickname + (maxNumber + 1);
+        String generatedNickname = maxNumber == 0 ? baseNickname + "1" : baseNickname + (maxNumber + 1);
+        return createResponse(generatedNickname);
     }
 
     private Optional<String> findMaxNumberedNickname(String baseNickname) {
@@ -44,5 +47,11 @@ public class NicknameService {
 
     private String generateBaseNickname() {
         return NicknameList.getRandomNickname();
+    }
+
+    private Map<String, String> createResponse(String nickname) {
+        Map<String, String> response = new HashMap<>();
+        response.put("nickname", nickname);
+        return response;
     }
 }

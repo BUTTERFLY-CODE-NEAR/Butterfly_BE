@@ -42,4 +42,15 @@ public class SwaggerConfig {
                 .pathsToMatch(paths)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi member() {
+        String groupName = "닉네임 생성 Api";
+        String paths = "/member/**";
+
+        return GroupedOpenApi.builder()
+                .group(groupName)
+                .pathsToMatch(paths)
+                .build();
+    }
 }
