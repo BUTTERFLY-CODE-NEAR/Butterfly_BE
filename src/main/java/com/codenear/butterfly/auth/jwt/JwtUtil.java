@@ -14,6 +14,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    public static final String EMAIL = "email";
+    public static final String PLATFORM = "platform";
 
     @Value("${jwt.secret-key}")
     private String key;
@@ -37,32 +39,29 @@ public class JwtUtil {
     }
 
     public String createAccessJwt(String email, String platform) {
-        return createJwt("Access", email, platform, accessTokenExpirationMillis);
+        return createJwt(email, platform, accessTokenExpirationMillis);
     }
 
     public String createRefreshJwt(String email, String platform) {
-        return createJwt("Refresh", email, platform, refreshTokenExpirationMillis);
-    }
-
-    public String getCategory(String token) {
-        return getTokenInfo(token, "category");
+        return createJwt(email, platform, refreshTokenExpirationMillis);
     }
 
     public String getEmail(String token) {
-        return getTokenInfo(token, "email");
+        return getTokenInfo(token, EMAIL);
     }
 
     public String getPlatform(String token) {
-        return getTokenInfo(token, "platform");
+        return getTokenInfo(token, PLATFORM);
     }
 
     public void isExpired(String token) {
-        Jwts.parser()
+         Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
-                .getExpiration();
+                .getExpiration()
+                .before(new Date());
     }
 
     public JwtRefresh buildRefreshEntity(String email, Platform platform, String refresh) {
@@ -74,11 +73,10 @@ public class JwtUtil {
                 .build();
     }
 
-    private String createJwt(String category, String email, String platform, Long tokenExpirationMillis) {
+    private String createJwt(String email, String platform, Long tokenExpirationMillis) {
         return Jwts.builder()
-                .claim("category", category)
-                .claim("email", email)
-                .claim("platform", platform)
+                .claim(EMAIL, email)
+                .claim(PLATFORM, platform)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + tokenExpirationMillis))
                 .signWith(secretKey)
