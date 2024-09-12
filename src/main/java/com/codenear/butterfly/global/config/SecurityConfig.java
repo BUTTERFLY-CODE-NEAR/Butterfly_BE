@@ -29,8 +29,6 @@ public class SecurityConfig {
 
     private final SecurityProperties securityProperties;
     private final JwtUtil jwtUtil;
-    private final MemberRepository memberRepository;
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,7 +51,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers("/test").hasAuthority("ROLE_LEVEL_1")
+                        .requestMatchers("/test").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
@@ -62,7 +60,7 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil, memberRepository), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, securityProperties), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
