@@ -11,7 +11,7 @@ public class ResponseUtil {
     private static final HttpStatus DEFAULT_SUCCESS_STATUS = HttpStatus.OK;
 
     public static ResponseEntity<?> createSuccessResponse(Object body) {
-        return createSuccessResponse(DEFAULT_SUCCESS_STATUS ,DEFAULT_SUCCESS_MESSAGE, body);
+        return createSuccessResponse(DEFAULT_SUCCESS_STATUS , DEFAULT_SUCCESS_MESSAGE, body);
     }
 
     public static ResponseEntity<?> createSuccessResponse(String message, Object body) {
