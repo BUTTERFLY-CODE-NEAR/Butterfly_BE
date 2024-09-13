@@ -66,7 +66,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean isTokenNull(HttpServletResponse response, String accessToken) throws IOException {
         if (accessToken == null || !accessToken.startsWith("Bearer ")) {
-            writeResponse(response, ErrorCode.NULL_JWT_TOKEN);
+            writeResponse(response, ErrorCode.NULL_JWT_ACCESS_TOKEN);
             return true;
         }
         return false;
@@ -76,10 +76,10 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) {
-            writeResponse(response, ErrorCode.EXPIRED_JWT_TOKEN);
+            writeResponse(response, ErrorCode.EXPIRED_JWT_ACCESS_TOKEN);
             return true;
         } catch (SignatureException e) {
-            writeResponse(response, ErrorCode.INVALID_JWT_SIGNATURE);
+            writeResponse(response, ErrorCode.INVALID_JWT_ACCESS_SIGNATURE);
             return true;
         }
         return false;
