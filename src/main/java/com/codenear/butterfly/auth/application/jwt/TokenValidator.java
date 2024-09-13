@@ -3,13 +3,10 @@ package com.codenear.butterfly.auth.application.jwt;
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.auth.jwt.JwtUtil;
-import com.codenear.butterfly.global.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import static com.codenear.butterfly.global.exception.ErrorCode.*;
 
