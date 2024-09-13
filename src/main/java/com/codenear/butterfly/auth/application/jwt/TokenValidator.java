@@ -1,13 +1,14 @@
 package com.codenear.butterfly.auth.application.jwt;
 
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
+import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.auth.jwt.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+
+import static com.codenear.butterfly.global.exception.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor
@@ -17,22 +18,18 @@ public class TokenValidator {
 
     public void validateRefreshToken(String token) {
         if (token == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh 토큰이 존재하지 않습니다.");
+            throw new AuthException(NULL_JWT_REFRESH_TOKEN, null);
 
         try {
             jwtUtil.isExpired(token);
         } catch (ExpiredJwtException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh 토큰 기간이 만료 되었습니다.");
+            throw new AuthException(EXPIRED_JWT_REFRESH_TOKEN, null);
         } catch (SignatureException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 Refresh 토큰 입니다.");
+            throw new AuthException(INVALID_JWT_REFRESH_SIGNATURE, null);
         }
-
-        String category = jwtUtil.getCategory(token);
-        if (!category.equals("Refresh"))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰의 유형이 Refresh 가 아닙니다.");
 
         Boolean isExist = jwtRefreshRepository.existsByRefresh(token);
         if (!isExist)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "사용할 수 없는 토큰입니다.");
+            throw new AuthException(BLACKLIST_JWT_REFRESH_TOKEN, null);
     }
 }
