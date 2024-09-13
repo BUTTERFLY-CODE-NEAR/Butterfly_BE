@@ -5,6 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 public class CookieUtil {
     @Value("${jwt.refresh-token-expiration-millis}")
@@ -12,20 +14,22 @@ public class CookieUtil {
 
     public Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 24 * 24);
+        cookie.setMaxAge((int) (refreshTokenExpirationMillis / 1000)); // setMaxAge(초) 초 단위라 Millis / 1000로 변환
         cookie.setHttpOnly(true);
 
         return cookie;
     }
 
     public String getRefreshCookie(HttpServletRequest request) {
-        String refresh = null;
-
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies)
-            if (cookie.getName().equals("Refresh"))
-                refresh = cookie.getValue();
 
-        return refresh;
+        if (cookies == null)
+            return null;
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "Refresh".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }
