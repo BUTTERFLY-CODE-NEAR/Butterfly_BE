@@ -38,8 +38,9 @@ public class AuthService {
                 Platform.KAKAO, () -> registerOrLogin(requestDTO),
                 Platform.GOOGLE, () -> registerOrLogin(requestDTO)
         );
+
         Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
-                .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
+                .orElseThrow(() -> new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform()))
                 .run();
     }
 
@@ -52,7 +53,7 @@ public class AuthService {
             );
 
             Optional.ofNullable(loginActions.get(requestDTO.getPlatform()))
-                    .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
+                    .orElseThrow(() -> new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform()))
                     .run();
 
         } catch (BadCredentialsException e) {

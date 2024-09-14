@@ -1,7 +1,7 @@
 package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.email.CustomUserDetailsService;
-import com.codenear.butterfly.auth.exception.message.MessageUtil;
+import com.codenear.butterfly.global.util.MessageUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
