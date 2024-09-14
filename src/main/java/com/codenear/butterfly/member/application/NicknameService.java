@@ -32,7 +32,7 @@ public class NicknameService {
 
             String generatedNickname = maxNumber == 0 ? baseNickname + "1" : baseNickname + (maxNumber + 1);
             return createResponse(generatedNickname);
-        } catch (RuntimeException e) {
+        } catch (MemberException e) {
             throw new MemberException(ErrorCode.NICKNAME_GENERATION_FAILED, null);
         }
     }
@@ -41,7 +41,7 @@ public class NicknameService {
         try {
             return memberRepository.findMaxNumberedNickname(baseNickname);
         } catch (DataAccessException e) {
-            throw new MemberException(ErrorCode.DATABASE_ERROR, baseNickname);
+            throw new MemberException(ErrorCode.SERVER_ERROR, baseNickname);
         }
     }
 
@@ -60,7 +60,7 @@ public class NicknameService {
         try {
             return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
         } catch (DataAccessException e) {
-            throw new MemberException(ErrorCode.DATABASE_ERROR, baseNickname);
+            throw new MemberException(ErrorCode.SERVER_ERROR, baseNickname);
         }
     }
 
