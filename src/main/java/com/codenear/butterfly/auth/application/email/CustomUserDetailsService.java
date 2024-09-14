@@ -3,7 +3,7 @@ package com.codenear.butterfly.auth.application.email;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.global.util.MessageUtil;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

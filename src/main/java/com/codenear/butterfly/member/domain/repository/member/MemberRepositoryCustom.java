@@ -1,4 +1,4 @@
-package com.codenear.butterfly.member.domain.repository;
+package com.codenear.butterfly.member.domain.repository.member;
 
 import java.util.Optional;
 

@@ -17,6 +17,6 @@ public class NicknameApi implements NicknameApiSwagger {
     @GetMapping("/nickname/generate")
     @ResponseStatus(HttpStatus.OK)
     public Map<String, String> nicknameGenerate() {
-        return nicknameService.nicknameGenerator();
+        return nicknameService.nicknameGenerateResponse();
     }
 }

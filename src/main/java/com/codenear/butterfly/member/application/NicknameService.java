@@ -1,7 +1,7 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;
 import lombok.RequiredArgsConstructor;
@@ -18,20 +18,24 @@ public class NicknameService {
 
     private final MemberRepository memberRepository;
 
-    public Map<String, String> nicknameGenerator() {
+    public Map<String, String> nicknameGenerateResponse() {
+        String generatedNickname = generateNickname();
+        return createResponse(generatedNickname);
+    }
+
+    public String generateNickname() {
         try {
             String baseNickname = generateBaseNickname();
 
             if (!isNicknameExists(baseNickname)) {
-                return createResponse(baseNickname);
+                return baseNickname;
             }
 
             int maxNumber = findMaxNumberedNickname(baseNickname)
                     .map(this::extractNumberFromNickname)
                     .orElse(0);
 
-            String generatedNickname = maxNumber == 0 ? baseNickname + "1" : baseNickname + (maxNumber + 1);
-            return createResponse(generatedNickname);
+            return maxNumber == 0 ? baseNickname + "1" : baseNickname + (maxNumber + 1);
         } catch (MemberException e) {
             throw new MemberException(ErrorCode.NICKNAME_GENERATION_FAILED, null);
         }

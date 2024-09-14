@@ -1,4 +1,4 @@
-package com.codenear.butterfly.member.domain.repository;
+package com.codenear.butterfly.member.domain.repository.member;
 
 import com.codenear.butterfly.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

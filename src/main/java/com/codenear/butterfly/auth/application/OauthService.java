@@ -5,7 +5,7 @@ import com.codenear.butterfly.auth.domain.dto.OauthDTO;
 import com.codenear.butterfly.member.application.NicknameService;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
