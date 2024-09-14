@@ -35,7 +35,7 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi auth() {
         String groupName = "회원가입, 로그인 API 명세";
-        String paths = "/auth/**";
+        String[] paths = new String[]{"/auth/**", "/oauth/**"};
 
         return GroupedOpenApi.builder()
                 .group(groupName)
