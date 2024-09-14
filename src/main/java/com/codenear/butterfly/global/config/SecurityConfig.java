@@ -1,7 +1,7 @@
 package com.codenear.butterfly.global.config;
 
 import com.codenear.butterfly.auth.presentation.JwtFilter;
-import com.codenear.butterfly.auth.jwt.JwtUtil;
+import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.global.property.SecurityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -50,7 +50,6 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers("/test").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf

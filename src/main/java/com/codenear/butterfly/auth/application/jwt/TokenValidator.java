@@ -2,7 +2,7 @@ package com.codenear.butterfly.auth.application.jwt;
 
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
 import com.codenear.butterfly.auth.exception.AuthException;
-import com.codenear.butterfly.auth.jwt.JwtUtil;
+import com.codenear.butterfly.auth.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;

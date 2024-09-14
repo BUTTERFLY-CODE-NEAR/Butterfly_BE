@@ -1,6 +1,6 @@
 package com.codenear.butterfly.auth.presentation;
 
-import com.codenear.butterfly.auth.jwt.JwtUtil;
+import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.property.SecurityProperties;
