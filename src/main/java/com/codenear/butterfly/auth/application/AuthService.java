@@ -58,8 +58,6 @@ public class AuthService {
 
         } catch (BadCredentialsException e) {
             throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
-        } catch (AuthException e) {
-            throw new AuthException(ErrorCode.SERVER_ERROR, null);
         }
     }
 
