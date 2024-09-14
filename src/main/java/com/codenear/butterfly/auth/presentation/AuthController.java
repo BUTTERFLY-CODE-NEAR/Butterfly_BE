@@ -1,11 +1,10 @@
 package com.codenear.butterfly.auth.presentation;
 
 import com.codenear.butterfly.auth.application.AuthService;
-import com.codenear.butterfly.auth.exception.message.MessageUtil;
 import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.global.util.ResponseUtil;
+import com.codenear.butterfly.global.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

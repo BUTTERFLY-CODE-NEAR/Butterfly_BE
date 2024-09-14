@@ -1,11 +1,11 @@
-package com.codenear.butterfly.auth.exception.message;
+package com.codenear.butterfly.global.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class MessageUtil {
 
