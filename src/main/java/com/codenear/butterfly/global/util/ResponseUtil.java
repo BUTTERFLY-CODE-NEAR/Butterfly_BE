@@ -25,11 +25,15 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity<ResponseDTO> createErrorResponse(ErrorCode errorCode, Object body) {
+        return createErrorResponse(errorCode, errorCode.getMessage(), body);
+    }
+
+    public static ResponseEntity<ResponseDTO> createErrorResponse(ErrorCode errorCode, String message, Object body) {
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(new ResponseDTO(
                         errorCode.getCode(),
-                        errorCode.getMessage(),
+                        message,
                         body)
                 );
     }
