@@ -2,8 +2,8 @@ package com.codenear.butterfly.auth.application.jwt;
 
 import com.codenear.butterfly.auth.domain.JwtRefresh;
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
-import com.codenear.butterfly.auth.jwt.CookieUtil;
-import com.codenear.butterfly.auth.jwt.JwtUtil;
+import com.codenear.butterfly.auth.util.CookieUtil;
+import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.member.domain.Platform;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
