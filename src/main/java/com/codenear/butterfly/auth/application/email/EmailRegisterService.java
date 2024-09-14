@@ -1,6 +1,8 @@
 package com.codenear.butterfly.auth.application.email;
 
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.exception.AuthException;
+import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
@@ -21,7 +23,7 @@ public class EmailRegisterService {
 
     public void emailRegister(AuthRequestDTO authRequestDTO) {
         if (hasMember(authRequestDTO.getEmail())) {
-            throw new RuntimeException();
+            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRequestDTO.getEmail());
         }
 
         Member newMember = register(authRequestDTO);
