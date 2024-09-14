@@ -35,18 +35,28 @@ public class ForbiddenWordFilter {
     public boolean containsForbiddenWord(String text) {
         String filteredText = text.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣]", "");
 
-        for (int i = 0; i < filteredText.length(); i++) {
-            TrieNode node = root;
-            for (int j = i; j < filteredText.length(); j++) {
-                node = node.getChildren().get(filteredText.charAt(j));
-                if (node == null) {
-                    break;
-                }
-                if (node.isEndOfWord()) {
-                    return true;
-                }
+        for (ForbiddenWord word : forbiddenWordRepository.findAll()) {
+            if (isForbiddenWordInText(filteredText, word.getWord())) {
+                return true;
             }
         }
+
+        return false;
+    }
+
+    private boolean isForbiddenWordInText(String text, String forbiddenWord) {
+        String cleanedForbiddenWord = forbiddenWord.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣]", "");
+
+        int index = 0;
+        for (char c : text.toCharArray()) {
+            if (c == cleanedForbiddenWord.charAt(index)) {
+                index++;
+            }
+            if (index == cleanedForbiddenWord.length()) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
