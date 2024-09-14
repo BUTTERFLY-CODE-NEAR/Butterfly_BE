@@ -1,7 +1,8 @@
 package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.jwt.JwtService;
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.OauthDTO;
+import com.codenear.butterfly.member.application.NicknameService;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.MemberRepository;
@@ -16,28 +17,30 @@ import java.util.Optional;
 public class OauthService {
     private final MemberRepository memberRepository;
     private final JwtService jwtService;
+    private final NicknameService nicknameService;
 
-    public void socialLoginAndIssueJwt(AuthRequestDTO requestDTO, HttpServletResponse response) {
-        registerOrLogin(requestDTO);
-        jwtService.processTokens(requestDTO.getEmail(), requestDTO.getPlatform().name(), response);
+    public void socialLoginAndIssueJwt(OauthDTO dto, HttpServletResponse response) {
+        registerOrLogin(dto);
+        jwtService.processTokens(dto.getEmail(), dto.getPlatform().name(), response);
     }
 
-    private void registerOrLogin(AuthRequestDTO requestDTO) {
-        Optional<Member> optMember = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform());
+    private void registerOrLogin(OauthDTO dto) {
+        Optional<Member> optMember = memberRepository.findByEmailAndPassword(dto.getEmail(), dto.getOauthId());
 
         if (optMember.isEmpty()) {
-            Member registerMember = register(requestDTO);
-            memberRepository.save(registerMember);
+            Member member = createMember(dto);
+            memberRepository.save(member);
         }
     }
 
-    private Member register(AuthRequestDTO requestDTO) {
+    private Member createMember(OauthDTO dto) {
         return Member.builder()
-                .email(requestDTO.getEmail())
-                .nickname(requestDTO.getNickname())
+                .email(dto.getEmail())
+                .password(dto.getOauthId())
+                .nickname("test_NickName") // todo : 추후 랜덤 닉네임으로 변경
                 .point(0)
                 .grade(Grade.EGG)
-                .platform(requestDTO.getPlatform())
+                .platform(dto.getPlatform())
                 .build();
     }
 }
