@@ -1,6 +1,5 @@
 package com.codenear.butterfly.auth.application;
 
-import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.OauthDTO;
 import com.codenear.butterfly.member.application.NicknameService;
 import com.codenear.butterfly.member.domain.Grade;
@@ -37,7 +36,7 @@ public class OauthService {
         return Member.builder()
                 .email(dto.getEmail())
                 .password(dto.getOauthId())
-                .nickname("test_NickName") // todo : 추후 랜덤 닉네임으로 변경
+                .nickname(nicknameService.generateNickname())
                 .point(0)
                 .grade(Grade.EGG)
                 .platform(dto.getPlatform())

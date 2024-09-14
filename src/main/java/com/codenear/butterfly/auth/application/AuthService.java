@@ -2,7 +2,6 @@ package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.email.EmailLoginService;
 import com.codenear.butterfly.auth.application.email.EmailRegisterService;
-import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.auth.exception.AuthException;
