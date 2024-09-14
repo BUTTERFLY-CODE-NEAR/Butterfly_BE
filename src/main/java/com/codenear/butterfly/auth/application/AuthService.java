@@ -6,21 +6,13 @@ import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.auth.exception.AuthException;
-import com.codenear.butterfly.auth.exception.message.MessageUtil;
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.domain.Grade;
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
-import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,46 +20,24 @@ import java.util.Optional;
 @Transactional
 public class AuthService {
 
-    private final MemberRepository memberRepository;
     private final EmailRegisterService emailRegisterService;
     private final EmailLoginService emailLoginService;
     private final JwtService jwtService;
 
     public void handleRegistration(AuthRequestDTO requestDTO) {
-        Map<Platform, Runnable> platformActions = Map.of(
-                Platform.CODENEAR, () -> emailRegisterService.emailRegister(requestDTO),
-//                Platform.KAKAO, () -> registerOrLogin(requestDTO),
-//                Platform.GOOGLE, () -> registerOrLogin(requestDTO)
-        );
+        if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
+            throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
+        }
 
-        Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
-                .orElseThrow(() -> new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform()))
-                .run();
+        emailRegisterService.emailRegister(requestDTO);
     }
 
     public void handleLogin(AuthRequestDTO requestDTO, HttpServletResponse response) {
-        try {
-            Map<Platform, Runnable> loginActions = Map.of(
-                    Platform.CODENEAR, () -> emailLoginAndIssueJwt(requestDTO, response),
-//                    Platform.KAKAO, () -> socialLoginAndIssueJwt(requestDTO, response),
-//                    Platform.GOOGLE, () -> socialLoginAndIssueJwt(requestDTO, response)
-            );
-
-            Optional.ofNullable(loginActions.get(requestDTO.getPlatform()))
-                    .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
-                    .run();
-
-        } catch (BadCredentialsException e) {
+        if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
             throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
         }
-    }
 
-    private void emailLoginAndIssueJwt(AuthRequestDTO requestDTO, HttpServletResponse response) {
         CustomUserDetails loginUser = emailLoginService.login(requestDTO.getEmail(), requestDTO.getPassword());
-        issueJwtTokens(loginUser.getEmail(), requestDTO.getPlatform().name(), response);
-    }
-
-    private void issueJwtTokens(String email, String platform, HttpServletResponse response) {
-        jwtService.processTokens(email, platform, response);
+        jwtService.processTokens(loginUser.getEmail(), requestDTO.getPlatform().name(), response);
     }
 }
