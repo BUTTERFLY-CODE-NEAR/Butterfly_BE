@@ -5,7 +5,8 @@ import com.codenear.butterfly.auth.application.email.EmailRegisterService;
 import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
-import com.codenear.butterfly.auth.exception.message.MessageUtil;
+import com.codenear.butterfly.auth.exception.AuthException;
+import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
@@ -30,30 +31,19 @@ public class AuthService {
     private final EmailRegisterService emailRegisterService;
     private final EmailLoginService emailLoginService;
     private final JwtService jwtService;
-    private final MessageUtil messageUtil;
 
     public void handleRegistration(AuthRequestDTO requestDTO) {
-        log.info(messageUtil.getMessage("log.registerRequest", requestDTO.getEmail()));
-
-        try {
-            Map<Platform, Runnable> platformActions = Map.of(
-                    Platform.CODENEAR, () -> emailRegisterService.emailRegister(requestDTO),
-                    Platform.KAKAO, () -> registerOrLogin(requestDTO),
-                    Platform.GOOGLE, () -> registerOrLogin(requestDTO)
-            );
-            Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
-                    .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
-                    .run();
-            log.info(messageUtil.getMessage("log.registerSuccess", requestDTO.getEmail()));
-        } catch (RuntimeException e) {
-            log.error(messageUtil.getMessage("error.emailAlreadyInUse"));
-            throw e;
-        }
+        Map<Platform, Runnable> platformActions = Map.of(
+                Platform.CODENEAR, () -> emailRegisterService.emailRegister(requestDTO),
+                Platform.KAKAO, () -> registerOrLogin(requestDTO),
+                Platform.GOOGLE, () -> registerOrLogin(requestDTO)
+        );
+        Optional.ofNullable(platformActions.get(requestDTO.getPlatform()))
+                .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
+                .run();
     }
 
     public void handleLogin(AuthRequestDTO requestDTO, HttpServletResponse response) {
-        log.info(messageUtil.getMessage("log.loginRequest", requestDTO.getEmail(), requestDTO.getPlatform()));
-
         try {
             Map<Platform, Runnable> loginActions = Map.of(
                     Platform.CODENEAR, () -> emailLoginAndIssueJwt(requestDTO, response),
@@ -65,13 +55,10 @@ public class AuthService {
                     .orElseThrow(() -> new IllegalArgumentException("제공하지 않는 플랫폼입니다."))
                     .run();
 
-            log.info(messageUtil.getMessage("log.loginSuccess", requestDTO.getEmail()));
         } catch (BadCredentialsException e) {
-            log.error(e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error(messageUtil.getMessage("error.internalServerError"));
-            throw e;
+            throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
+        } catch (AuthException e) {
+            throw new AuthException(ErrorCode.SERVER_ERROR, null);
         }
     }
 
@@ -87,7 +74,6 @@ public class AuthService {
 
     private void issueJwtTokens(String email, String platform, HttpServletResponse response) {
         jwtService.processTokens(email, platform, response);
-        log.info(messageUtil.getMessage("log.jwtCreated", email));
     }
 
     public void registerOrLogin(AuthRequestDTO requestDTO) {
