@@ -29,6 +29,7 @@ out/
 **/application-secret.properties
 **/application-local.properties
 **/messages.properties
+**/data.sql
 
 ### Querydsl ###
 **/src/main/generated
