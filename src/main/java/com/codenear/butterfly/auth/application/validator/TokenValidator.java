@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.application.jwt;
+package com.codenear.butterfly.auth.application.validator;
 
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
 import com.codenear.butterfly.auth.exception.AuthException;
