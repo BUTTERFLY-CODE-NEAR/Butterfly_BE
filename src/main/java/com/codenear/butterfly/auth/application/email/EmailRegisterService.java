@@ -5,7 +5,7 @@ import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.repository.MemberRepository;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
