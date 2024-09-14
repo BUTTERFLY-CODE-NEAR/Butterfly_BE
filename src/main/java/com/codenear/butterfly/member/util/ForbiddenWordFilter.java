@@ -2,8 +2,9 @@ package com.codenear.butterfly.member.util;
 
 import com.codenear.butterfly.member.domain.ForbiddenWord;
 import com.codenear.butterfly.member.domain.repository.nickname.ForbiddenWordRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,10 +16,11 @@ public class ForbiddenWordFilter {
     private final ForbiddenWordRepository forbiddenWordRepository;
     private TrieNode root;
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         root = new TrieNode();
         List<ForbiddenWord> forbiddenWords = forbiddenWordRepository.findAll();
+        System.out.println("Forbidden words from DB: " + forbiddenWords);
         forbiddenWords.forEach(word -> insert(word.getWord()));
     }
 
@@ -31,14 +33,18 @@ public class ForbiddenWordFilter {
     }
 
     public boolean containsForbiddenWord(String text) {
-        TrieNode node = root;
-        for (char c : text.toCharArray()) {
-            node = node.getChildren().get(c);
-            if (node == null) {
-                return false;
-            }
-            if (node.isEndOfWord()) {
-                return true;
+        String filteredText = text.replaceAll("[^ㄱ-ㅎㅏ-ㅣ가-힣]", "");
+
+        for (int i = 0; i < filteredText.length(); i++) {
+            TrieNode node = root;
+            for (int j = i; j < filteredText.length(); j++) {
+                node = node.getChildren().get(filteredText.charAt(j));
+                if (node == null) {
+                    break;
+                }
+                if (node.isEndOfWord()) {
+                    return true;
+                }
             }
         }
         return false;
