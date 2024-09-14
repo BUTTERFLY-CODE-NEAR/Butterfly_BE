@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.jwt;
+package com.codenear.butterfly.auth.util;
 
 import com.codenear.butterfly.auth.domain.JwtRefresh;
 import com.codenear.butterfly.member.domain.Platform;

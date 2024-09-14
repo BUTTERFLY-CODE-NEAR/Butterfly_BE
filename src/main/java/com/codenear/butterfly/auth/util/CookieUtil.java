@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.jwt;
+package com.codenear.butterfly.auth.util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
