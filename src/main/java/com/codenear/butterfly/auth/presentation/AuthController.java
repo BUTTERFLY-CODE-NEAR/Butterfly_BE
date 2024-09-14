@@ -4,6 +4,8 @@ import com.codenear.butterfly.auth.application.AuthService;
 import com.codenear.butterfly.auth.exception.message.MessageUtil;
 import com.codenear.butterfly.auth.application.jwt.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.global.dto.ResponseDTO;
+import com.codenear.butterfly.global.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.codenear.butterfly.global.util.ResponseUtil.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -24,21 +28,20 @@ public class AuthController implements AuthControllerSwagger {
     private final MessageUtil messageUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody AuthRequestDTO requestDTO) {
+    public ResponseEntity<ResponseDTO> register(@Valid @RequestBody AuthRequestDTO requestDTO) {
         authService.handleRegistration(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(messageUtil.getMessage("success.register", requestDTO.getEmail()));
+        return createSuccessResponse(HttpStatus.CREATED, messageUtil.getMessage("success.register", requestDTO.getEmail()), null);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
+    public ResponseEntity<ResponseDTO> login(@Valid @RequestBody AuthRequestDTO requestDTO, HttpServletResponse response) {
         authService.handleLogin(requestDTO, response);
-        return ResponseEntity.ok(messageUtil.getMessage("log.loginSuccess", requestDTO.getEmail()));
+        return createSuccessResponse(messageUtil.getMessage("log.loginSuccess", requestDTO.getEmail()), null);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<ResponseDTO> reissue(HttpServletRequest request, HttpServletResponse response) {
         jwtService.processReissue(request, response);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return createSuccessResponse(null);
     }
 }
