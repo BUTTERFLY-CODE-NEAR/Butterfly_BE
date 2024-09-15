@@ -1,6 +1,6 @@
 package com.codenear.butterfly.auth.domain.dto;
 
-import com.codenear.butterfly.auth.validator.ValidPassword;
+import com.codenear.butterfly.auth.annotation.ValidPassword;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

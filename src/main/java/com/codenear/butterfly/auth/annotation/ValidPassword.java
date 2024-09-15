@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.validator;
+package com.codenear.butterfly.auth.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
