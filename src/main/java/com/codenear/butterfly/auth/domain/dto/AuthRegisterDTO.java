@@ -1,10 +1,7 @@
 package com.codenear.butterfly.auth.domain.dto;
 
 import com.codenear.butterfly.auth.validator.ValidPassword;
-import com.codenear.butterfly.member.domain.Platform;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -29,8 +26,4 @@ public class AuthRegisterDTO {
     @NotNull
     private String nickname;
 
-    @Schema(description = "가입 경로 종류", examples = {"GOOGLE", "KAKAO", "CODENEAR"})
-    @Enumerated(EnumType.STRING)
-    @NotNull(message = "가입 경로가 올바르지 않습니다.")
-    private Platform platform;
 }
