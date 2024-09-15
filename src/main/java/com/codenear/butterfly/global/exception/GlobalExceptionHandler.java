@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ResponseDTO> uncheckException(Exception ex) {
+    public ResponseEntity<ResponseDTO> uncheckException(RuntimeException ex) {
         log.error(ERROR_MESSAGE, ex.getMessage(), ex);
         return createErrorResponse(ErrorCode.SERVER_ERROR, null);
     }
