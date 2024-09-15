@@ -2,7 +2,8 @@ package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.application.email.EmailLoginService;
 import com.codenear.butterfly.auth.application.email.EmailRegisterService;
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthLoginDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.global.exception.ErrorCode;
@@ -23,7 +24,7 @@ public class AuthService {
     private final EmailLoginService emailLoginService;
     private final JwtService jwtService;
 
-    public void handleRegistration(AuthRequestDTO requestDTO) {
+    public void handleRegistration(AuthRegisterDTO requestDTO) {
         if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
             throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
         }
@@ -31,7 +32,7 @@ public class AuthService {
         emailRegisterService.emailRegister(requestDTO);
     }
 
-    public void handleLogin(AuthRequestDTO requestDTO, HttpServletResponse response) {
+    public void handleLogin(AuthLoginDTO requestDTO, HttpServletResponse response) {
         if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
             throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
         }

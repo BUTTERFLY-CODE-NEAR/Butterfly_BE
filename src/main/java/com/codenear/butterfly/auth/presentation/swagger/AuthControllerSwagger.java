@@ -1,6 +1,7 @@
 package com.codenear.butterfly.auth.presentation.swagger;
 
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthLoginDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,11 +17,11 @@ public interface AuthControllerSwagger {
 
     @Operation(summary = "CODE NEAR 회원가입", description = "CODE NEAR 플랫폼으로만 가능한 회원가입 API")
     @PostMapping(value = "/register")
-    ResponseEntity<ResponseDTO> register(AuthRequestDTO authRequestDTO);
+    ResponseEntity<ResponseDTO> register(AuthRegisterDTO authRegisterDTO);
 
     @Operation(summary = "로그인 API", description = "모든 플랫폼 로그인 API (KAKAO, GOOGLE 회원가입은 해당 API 요청시, 회원가입 / 로그인 동시 처리) Access, Refresh 토큰 발급")
     @PostMapping(value = "/login")
-    ResponseEntity<ResponseDTO> login(AuthRequestDTO requestDTO, HttpServletResponse response);
+    ResponseEntity<ResponseDTO> login(AuthLoginDTO requestDTO, HttpServletResponse response);
 
     @Operation(summary = "토큰 재발급 API", description = "Access, Refresh 토큰 재발급 <br> 요청시 **Refresh 쿠키 전달 필수**")
     @ApiResponses({
