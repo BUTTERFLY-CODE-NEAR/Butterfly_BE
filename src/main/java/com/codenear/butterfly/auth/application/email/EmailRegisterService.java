@@ -1,6 +1,6 @@
 package com.codenear.butterfly.auth.application.email;
 
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
@@ -23,14 +23,14 @@ public class EmailRegisterService {
     private final PasswordEncoder passwordEncoder;
     private final ForbiddenWordFilter forbiddenWordFilter;
 
-    public void emailRegister(AuthRequestDTO authRequestDTO) {
-        if (hasMember(authRequestDTO.getEmail())) {
-            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRequestDTO.getEmail());
+    public void emailRegister(AuthRegisterDTO authRegisterDTO) {
+        if (hasMember(authRegisterDTO.getEmail())) {
+            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
         }
 
-        validateNickname(authRequestDTO.getNickname());
+        validateNickname(authRegisterDTO.getNickname());
 
-        Member newMember = register(authRequestDTO);
+        Member newMember = register(authRegisterDTO);
         memberRepository.save(newMember);
     }
 
@@ -49,7 +49,7 @@ public class EmailRegisterService {
         }
     }
 
-    private Member register(AuthRequestDTO requestDTO) {
+    private Member register(AuthRegisterDTO requestDTO) {
         return Member.builder()
                 .email(requestDTO.getEmail())
                 .nickname(requestDTO.getNickname())

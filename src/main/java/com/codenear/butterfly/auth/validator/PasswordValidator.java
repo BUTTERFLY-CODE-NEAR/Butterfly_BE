@@ -1,17 +1,17 @@
 package com.codenear.butterfly.auth.validator;
 
-import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.member.domain.Platform;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PasswordValidator implements ConstraintValidator<ValidPassword, AuthRequestDTO> {
+public class PasswordValidator implements ConstraintValidator<ValidPassword, AuthRegisterDTO> {
 
     private static final int MIN_PASSWORD_LENGTH = 10;
     private static final int MAX_PASSWORD_LENGTH = 18;
 
     @Override
-    public boolean isValid(AuthRequestDTO authRequestDTO, ConstraintValidatorContext context) {
+    public boolean isValid(AuthRegisterDTO authRequestDTO, ConstraintValidatorContext context) {
         Platform platform = authRequestDTO.getPlatform();
         String password = authRequestDTO.getPassword();
 
