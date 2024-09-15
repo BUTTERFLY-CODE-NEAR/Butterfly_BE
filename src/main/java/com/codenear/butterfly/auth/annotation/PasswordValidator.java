@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.validator;
+package com.codenear.butterfly.auth.annotation;
 
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.member.domain.Platform;
