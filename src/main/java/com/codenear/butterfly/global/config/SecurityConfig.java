@@ -1,6 +1,6 @@
 package com.codenear.butterfly.global.config;
 
-import com.codenear.butterfly.auth.presentation.JwtFilter;
+import com.codenear.butterfly.global.filter.JwtFilter;
 import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.global.property.SecurityProperties;
 import lombok.RequiredArgsConstructor;

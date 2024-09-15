@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.presentation;
+package com.codenear.butterfly.auth.presentation.swagger;
 
 import com.codenear.butterfly.auth.domain.dto.OauthDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;

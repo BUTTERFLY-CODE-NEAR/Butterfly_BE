@@ -1,8 +1,9 @@
 package com.codenear.butterfly.auth.presentation;
 
 import com.codenear.butterfly.auth.application.AuthService;
-import com.codenear.butterfly.auth.application.jwt.JwtService;
+import com.codenear.butterfly.auth.application.JwtService;
 import com.codenear.butterfly.auth.domain.dto.AuthRequestDTO;
+import com.codenear.butterfly.auth.presentation.swagger.AuthControllerSwagger;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;

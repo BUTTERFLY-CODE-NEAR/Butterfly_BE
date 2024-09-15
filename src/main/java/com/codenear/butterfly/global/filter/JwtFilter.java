@@ -1,4 +1,4 @@
-package com.codenear.butterfly.auth.presentation;
+package com.codenear.butterfly.global.filter;
 
 import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.global.dto.ResponseDTO;

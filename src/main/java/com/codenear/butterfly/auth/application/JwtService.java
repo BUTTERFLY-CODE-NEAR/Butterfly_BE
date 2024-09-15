@@ -1,5 +1,6 @@
-package com.codenear.butterfly.auth.application.jwt;
+package com.codenear.butterfly.auth.application;
 
+import com.codenear.butterfly.auth.application.validator.TokenValidator;
 import com.codenear.butterfly.auth.domain.JwtRefresh;
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
 import com.codenear.butterfly.auth.util.CookieUtil;
