@@ -5,6 +5,7 @@ import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class EmailRegisterService {
                 .password(passwordEncoder.encode(requestDTO.getPassword()))
                 .point(0)
                 .grade(Grade.EGG)
-                .platform(requestDTO.getPlatform())
+                .platform(Platform.CODENEAR)
                 .build();
     }
 }

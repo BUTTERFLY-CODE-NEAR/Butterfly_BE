@@ -12,14 +12,24 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@Tag(name = "Auth", description = "**회원가입 / 로그인 API 명세서**")
+@Tag(name = "Auth", description = "**개인(CODE NEAR) 회원가입 / 로그인 API 명세서**")
 public interface AuthControllerSwagger {
 
-    @Operation(summary = "CODE NEAR 회원가입", description = "CODE NEAR 플랫폼으로만 가능한 회원가입 API")
+    @Operation(summary = "개인(CODE NEAR) 회원가입", description = "개인(CODE NEAR) 플랫폼으로만 가능한 회원가입 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "40001", description = "닉네임 생성 중 오류 발생"),
+            @ApiResponse(responseCode = "40002", description = "잘못된 닉네임 형식"),
+            @ApiResponse(responseCode = "40003", description = "제공하지 않는 플랫폼으로 회원가입 요청을 보냈을 때"),
+            @ApiResponse(responseCode = "40004", description = "닉네임에 금지어 포함"),
+            @ApiResponse(responseCode = "40900", description = "이메일 중복"),
+    })
     @PostMapping(value = "/register")
-    ResponseEntity<ResponseDTO> register(AuthRegisterDTO authRegisterDTO);
+    ResponseEntity<ResponseDTO> register(AuthRegisterDTO requestDTO);
 
-    @Operation(summary = "로그인 API", description = "모든 플랫폼 로그인 API (KAKAO, GOOGLE 회원가입은 해당 API 요청시, 회원가입 / 로그인 동시 처리) Access, Refresh 토큰 발급")
+    @Operation(summary = "로그인 API", description = "개인(CODE NEAR) 로그인 API(Access, Refresh 토큰 발급)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "40102", description = "아이디 혹은 비밀번호가 불일치"),
+    })
     @PostMapping(value = "/login")
     ResponseEntity<ResponseDTO> login(AuthLoginDTO requestDTO, HttpServletResponse response);
 

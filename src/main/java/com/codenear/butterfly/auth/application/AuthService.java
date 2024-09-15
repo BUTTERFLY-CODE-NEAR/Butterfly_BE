@@ -25,19 +25,11 @@ public class AuthService {
     private final JwtService jwtService;
 
     public void handleRegistration(AuthRegisterDTO requestDTO) {
-        if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
-            throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
-        }
-
         emailRegisterService.emailRegister(requestDTO);
     }
 
     public void handleLogin(AuthLoginDTO requestDTO, HttpServletResponse response) {
-        if (!requestDTO.getPlatform().equals(Platform.CODENEAR)) {
-            throw new AuthException(ErrorCode.INVALID_PLATFORM, requestDTO.getPlatform());
-        }
-
         CustomUserDetails loginUser = emailLoginService.login(requestDTO.getEmail(), requestDTO.getPassword());
-        jwtService.processTokens(loginUser.getEmail(), requestDTO.getPlatform().name(), response);
+        jwtService.processTokens(loginUser.getEmail(), Platform.CODENEAR.name(), response);
     }
 }
