@@ -30,7 +30,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
 
     // 500 (INTERNAL_SERVER_ERROR)
-    SERVER_ERROR(50001, "서버 내부 오류", HttpStatus.INTERNAL_SERVER_ERROR);
+    SERVER_ERROR(500, "서버 내부 오류", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int code;
     private final String message;
