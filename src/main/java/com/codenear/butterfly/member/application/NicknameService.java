@@ -1,7 +1,7 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.domain.Nickname;
+import com.codenear.butterfly.member.domain.NicknameDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;
@@ -17,9 +17,9 @@ public class NicknameService {
 
     private final MemberRepository memberRepository;
 
-    public Nickname nicknameResponse() {
+    public NicknameDTO nicknameResponse() {
         String generatedNickname = generateNickname();
-        return new Nickname(generatedNickname);
+        return new NicknameDTO(generatedNickname);
     }
 
     public String generateNickname() {
