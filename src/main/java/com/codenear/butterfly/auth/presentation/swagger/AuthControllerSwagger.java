@@ -19,8 +19,7 @@ public interface AuthControllerSwagger {
     @ApiResponses({
             @ApiResponse(responseCode = "40001", description = "닉네임 생성 중 오류 발생"),
             @ApiResponse(responseCode = "40002", description = "잘못된 닉네임 형식"),
-            @ApiResponse(responseCode = "40003", description = "제공하지 않는 플랫폼으로 회원가입 요청을 보냈을 때"),
-            @ApiResponse(responseCode = "40004", description = "닉네임에 금지어 포함"),
+            @ApiResponse(responseCode = "40003", description = "닉네임에 금지어 포함"),
             @ApiResponse(responseCode = "40900", description = "이메일 중복"),
     })
     @PostMapping(value = "/register")
@@ -28,7 +27,7 @@ public interface AuthControllerSwagger {
 
     @Operation(summary = "로그인 API", description = "개인(CODE NEAR) 로그인 API(Access, Refresh 토큰 발급)")
     @ApiResponses({
-            @ApiResponse(responseCode = "40102", description = "아이디 혹은 비밀번호가 불일치"),
+            @ApiResponse(responseCode = "40300", description = "아이디 혹은 비밀번호가 불일치"),
     })
     @PostMapping(value = "/login")
     ResponseEntity<ResponseDTO> login(AuthLoginDTO requestDTO, HttpServletResponse response);

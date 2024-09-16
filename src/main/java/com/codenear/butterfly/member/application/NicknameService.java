@@ -1,6 +1,7 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.member.domain.NicknameDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;
@@ -8,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -18,9 +17,9 @@ public class NicknameService {
 
     private final MemberRepository memberRepository;
 
-    public Map<String, String> nicknameGenerateResponse() {
+    public NicknameDTO nicknameResponse() {
         String generatedNickname = generateNickname();
-        return createResponse(generatedNickname);
+        return new NicknameDTO(generatedNickname);
     }
 
     public String generateNickname() {
@@ -70,11 +69,5 @@ public class NicknameService {
 
     private String generateBaseNickname() {
         return NicknameList.getRandomNickname();
-    }
-
-    private Map<String, String> createResponse(String nickname) {
-        Map<String, String> response = new HashMap<>();
-        response.put("nickname", nickname);
-        return response;
     }
 }
