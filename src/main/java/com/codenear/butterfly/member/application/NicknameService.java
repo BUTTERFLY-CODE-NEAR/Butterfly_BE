@@ -1,6 +1,7 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.member.domain.Nickname;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;
@@ -15,6 +16,11 @@ import java.util.Optional;
 public class NicknameService {
 
     private final MemberRepository memberRepository;
+
+    public Nickname nicknameResponse() {
+        String generatedNickname = generateNickname();
+        return new Nickname(generatedNickname);
+    }
 
     public String generateNickname() {
         try {

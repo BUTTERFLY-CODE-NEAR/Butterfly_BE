@@ -21,6 +21,6 @@ public class NicknameController implements NicknameApiSwagger {
     @GetMapping("/nickname/generate")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ResponseDTO> nicknameGenerate() {
-        return ResponseUtil.createSuccessResponse(HttpStatus.OK, nicknameService.generateNickname(), null);
+        return ResponseUtil.createSuccessResponse(nicknameService.nicknameResponse());
     }
 }
