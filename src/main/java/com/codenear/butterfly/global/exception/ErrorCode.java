@@ -23,7 +23,9 @@ public enum ErrorCode {
     EXPIRED_JWT_REFRESH_TOKEN(40101, "(Refresh) 토큰이 만료 되었습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_REFRESH_SIGNATURE(40101, "(Refresh) 유효하지 않은 JWT 서명입니다.", HttpStatus.UNAUTHORIZED),
     BLACKLIST_JWT_REFRESH_TOKEN(40101, "(Refresh) 사용이 금지된 토큰입니다.", HttpStatus.UNAUTHORIZED),
-    INVALID_EMAIL_OR_PASSWORD(40102, "아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.UNAUTHORIZED),
+
+    // 403 (FORBIDDEN)
+    INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
