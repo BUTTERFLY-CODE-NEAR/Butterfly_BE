@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member")
-public class NicknameController implements NicknameApiSwagger {
+public class NicknameController implements NicknameControllerSwagger {
 
     private final NicknameService nicknameService;
 
