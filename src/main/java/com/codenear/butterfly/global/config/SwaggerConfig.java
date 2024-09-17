@@ -25,7 +25,9 @@ public class SwaggerConfig {
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("Bearer")
                 .bearerFormat("JWT")
+                .description("토큰의 Bearer 제외한 내용 입력")
         );
+
         return new OpenAPI()
                 .components(new Components())
                 .addSecurityItem(securityRequirement)
@@ -45,7 +47,7 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi member() {
-        String groupName = "닉네임 생성 Api";
+        String groupName = "유저 API 명세";
         String paths = "/member/**";
 
         return GroupedOpenApi.builder()
