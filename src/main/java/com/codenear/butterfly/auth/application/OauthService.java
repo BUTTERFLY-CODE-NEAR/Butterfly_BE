@@ -24,7 +24,7 @@ public class OauthService {
     }
 
     private void registerOrLogin(OauthDTO dto) {
-        Optional<Member> optMember = memberRepository.findByEmailAndPassword(dto.getEmail(), dto.getOauthId());
+        Optional<Member> optMember = memberRepository.findByEmailAndPlatform(dto.getEmail(), dto.getPlatform());
 
         if (optMember.isEmpty()) {
             Member member = createMember(dto);
