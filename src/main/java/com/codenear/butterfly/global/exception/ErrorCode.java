@@ -27,6 +27,9 @@ public enum ErrorCode {
     // 403 (FORBIDDEN)
     INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
 
+    // 404 (NOT_FOUND)
+    PRODUCT_NOT_FOUND(40400, "등록된 상품이 없습니다.", HttpStatus.NOT_FOUND),
+
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
 
