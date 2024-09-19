@@ -51,13 +51,12 @@ public class EmailRegisterService {
     }
 
     private Member register(AuthRegisterDTO requestDTO) {
-        return Member.builder()
-                .email(requestDTO.getEmail())
-                .nickname(requestDTO.getNickname())
-                .password(passwordEncoder.encode(requestDTO.getPassword()))
-                .point(0)
-                .grade(Grade.EGG)
-                .platform(Platform.CODENEAR)
-                .build();
+        return Member.createMemberWithPoint(
+                requestDTO.getEmail(),
+                passwordEncoder.encode(requestDTO.getPassword()),
+                requestDTO.getNickname(),
+                Grade.EGG,
+                Platform.CODENEAR
+        );
     }
 }

@@ -33,13 +33,12 @@ public class OauthService {
     }
 
     private Member createMember(OauthDTO dto) {
-        return Member.builder()
-                .email(dto.getEmail())
-                .password(dto.getOauthId())
-                .nickname(nicknameService.generateNickname())
-                .point(0)
-                .grade(Grade.EGG)
-                .platform(dto.getPlatform())
-                .build();
+        return Member.createMemberWithPoint(
+                dto.getEmail(),
+                dto.getOauthId(),
+                nicknameService.generateNickname(),
+                Grade.EGG,
+                dto.getPlatform()
+        );
     }
 }
