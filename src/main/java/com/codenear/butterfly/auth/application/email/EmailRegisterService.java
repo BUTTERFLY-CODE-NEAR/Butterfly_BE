@@ -8,6 +8,7 @@ import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
+import com.codenear.butterfly.point.domain.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,12 +52,20 @@ public class EmailRegisterService {
     }
 
     private Member register(AuthRegisterDTO requestDTO) {
-        return Member.createMemberWithPoint(
-                requestDTO.getEmail(),
-                passwordEncoder.encode(requestDTO.getPassword()),
-                requestDTO.getNickname(),
-                Grade.EGG,
-                Platform.CODENEAR
-        );
+        Member member = Member.builder()
+                .email(requestDTO.getEmail())
+                .password(passwordEncoder.encode(requestDTO.getPassword()))
+                .nickname(requestDTO.getNickname())
+                .grade(Grade.EGG)
+                .platform(Platform.CODENEAR)
+                .build();
+
+        Point point = Point.builder()
+                .point(0)
+                .build();
+
+        member.setPoint(point);
+
+        return member;
     }
 }

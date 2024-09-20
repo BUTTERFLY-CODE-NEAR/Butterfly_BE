@@ -43,25 +43,7 @@ public class Member extends BaseEntity {
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Point point;
 
-    public static Member createMemberWithPoint(String email, String password, String nickname, Grade grade, Platform platform) {
-        Member member = Member.builder()
-                .email(email)
-                .password(password)
-                .nickname(nickname)
-                .grade(grade)
-                .platform(platform)
-                .build();
-
-        Point point = Point.builder()
-                .point(0)
-                .build();
-
-        member.setPoint(point);
-
-        return member;
-    }
-
-    private void setPoint(Point point) {
+    public void setPoint(Point point) {
         this.point = point;
         point.setMember(this);
     }
