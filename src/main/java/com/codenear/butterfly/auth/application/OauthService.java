@@ -5,6 +5,7 @@ import com.codenear.butterfly.member.application.NicknameService;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
+import com.codenear.butterfly.point.domain.Point;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,13 +34,20 @@ public class OauthService {
     }
 
     private Member createMember(OauthDTO dto) {
-        return Member.builder()
+        Member member = Member.builder()
                 .email(dto.getEmail())
                 .password(dto.getOauthId())
                 .nickname(nicknameService.generateNickname())
-                .point(0)
                 .grade(Grade.EGG)
                 .platform(dto.getPlatform())
                 .build();
+
+        Point point = Point.builder()
+                .point(0)
+                .build();
+
+        member.setPoint(point);
+
+        return member;
     }
 }

@@ -1,4 +1,4 @@
-package com.codenear.butterfly.member.presentation;
+package com.codenear.butterfly.member.presentation.swagger;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.Member;

@@ -1,4 +1,4 @@
-package com.codenear.butterfly.member.presentation;
+package com.codenear.butterfly.member.presentation.swagger;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;

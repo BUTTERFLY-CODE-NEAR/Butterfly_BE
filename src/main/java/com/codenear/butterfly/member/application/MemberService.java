@@ -21,7 +21,7 @@ public class MemberService {
                 member.getNickname(),
                 member.getProfileImage(),
                 member.getGrade(),
-                member.getPoint()
+                member.getPoint().getPoint()
         );
     }
 }
