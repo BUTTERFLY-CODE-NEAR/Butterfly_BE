@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
-    Optional<List<Inquiry>> findByMember(Member member);
+    List<Inquiry> findByMember(Member member);
 }
