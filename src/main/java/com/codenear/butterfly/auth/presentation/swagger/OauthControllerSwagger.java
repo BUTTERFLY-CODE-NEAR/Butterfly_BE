@@ -14,6 +14,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface OauthControllerSwagger {
 
     @Operation(summary = "소셜 로그인", description = "KAKAO, GOOGLE 등 Oauth2 사용한 유저정보 기반 로그인 API **(Access, Refresh 토큰 발급)**")
-    @PostMapping("/login")
     ResponseEntity<ResponseDTO> login(@Valid @RequestBody OauthDTO oauthDTO, HttpServletResponse response);
 }

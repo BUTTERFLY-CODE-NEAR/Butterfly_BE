@@ -22,14 +22,12 @@ public interface AuthControllerSwagger {
             @ApiResponse(responseCode = "40003", description = "닉네임에 금지어 포함"),
             @ApiResponse(responseCode = "40900", description = "이메일 중복"),
     })
-    @PostMapping(value = "/register")
     ResponseEntity<ResponseDTO> register(AuthRegisterDTO requestDTO);
 
     @Operation(summary = "개인(CODE NEAR) 로그인", description = "개인(CODE NEAR) 로그인 API **(Access, Refresh 토큰 발급)**")
     @ApiResponses({
             @ApiResponse(responseCode = "40300", description = "아이디 혹은 비밀번호가 불일치"),
     })
-    @PostMapping(value = "/login")
     ResponseEntity<ResponseDTO> login(AuthLoginDTO requestDTO, HttpServletResponse response);
 
     @Operation(summary = "토큰 재발급", description = "Access, Refresh 토큰 재발급 API **(Refresh 쿠키 필요)**")
@@ -37,6 +35,5 @@ public interface AuthControllerSwagger {
             @ApiResponse(responseCode = "40100", description = "발급 과정 오류가 발생, 토큰 재발급 요청으로 Access, Refresh 토큰 재발급 진행 필요"),
             @ApiResponse(responseCode = "40101", description = "발급 과정 오류가 발생, Refresh 토큰 이상으로 재로그인 필요")
     })
-    @PostMapping("/reissue")
     ResponseEntity<ResponseDTO> reissue(HttpServletRequest request, HttpServletResponse response);
 }
