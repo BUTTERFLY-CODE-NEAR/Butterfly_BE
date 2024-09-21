@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
-@Schema(title = "소셜 로그인 JSON", description = "소셜 로그인 전달 데이터")
+@Schema(title = "소셜 로그인 JSON", description = "소셜 로그인 시 정의되는 JSON 데이터 입니다.")
 @Getter
 public class OauthDTO {
 

@@ -10,10 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "Oauth", description = "**소셜 로그인 API 명세서**")
+@Tag(name = "Oauth", description = "**소셜 로그인 API**")
 public interface OauthControllerSwagger {
 
-    @Operation(summary = "소셜 로그인 API", description = "KAKAO, GOOGLE 등 Oauth2 사용한 유저정보 기반 로그인 API")
+    @Operation(summary = "소셜 로그인", description = "KAKAO, GOOGLE 등 Oauth2 사용한 유저정보 기반 로그인 API **(Access, Refresh 토큰 발급)**")
     @PostMapping("/login")
     ResponseEntity<ResponseDTO> login(@Valid @RequestBody OauthDTO oauthDTO, HttpServletResponse response);
 }
