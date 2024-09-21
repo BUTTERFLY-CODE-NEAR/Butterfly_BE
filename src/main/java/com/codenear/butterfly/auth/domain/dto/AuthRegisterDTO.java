@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
-@Schema(title = "개인 회원가입 API JSON", description = "개인 회원가입 시 정의되는 JSON 데이터 입니다.")
+@Schema(title = "개인 회원가입 JSON", description = "개인 로그인 시 정의되는 JSON 데이터 입니다.")
 @Getter
 @ValidPassword
 public class AuthRegisterDTO {
@@ -17,7 +17,7 @@ public class AuthRegisterDTO {
     @NotNull
     private String email;
 
-    @Schema(description = "회원가입 비밀번호", example = "password")
+    @Schema(description = "회원가입 비밀번호", example = "password12!")
     @NotNull
     private String password;
 

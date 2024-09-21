@@ -36,7 +36,7 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi auth() {
-        String groupName = "회원가입, 로그인 API 명세";
+        String groupName = "회원가입, 로그인 API";
         String[] paths = new String[]{"/auth/**", "/oauth/**"};
 
         return GroupedOpenApi.builder()
@@ -47,7 +47,7 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi member() {
-        String groupName = "유저 API 명세";
+        String groupName = "유저 API";
         String paths = "/member/**";
 
         return GroupedOpenApi.builder()
@@ -58,7 +58,7 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi product() {
-        String groupName = "상품 API 명세";
+        String groupName = "상품 API";
         String paths = "/products/**";
 
         return GroupedOpenApi.builder()
