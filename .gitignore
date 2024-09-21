@@ -28,6 +28,7 @@ out/
 **/application-common.properties
 **/application-secret.properties
 **/application-local.properties
+**/application-build.properties
 **/messages.properties
 **/data.sql
 
