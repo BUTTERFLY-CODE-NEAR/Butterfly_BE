@@ -1,7 +1,6 @@
 package com.codenear.butterfly.product.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.member.domain.dto.MemberInfoDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
