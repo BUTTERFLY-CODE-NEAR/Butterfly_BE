@@ -41,15 +41,13 @@ public class InquiryService {
     public List<InquiryListDTO> getInquiryList(Member loginMember) {
         Member member = getMember(loginMember);
 
-        return inquiryRepository.findByMember(member)
-                .map(inquiries -> inquiries.stream()
-                        .map(inquiry -> new InquiryListDTO(
-                                inquiry.getId(),
-                                inquiry.getInquiryContent(),
-                                inquiry.getResponseContent(),
-                                inquiry.getStatus()))
-                        .toList())
-                .orElse(null);
+        return inquiryRepository.findByMember(member).stream()
+                .map(inquiry -> new InquiryListDTO(
+                    inquiry.getId(),
+                    inquiry.getInquiryContent(),
+                    inquiry.getResponseContent(),
+                    inquiry.getStatus()))
+                .toList();
     }
 
     private Member getMember(Member loginMember) {
