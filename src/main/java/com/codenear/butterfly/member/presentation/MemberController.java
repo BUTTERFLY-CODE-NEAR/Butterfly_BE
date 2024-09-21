@@ -4,6 +4,7 @@ import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.presentation.swagger.MemberControllerSwagger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
