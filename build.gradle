@@ -33,8 +33,9 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
