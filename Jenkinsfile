@@ -18,6 +18,7 @@ pipeline {
                     file(credentialsId: 'application-common', variable: 'APPLICATION_COMMON')
                 ]) {
                     // 서버에 Secret 파일 복사 (로컬 복사)
+                    sh 'sudo rm /home/ubuntu/butterfly/*.properties'
                     sh 'cp $APPLICATION_BUILD /home/ubuntu/butterfly/application-build.properties'
                     sh 'cp $MESSAGES /home/ubuntu/butterfly/messages.properties'
                     sh 'cp $APPLICATION_SECRET /home/ubuntu/butterfly/application-secret.properties'
@@ -28,7 +29,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './gradlew clean build --debug'
+                sh './gradlew clean build --debug -Dspring.profiles.active=local -Dspring.profiles.include=common,secret'
             }
         }
 
@@ -37,7 +38,7 @@ pipeline {
                 // Green 서버로 JAR 파일 복사
                 sh 'cp build/libs/butterfly.jar /home/ubuntu/butterfly/'
                 // Green 서버에서 Spring Boot 애플리케이션 실행 (8082 포트)
-                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8082 --spring.profiles.active=build > /dev/null 2>&1 &'
+                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8082 --spring.profiles.active=build --spring.profiles.include=common,secret > /dev/null 2>&1 &'
             }
         }
 
@@ -53,7 +54,7 @@ pipeline {
                 // Blue 서버로 JAR 파일 복사
                 sh 'cp build/libs/butterfly.jar /home/ubuntu/butterfly/'
                 // Blue 서버에서 Spring Boot 애플리케이션 실행 (8081 포트)
-                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8081 --spring.profiles.active=build > /dev/null 2>&1 &'
+                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8081 --spring.profiles.active=build --spring.profiles.include=common,secret > /dev/null 2>&1 &'
             }
         }
 
