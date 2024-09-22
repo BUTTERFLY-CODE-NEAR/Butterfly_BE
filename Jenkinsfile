@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        BLUE_PORT = '8081'
+        GREEN_PORT = '8082'
+        DEPLOY_DIR = '/home/ubuntu/butterfly'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -10,72 +16,105 @@ pipeline {
 
         stage('Prepare Configurations') {
             steps {
-                // Secret files 불러오기
-                withCredentials([
-                    file(credentialsId: 'application-build', variable: 'APPLICATION_BUILD'),
-                    file(credentialsId: 'messages', variable: 'MESSAGES'),
-                    file(credentialsId: 'application-secret', variable: 'APPLICATION_SECRET'),
-                    file(credentialsId: 'application-common', variable: 'APPLICATION_COMMON')
-                ]) {
-                    // Jenkins workspace에 Secret 파일 복사
-                    sh 'cp -f $APPLICATION_BUILD /var/lib/jenkins/workspace/butterfly/src/main/resources/application-build.properties'
-                    sh 'cp -f $MESSAGES /var/lib/jenkins/workspace/butterfly/src/main/resources/messages.properties'
-                    sh 'cp -f $APPLICATION_SECRET /var/lib/jenkins/workspace/butterfly/src/main/resources/application-secret.properties'
-                    sh 'cp -f $APPLICATION_COMMON /var/lib/jenkins/workspace/butterfly/src/main/resources/application-common.properties'
+                script {
+                    def configFiles = [
+                        'application-build': 'application-build.properties',
+                        'messages': 'messages.properties',
+                        'application-secret': 'application-secret.properties',
+                        'application-common': 'application-common.properties'
+                    ]
 
-
-                    // 서버에 Secret 파일 복사 (로컬 복사)
-                    sh 'cp -f $APPLICATION_BUILD /home/ubuntu/butterfly/application-build.properties'
-                    sh 'cp -f $MESSAGES /home/ubuntu/butterfly/messages.properties'
-                    sh 'cp -f $APPLICATION_SECRET /home/ubuntu/butterfly/application-secret.properties'
-                    sh 'cp -f $APPLICATION_COMMON /home/ubuntu/butterfly/application-common.properties'
+                    configFiles.each { credId, fileName ->
+                        withCredentials([file(credentialsId: credId, variable: 'FILE')]) {
+                            sh "cp -f \$FILE src/main/resources/${fileName}"
+                            sh "cp -f \$FILE ${DEPLOY_DIR}/${fileName}"
+                        }
+                    }
                 }
             }
         }
 
         stage('Build') {
             steps {
-                sh './gradlew clean build --debug -Dspring.profiles.active=build -Dspring.profiles.include=common,secret'
+                sh './gradlew clean build -Dspring.profiles.active=build -Dspring.profiles.include=common,secret'
             }
         }
 
         stage('Deploy to Green') {
             steps {
-                // Green 서버로 JAR 파일 복사
-                sh 'cp build/libs/butterfly.jar /home/ubuntu/butterfly/'
-                // Green 서버에서 Spring Boot 애플리케이션 실행 (8082 포트)
-                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8082 --spring.profiles.active=build --spring.profiles.include=common,secret > /dev/null 2>&1 &'
+                script {
+                    sh "pkill -f 'java.*${GREEN_PORT}' || true"
+
+                    sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-green.jar"
+
+                    withCredentials([string(credentialsId: 'SECURITY_WHITELIST', variable: 'SECURITY_WHITELIST')]) {
+                        sh """
+                        nohup java -jar ${DEPLOY_DIR}/butterfly-green.jar \
+                        --server.port=${GREEN_PORT} \
+                        --spring.profiles.active=build \
+                        --spring.profiles.include=common,secret \
+                        --SECURITY_WHITELIST='${SECURITY_WHITELIST}' \
+                        > ${DEPLOY_DIR}/green.log 2>&1 &
+                        """
+                    }
+                }
             }
         }
 
         stage('Monitor Green') {
             steps {
-                // Green 서버 상태 확인 (8082 포트)
-                sh 'curl -f http://localhost:8082/actuator/health'
+                script {
+                    sh "sleep 30"
+
+                    sh "curl -f http://localhost:${GREEN_PORT}/actuator/health"
+                }
+            }
+        }
+
+        stage('Update Nginx Configuration') {
+            steps {
+                script {
+                    sh "sudo sed -i 's/proxy_pass http:\\/\\/localhost:${BLUE_PORT};/proxy_pass http:\\/\\/localhost:${GREEN_PORT};/' /etc/nginx/sites-available/default"
+                    sh "sudo nginx -s reload"
+                }
             }
         }
 
         stage('Deploy to Blue') {
             steps {
-                // Blue 서버로 JAR 파일 복사
-                sh 'cp build/libs/butterfly.jar /home/ubuntu/butterfly/'
-                // Blue 서버에서 Spring Boot 애플리케이션 실행 (8081 포트)
-                sh 'nohup java -jar /home/ubuntu/butterfly/butterfly.jar --server.port=8081 --spring.profiles.active=build --spring.profiles.include=common,secret > /dev/null 2>&1 &'
+                script {
+                    sh "pkill -f 'java.*${BLUE_PORT}' || true"
+
+                    sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-blue.jar"
+
+                    withCredentials([string(credentialsId: 'SECURITY_WHITELIST', variable: 'SECURITY_WHITELIST')]) {
+                        sh """
+                        nohup java -jar ${DEPLOY_DIR}/butterfly-blue.jar \
+                        --server.port=${BLUE_PORT} \
+                        --spring.profiles.active=build \
+                        --spring.profiles.include=common,secret \
+                        --SECURITY_WHITELIST='${SECURITY_WHITELIST}' \
+                        > ${DEPLOY_DIR}/blue.log 2>&1 &
+                        """
+                    }
+                }
             }
         }
 
         stage('Monitor Blue') {
             steps {
-                // Blue 서버 상태 확인 (8081 포트)
-                sh 'curl -f http://localhost:8081/actuator/health'
+                script {
+                    sh "sleep 30"
+
+                    sh "curl -f http://localhost:${BLUE_PORT}/actuator/health"
+                }
             }
         }
+    }
 
-        stage('Update Nginx and Cleanup') {
-            steps {
-                // Nginx 설정에서 Green 서버를 활성화하고 Blue 서버를 비활성화
-                sh 'sudo nginx -s reload'
-            }
+    post {
+        failure {
+            echo "Deployment failed. Consider implementing rollback logic."
         }
     }
 }
