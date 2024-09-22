@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: 'github-token', branch: 'main', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE'
+                git credentialsId: 'github_token', branch: 'main', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE'
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './gradlew clean build'
+                sh './gradlew clean build --info'
             }
         }
 
