@@ -66,4 +66,15 @@ public class SwaggerConfig {
                 .pathsToMatch(paths)
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi support() {
+        String groupName = "고객 문의 API";
+        String paths = "/support/**";
+
+        return GroupedOpenApi.builder()
+                .group(groupName)
+                .pathsToMatch(paths)
+                .build();
+    }
 }

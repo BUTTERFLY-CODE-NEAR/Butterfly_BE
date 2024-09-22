@@ -18,7 +18,7 @@ import static com.codenear.butterfly.global.util.ResponseUtil.*;
 @RestController
 @RequestMapping("/support/inquiry")
 @RequiredArgsConstructor
-public class InquiryController {
+public class InquiryController implements InquiryControllerSwagger {
     private final InquiryService inquiryService;
 
     @GetMapping
