@@ -33,7 +33,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './gradlew clean build --info'
+                sh './gradlew clean build --debug'
             }
         }
 
