@@ -28,7 +28,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh './gradlew clean build --debug -Dspring.profiles.active=local -Dspring.profiles.include=common,secret'
+                sh './gradlew clean build --debug -Dspring.profiles.active=build -Dspring.profiles.include=common,secret'
             }
         }
 
