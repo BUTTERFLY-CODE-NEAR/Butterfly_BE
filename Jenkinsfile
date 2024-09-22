@@ -17,6 +17,13 @@ pipeline {
                     file(credentialsId: 'application-secret', variable: 'APPLICATION_SECRET'),
                     file(credentialsId: 'application-common', variable: 'APPLICATION_COMMON')
                 ]) {
+                    // Jenkins workspace에 Secret 파일 복사
+                    sh 'cp -f $APPLICATION_BUILD /var/lib/jenkins/workspace/butterfly/src/main/resources/application-build.properties'
+                    sh 'cp -f $MESSAGES /var/lib/jenkins/workspace/butterfly/src/main/resources/messages.properties'
+                    sh 'cp -f $APPLICATION_SECRET /var/lib/jenkins/workspace/butterfly/src/main/resources/application-secret.properties'
+                    sh 'cp -f $APPLICATION_COMMON /var/lib/jenkins/workspace/butterfly/src/main/resources/application-common.properties'
+
+
                     // 서버에 Secret 파일 복사 (로컬 복사)
                     sh 'cp -f $APPLICATION_BUILD /home/ubuntu/butterfly/application-build.properties'
                     sh 'cp -f $MESSAGES /home/ubuntu/butterfly/messages.properties'
