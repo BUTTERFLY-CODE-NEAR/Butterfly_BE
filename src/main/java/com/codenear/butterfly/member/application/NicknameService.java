@@ -1,7 +1,7 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.domain.NicknameDTO;
+import com.codenear.butterfly.member.domain.dto.NicknameDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;

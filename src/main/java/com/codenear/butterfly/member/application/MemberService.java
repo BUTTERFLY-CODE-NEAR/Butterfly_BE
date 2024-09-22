@@ -20,7 +20,7 @@ public class MemberService {
         return new MemberInfoDTO(
                 member.getNickname(),
                 member.getProfileImage(),
-                member.getGrade(),
+                member.getGrade().getGrade(),
                 member.getPoint().getPoint()
         );
     }
