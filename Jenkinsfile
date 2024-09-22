@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        BLUE_SERVER_IP = credentials('BLUE_SERVER_IP')
-        GREEN_SERVER_IP = credentials('GREEN_SERVER_IP')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -23,7 +18,6 @@ pipeline {
                     file(credentialsId: 'application-common', variable: 'APPLICATION_COMMON')
                 ]) {
                     // 서버에 Secret 파일 복사 (로컬 복사)
-                    sh 'chmod -R rwx src/main/resources'
                     sh 'cp $APPLICATION_BUILD /home/ubuntu/butterfly/application-build.properties'
                     sh 'cp $MESSAGES /home/ubuntu/butterfly/messages.properties'
                     sh 'cp $APPLICATION_SECRET /home/ubuntu/butterfly/application-secret.properties'
