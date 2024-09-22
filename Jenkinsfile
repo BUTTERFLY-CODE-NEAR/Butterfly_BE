@@ -18,7 +18,6 @@ pipeline {
                     file(credentialsId: 'application-common', variable: 'APPLICATION_COMMON')
                 ]) {
                     // 서버에 Secret 파일 복사 (로컬 복사)
-                    sh 'sudo rm /home/ubuntu/butterfly/*.properties'
                     sh 'cp -f $APPLICATION_BUILD /home/ubuntu/butterfly/application-build.properties'
                     sh 'cp -f $MESSAGES /home/ubuntu/butterfly/messages.properties'
                     sh 'cp -f $APPLICATION_SECRET /home/ubuntu/butterfly/application-secret.properties'
