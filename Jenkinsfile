@@ -53,7 +53,7 @@ pipeline {
                         --server.port=${GREEN_PORT} \
                         --spring.profiles.active=build \
                         --spring.profiles.include=common,secret \
-                        --SECURITY_WHITELIST='${SECURITY_WHITELIST}' \
+                        --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
                         > ${DEPLOY_DIR}/green.log 2>&1 &
                         """
                     }
@@ -93,7 +93,7 @@ pipeline {
                         --server.port=${BLUE_PORT} \
                         --spring.profiles.active=build \
                         --spring.profiles.include=common,secret \
-                        --SECURITY_WHITELIST='${SECURITY_WHITELIST}' \
+                        --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
                         > ${DEPLOY_DIR}/blue.log 2>&1 &
                         """
                     }
