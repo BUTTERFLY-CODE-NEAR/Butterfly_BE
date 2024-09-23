@@ -36,8 +36,9 @@ public class SearchService {
         return redisTemplate.opsForSet().members(getKey(member));
     }
 
-        String key = "search_user:" + member.getId();
-        return redisTemplate.opsForList().range(key, 0, -1);
+    public void deleteSearchLog(Member loginMember) {
+        Member member = getMember(loginMember);
+        redisTemplate.delete(getKey(member));
     }
 
     private Member getMember(Member loginMember) {
