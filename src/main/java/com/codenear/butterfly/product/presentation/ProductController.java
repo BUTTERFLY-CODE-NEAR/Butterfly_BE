@@ -18,6 +18,6 @@ public class ProductController implements ProductControllerSwagger {
 
     @GetMapping
     public ResponseEntity<ResponseDTO> productInfo() {
-        return ResponseUtil.createSuccessResponse(productViewService.getAllProduct());
+        return ResponseUtil.createSuccessResponse(productViewService.getAllProducts());
     }
 }

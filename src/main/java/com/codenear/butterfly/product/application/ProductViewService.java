@@ -20,7 +20,7 @@ public class ProductViewService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductViewDTO> getAllProduct() {
+    public List<ProductViewDTO> getAllProducts() {
         List<Product> products = productRepository.findAll();
 
         if (products.isEmpty()) {
