@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Product", description = "**(전체) 상품 정보 API**")
 public interface ProductControllerSwagger {
@@ -20,4 +22,13 @@ public interface ProductControllerSwagger {
             @ApiResponse(responseCode = "200", description = "Success")
     })
     ResponseEntity<ResponseDTO> productInfo();
+
+    @Operation(summary = "(카테고리별) 상품 정보", description = "[카테고리] (카테고리별) 상품 정보 API")
+    @GetMapping("/category/{category}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> productInfoByCategory(@PathVariable String category);
 }

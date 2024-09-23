@@ -32,6 +32,18 @@ public class ProductViewService {
                 .toList();
     }
 
+    public List<ProductViewDTO> getProductsByCategory(String category) {
+        List<Product> products = productRepository.findProductByCategory(category);
+
+        if (products.isEmpty()) {
+            throw new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null);
+        }
+
+        return products.stream()
+                .map(this::convertToProductViewDTO)
+                .toList();
+    }
+
     //todo: 상품 상세 엔티티 생성 후 코드 수정
     public ProductViewDTO getProductDetail(Long productId) {
         Product product = productRepository.findById(productId)

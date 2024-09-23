@@ -6,6 +6,7 @@ import com.codenear.butterfly.product.application.ProductViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,5 +20,10 @@ public class ProductController implements ProductControllerSwagger {
     @GetMapping
     public ResponseEntity<ResponseDTO> productInfo() {
         return ResponseUtil.createSuccessResponse(productViewService.getAllProducts());
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<ResponseDTO> productInfoByCategory(@PathVariable("category") String category) {
+        return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category));
     }
 }
