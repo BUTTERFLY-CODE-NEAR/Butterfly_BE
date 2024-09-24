@@ -1,5 +1,6 @@
 package com.codenear.butterfly.product.domain;
 
+import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,8 +28,9 @@ public class Product {
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal saleRate;
 
+    @Convert(converter = CategoryConverter.class)
     @Column(nullable = false)
-    private String category;
+    private Category category;
 
     //공동구매 신청현황(인원)
     @Column(nullable = false)
