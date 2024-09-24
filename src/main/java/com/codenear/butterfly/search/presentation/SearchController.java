@@ -25,4 +25,10 @@ public class SearchController {
     public ResponseEntity<ResponseDTO> getSearchLogList(@AuthenticationPrincipal Member member) {
         return ResponseUtil.createSuccessResponse(searchService.getSearchList(member));
     }
+
+    @DeleteMapping
+    public ResponseEntity<ResponseDTO> deleteSearchLog(@AuthenticationPrincipal Member member) {
+        searchService.deleteSearchLog(member);
+        return ResponseUtil.createSuccessResponse(null);
+    }
 }
