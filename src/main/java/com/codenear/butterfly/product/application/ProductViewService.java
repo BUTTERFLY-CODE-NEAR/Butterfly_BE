@@ -2,6 +2,7 @@ package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
@@ -20,19 +21,8 @@ public class ProductViewService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductViewDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-
-        if (products.isEmpty()) {
-            throw new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null);
-        }
-
-        return products.stream()
-                .map(this::convertToProductViewDTO)
-                .toList();
-    }
-
-    public List<ProductViewDTO> getProductsByCategory(String category) {
+    public List<ProductViewDTO> getProductsByCategory(String categoryValue) {
+        Category category = Category.fromValue(categoryValue);
         List<Product> products = productRepository.findProductByCategory(category);
 
         if (products.isEmpty()) {
