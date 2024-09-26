@@ -5,8 +5,6 @@ import com.codenear.butterfly.auth.application.email.EmailRegisterService;
 import com.codenear.butterfly.auth.domain.dto.AuthLoginDTO;
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.domain.dto.CustomUserDetails;
-import com.codenear.butterfly.auth.exception.AuthException;
-import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Platform;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +22,9 @@ public class AuthService {
     private final EmailLoginService emailLoginService;
     private final JwtService jwtService;
 
-    public void handleRegistration(AuthRegisterDTO requestDTO) {
+    public void handleRegistration(AuthRegisterDTO requestDTO, HttpServletResponse response) {
         emailRegisterService.emailRegister(requestDTO);
+        jwtService.processTokens(requestDTO.getEmail(), Platform.CODENEAR.name(), response);
     }
 
     public void handleLogin(AuthLoginDTO requestDTO, HttpServletResponse response) {

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Tag(name = "Auth", description = "**개인(CODE NEAR) 회원가입 / 로그인 API**")
 public interface AuthControllerSwagger {
@@ -22,7 +21,7 @@ public interface AuthControllerSwagger {
             @ApiResponse(responseCode = "40003", description = "닉네임에 금지어 포함"),
             @ApiResponse(responseCode = "40900", description = "이메일 중복"),
     })
-    ResponseEntity<ResponseDTO> register(AuthRegisterDTO requestDTO);
+    ResponseEntity<ResponseDTO> register(AuthRegisterDTO requestDTO, HttpServletResponse response);
 
     @Operation(summary = "개인(CODE NEAR) 로그인", description = "개인(CODE NEAR) 로그인 API **(Access, Refresh 토큰 발급)**")
     @ApiResponses({
