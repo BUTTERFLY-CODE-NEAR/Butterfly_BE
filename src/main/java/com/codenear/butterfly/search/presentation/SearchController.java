@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/search")
-public class SearchController {
+public class SearchController implements SearchControllerSwagger {
     private final SearchService searchService;
 
     @GetMapping("/related")
@@ -28,6 +28,12 @@ public class SearchController {
     @DeleteMapping
     public ResponseEntity<ResponseDTO> deleteSearchLog(@AuthenticationPrincipal Member member) {
         searchService.deleteSearchLog(member);
+        return ResponseUtil.createSuccessResponse(null);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<ResponseDTO> testSearchLog(@RequestParam String keyword, @AuthenticationPrincipal Member member) {
+        searchService.addSearchLog(keyword, member);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
