@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ProductControllerSwagger {
 
     @Operation(summary = "카테고리", description = "카테고리 API")
-    @GetMapping("/categories")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
                     content = @Content(schema = @Schema(implementation = Category.class))),
@@ -26,7 +25,6 @@ public interface ProductControllerSwagger {
     ResponseEntity<ResponseDTO> categoryInfo();
 
     @Operation(summary = "(카테고리별) 상품 정보", description = "[카테고리] (카테고리별) 상품 정보 API")
-    @GetMapping("/{category}")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
                     content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
