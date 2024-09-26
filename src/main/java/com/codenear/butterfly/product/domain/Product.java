@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Builder
@@ -42,4 +43,8 @@ public class Product {
     //재고수량
     @Column(nullable = false)
     private Integer stockQuantity;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private List<Keyword> keywords;
 }
