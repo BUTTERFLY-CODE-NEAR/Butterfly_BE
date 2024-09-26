@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        BLUE_PORT = '8081'
-        GREEN_PORT = '8082'
-        DEPLOY_DIR = '/home/ubuntu/butterfly'
+        BLUE_PORT = '${BLUE_PORT_ENV}'
+        GREEN_PORT = '${GREEN_PORT_ENV}'
+        DEPLOY_DIR = '${DEPLOY_DIR_ENV}'
     }
 
     stages {
@@ -47,16 +47,14 @@ pipeline {
 
                     sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-green.jar"
 
-                    withCredentials([string(credentialsId: 'SECURITY_WHITELIST', variable: 'SECURITY_WHITELIST')]) {
-                        sh """
-                        nohup java -jar ${DEPLOY_DIR}/butterfly-green.jar \
-                        --server.port=${GREEN_PORT} \
-                        --spring.profiles.active=build \
-                        --spring.profiles.include=common,secret \
-                        --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
-                        > ${DEPLOY_DIR}/green.log 2>&1 &
-                        """
-                    }
+                    sh """
+                    nohup java -jar ${DEPLOY_DIR}/butterfly-green.jar \
+                    --server.port=${GREEN_PORT} \
+                    --spring.profiles.active=build \
+                    --spring.profiles.include=common,secret \
+                    --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
+                    > ${DEPLOY_DIR}/green.log 2>&1 &
+                    """
                 }
             }
         }
@@ -87,16 +85,14 @@ pipeline {
 
                     sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-blue.jar"
 
-                    withCredentials([string(credentialsId: 'SECURITY_WHITELIST', variable: 'SECURITY_WHITELIST')]) {
-                        sh """
-                        nohup java -jar ${DEPLOY_DIR}/butterfly-blue.jar \
-                        --server.port=${BLUE_PORT} \
-                        --spring.profiles.active=build \
-                        --spring.profiles.include=common,secret \
-                        --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
-                        > ${DEPLOY_DIR}/blue.log 2>&1 &
-                        """
-                    }
+                    sh """
+                    nohup java -jar ${DEPLOY_DIR}/butterfly-blue.jar \
+                    --server.port=${BLUE_PORT} \
+                    --spring.profiles.active=build \
+                    --spring.profiles.include=common,secret \
+                    --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
+                    > ${DEPLOY_DIR}/blue.log 2>&1 &
+                    """
                 }
             }
         }
