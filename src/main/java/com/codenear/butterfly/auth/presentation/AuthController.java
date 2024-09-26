@@ -29,8 +29,8 @@ public class AuthController implements AuthControllerSwagger {
     private final MessageUtil messageUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@Valid @RequestBody AuthRegisterDTO requestDTO) {
-        authService.handleRegistration(requestDTO);
+    public ResponseEntity<ResponseDTO> register(@Valid @RequestBody AuthRegisterDTO requestDTO, HttpServletResponse response) {
+        authService.handleRegistration(requestDTO, response);
         return createSuccessResponse(HttpStatus.CREATED, messageUtil.getMessage("success.register", requestDTO.getEmail()), null);
     }
 
