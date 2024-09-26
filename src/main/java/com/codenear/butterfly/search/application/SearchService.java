@@ -8,7 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.codenear.butterfly.product.application.KeywordService.KEYWORDS_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +23,27 @@ public class SearchService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberRepository memberRepository;
 
-    public void addSearchLog(String keyword, Member loginMember) {
+    public void addSearchLog(String keyword, Member loginMember) { // todo : 추후 검색 로직에 추가해 로그 남기는 메서드 전달
         Member member = getMember(loginMember);
         String key = getKey(member);
 
         redisTemplate.opsForSet().add(key, keyword);
 
-        // 저장 검색어가 최대일 경우 삭제
         Long size = redisTemplate.opsForSet().size(key);
         if (size != null && size > SEARCH_LOG_MAX_SIZE)
             redisTemplate.opsForSet().pop(key);
+    }
+
+    public List<String> getRelatedKeywords(String keyword) {
+        Set<Object> keywords = redisTemplate.opsForSet().members(KEYWORDS_PREFIX);
+        if (keywords == null) {
+            return null;
+        }
+
+        return keywords.stream()
+                .map(Object::toString)
+                .filter(key -> key.contains(keyword))
+                .collect(Collectors.toList());
     }
 
     public Set<Object> getSearchList(Member loginMember) {

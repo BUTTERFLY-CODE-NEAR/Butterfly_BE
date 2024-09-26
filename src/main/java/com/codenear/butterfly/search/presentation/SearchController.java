@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class SearchController {
     private final SearchService searchService;
 
-    @PostMapping
-    public ResponseEntity<ResponseDTO> addSearchLog(@RequestParam String keyword, @AuthenticationPrincipal Member member) {
-        searchService.addSearchLog(keyword, member);
-        return ResponseUtil.createSuccessResponse(null);
+    @GetMapping("/related")
+    public ResponseEntity<ResponseDTO> getRelatedKeywords(@RequestParam String keyword) {
+        return ResponseUtil.createSuccessResponse(searchService.getRelatedKeywords(keyword));
     }
 
     @GetMapping
