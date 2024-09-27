@@ -21,32 +21,42 @@ public class ProductViewService {
 
     private final ProductRepository productRepository;
 
+    public List<ProductViewDTO> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        validateProducts(products);
+        return convertProductsToDTOs(products);
+    }
+
     public List<ProductViewDTO> getProductsByCategory(String categoryValue) {
         Category category = Category.fromValue(categoryValue);
         List<Product> products = productRepository.findProductByCategory(category);
-
-        if (products.isEmpty()) {
-            throw new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null);
-        }
-
-        return products.stream()
-                .map(this::convertToProductViewDTO)
-                .toList();
+        validateProducts(products);
+        return convertProductsToDTOs(products);
     }
 
     //todo: 상품 상세 엔티티 생성 후 코드 수정
     public ProductViewDTO getProductDetail(Long productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
-
+                .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
         return convertToProductViewDTO(product);
+    }
+
+    private void validateProducts(List<Product> products) {
+        if (products.isEmpty()) {
+            throw new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null);
+        }
+    }
+
+    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products) {
+        return products.stream()
+                .map(this::convertToProductViewDTO)
+                .toList();
     }
 
     private Integer calculateSalePrice(Integer originalPrice, BigDecimal saleRate) {
         BigDecimal originalPriceDecimal = new BigDecimal(originalPrice);
         BigDecimal discount = originalPriceDecimal.multiply(saleRate).divide(BigDecimal.valueOf(100));
         BigDecimal salePrice = originalPriceDecimal.subtract(discount);
-
         return salePrice.setScale(0, RoundingMode.HALF_UP).intValue();
     }
 

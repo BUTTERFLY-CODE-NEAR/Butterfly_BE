@@ -24,7 +24,12 @@ public class ProductController implements ProductControllerSwagger {
         return ResponseUtil.createSuccessResponse(categoryService.getCategories());
     }
 
-    @GetMapping("/{category}")
+    @GetMapping
+    public ResponseEntity<ResponseDTO> productInfo() {
+        return ResponseUtil.createSuccessResponse(productViewService.getAllProducts());
+    }
+
+    @GetMapping("/category/{category}")
     public ResponseEntity<ResponseDTO> productInfoByCategory(@PathVariable("category") String category) {
         return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category));
     }
