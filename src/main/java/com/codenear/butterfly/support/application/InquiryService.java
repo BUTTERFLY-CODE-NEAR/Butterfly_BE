@@ -46,7 +46,8 @@ public class InquiryService {
                     inquiry.getId(),
                     inquiry.getInquiryContent(),
                     inquiry.getResponseContent(),
-                    inquiry.getStatus()))
+                    inquiry.getStatus(),
+                    inquiry.getCreatedAt().toLocalDate()))
                 .toList();
     }
 
