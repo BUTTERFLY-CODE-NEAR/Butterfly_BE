@@ -10,6 +10,8 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @OpenAPIDefinition(
         info = @Info(title = "CODE NEAR",
                 description = "CODE NEAR 나비 API 문서",
@@ -35,54 +37,17 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi auth() {
-        String groupName = "회원가입, 로그인 API";
-        String[] paths = new String[]{"/auth/**", "/oauth/**"};
-
-        return GroupedOpenApi.builder()
-                .group(groupName)
-                .pathsToMatch(paths)
-                .build();
+    public List<GroupedOpenApi> apis() {
+        return List.of(
+            createGroupedOpenApi("회원가입, 로그인 API", "/auth/**", "/oauth/**"),
+            createGroupedOpenApi("유저 API", "/member/**"),
+            createGroupedOpenApi("상품 API", "/products/**"),
+            createGroupedOpenApi("고객 문의 API", "/support/**"),
+            createGroupedOpenApi("검색 API", "/search/**")
+        );
     }
 
-    @Bean
-    public GroupedOpenApi member() {
-        String groupName = "유저 API";
-        String paths = "/member/**";
-
-        return GroupedOpenApi.builder()
-                .group(groupName)
-                .pathsToMatch(paths)
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi product() {
-        String groupName = "상품 API";
-        String paths = "/products/**";
-
-        return GroupedOpenApi.builder()
-                .group(groupName)
-                .pathsToMatch(paths)
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi support() {
-        String groupName = "고객 문의 API";
-        String paths = "/support/**";
-
-        return GroupedOpenApi.builder()
-                .group(groupName)
-                .pathsToMatch(paths)
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi search() {
-        String groupName = "검색 API";
-        String paths = "/search/**";
-
+    private GroupedOpenApi createGroupedOpenApi(String groupName, String... paths) {
         return GroupedOpenApi.builder()
                 .group(groupName)
                 .pathsToMatch(paths)
