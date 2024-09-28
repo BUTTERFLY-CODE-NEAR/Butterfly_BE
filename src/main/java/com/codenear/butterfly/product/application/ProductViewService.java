@@ -54,10 +54,11 @@ public class ProductViewService {
     }
 
     private Integer calculateSalePrice(Integer originalPrice, BigDecimal saleRate) {
-        BigDecimal originalPriceDecimal = new BigDecimal(originalPrice);
-        BigDecimal discount = originalPriceDecimal.multiply(saleRate).divide(BigDecimal.valueOf(100));
+        BigDecimal originalPriceDecimal = BigDecimal.valueOf(originalPrice);
+        BigDecimal discount = originalPriceDecimal.multiply(saleRate)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         BigDecimal salePrice = originalPriceDecimal.subtract(discount);
-        return salePrice.setScale(0, RoundingMode.HALF_UP).intValue();
+        return salePrice.intValue();
     }
 
     private ProductViewDTO convertToProductViewDTO(Product product) {
