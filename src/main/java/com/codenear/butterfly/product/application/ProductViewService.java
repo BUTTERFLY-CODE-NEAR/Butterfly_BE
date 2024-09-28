@@ -62,6 +62,7 @@ public class ProductViewService {
 
     private ProductViewDTO convertToProductViewDTO(Product product) {
         return new ProductViewDTO(
+                product.getSubtitle(),
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
