@@ -28,7 +28,7 @@ public class Product {
     @Column(nullable = false)
     private Integer originalPrice;
 
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false, precision = 4, scale = 1)
     private BigDecimal saleRate;
 
     @Convert(converter = CategoryConverter.class)
