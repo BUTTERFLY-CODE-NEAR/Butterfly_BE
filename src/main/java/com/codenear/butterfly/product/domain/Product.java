@@ -38,7 +38,7 @@ public class Product {
     private Integer purchaseParticipantCount;
 
     @Column(nullable = false)
-    private Integer MaxPurchaseCount;
+    private Integer maxPurchaseCount;
 
     //재고수량
     @Column(nullable = false)
