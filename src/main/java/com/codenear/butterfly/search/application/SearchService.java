@@ -51,9 +51,16 @@ public class SearchService {
         return redisTemplate.opsForSet().members(getKey(member));
     }
 
-    public void deleteSearchLog(Member loginMember) {
+    public void deleteAllSearchLog(Member loginMember) {
         Member member = getMember(loginMember);
         redisTemplate.delete(getKey(member));
+    }
+
+    public void deleteSearchLog(String keyword, Member loginMember) {
+        Member member = getMember(loginMember);
+        String key = getKey(member);
+
+        redisTemplate.opsForSet().remove(key, keyword);
     }
 
     private Member getMember(Member loginMember) {
