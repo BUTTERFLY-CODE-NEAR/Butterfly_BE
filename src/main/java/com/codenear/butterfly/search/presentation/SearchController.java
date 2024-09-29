@@ -26,8 +26,14 @@ public class SearchController implements SearchControllerSwagger {
     }
 
     @DeleteMapping
-    public ResponseEntity<ResponseDTO> deleteSearchLog(@AuthenticationPrincipal Member member) {
-        searchService.deleteSearchLog(member);
+    public ResponseEntity<ResponseDTO> deleteAllSearchLog(@AuthenticationPrincipal Member member) {
+        searchService.deleteAllSearchLog(member);
+        return ResponseUtil.createSuccessResponse(null);
+    }
+
+    @DeleteMapping("/{keyword}")
+    public ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal Member member) {
+        searchService.deleteSearchLog(keyword, member);
         return ResponseUtil.createSuccessResponse(null);
     }
 
