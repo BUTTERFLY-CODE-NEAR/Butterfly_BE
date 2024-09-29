@@ -41,7 +41,7 @@ public class InquiryService {
     public List<InquiryListDTO> getInquiryList(Member loginMember) {
         Member member = getMember(loginMember);
 
-        return inquiryRepository.findByMember(member).stream()
+        return inquiryRepository.findByMemberOrderByCreatedAtDesc(member).stream()
                 .map(inquiry -> new InquiryListDTO(
                     inquiry.getId(),
                     inquiry.getInquiryContent(),
