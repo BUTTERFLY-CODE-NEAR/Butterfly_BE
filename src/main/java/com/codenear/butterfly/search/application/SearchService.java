@@ -23,17 +23,6 @@ public class SearchService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberRepository memberRepository;
 
-    public void addSearchLog(String keyword, Member loginMember) { // todo : 추후 검색 로직에 추가해 로그 남기는 메서드 전달
-        Member member = getMember(loginMember);
-        String key = getKey(member);
-
-        redisTemplate.opsForSet().add(key, keyword);
-
-        Long size = redisTemplate.opsForSet().size(key);
-        if (size != null && size > SEARCH_LOG_MAX_SIZE)
-            redisTemplate.opsForSet().pop(key);
-    }
-
     public List<String> getRelatedKeywords(String keyword) {
         Set<Object> keywords = redisTemplate.opsForSet().members(KEYWORDS_PREFIX);
         if (keywords == null) {
@@ -46,9 +35,24 @@ public class SearchService {
                 .collect(Collectors.toList());
     }
 
-    public Set<Object> getSearchList(Member loginMember) {
+    public void addSearchLog(String keyword, Member loginMember) { // todo : 추후 검색 로직에 추가해 로그 남기는 메서드 전달
         Member member = getMember(loginMember);
-        return redisTemplate.opsForSet().members(getKey(member));
+        String key = getKey(member);
+
+        if (redisTemplate.opsForList().indexOf(key, keyword) != null)
+            redisTemplate.opsForList().remove(key, 0, keyword);
+
+        redisTemplate.opsForList().leftPush(key, keyword);
+
+        Long size = redisTemplate.opsForList().size(key);
+
+        if (size != null && size > SEARCH_LOG_MAX_SIZE)
+            redisTemplate.opsForList().rightPop(key);
+    }
+
+    public List<Object> getSearchList(Member loginMember) {
+        Member member = getMember(loginMember);
+        return redisTemplate.opsForList().range(getKey(member), 0, -1);
     }
 
     public void deleteAllSearchLog(Member loginMember) {
@@ -60,7 +64,7 @@ public class SearchService {
         Member member = getMember(loginMember);
         String key = getKey(member);
 
-        redisTemplate.opsForSet().remove(key, keyword);
+        redisTemplate.opsForList().remove(key, 0, keyword);
     }
 
     private Member getMember(Member loginMember) {
