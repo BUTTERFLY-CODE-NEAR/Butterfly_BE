@@ -25,6 +25,8 @@ public class Product {
 
     private String productImage;
 
+    private String description;
+
     @Column(nullable = false)
     private Integer originalPrice;
 
@@ -34,6 +36,12 @@ public class Product {
     @Convert(converter = CategoryConverter.class)
     @Column(nullable = false)
     private Category category;
+
+    private Integer quantity;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private List<Option> options;
 
     //공동구매 신청현황(인원)
     @Column(nullable = false)
