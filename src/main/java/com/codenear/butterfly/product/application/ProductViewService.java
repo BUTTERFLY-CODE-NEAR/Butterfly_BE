@@ -1,10 +1,14 @@
 package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
+import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,25 +24,26 @@ import java.util.List;
 public class ProductViewService {
 
     private final ProductRepository productRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final MemberRepository memberRepository;
 
-    public List<ProductViewDTO> getAllProducts() {
+    public List<ProductViewDTO> getAllProducts(Member member) {
         List<Product> products = productRepository.findAll();
         validateProducts(products);
-        return convertProductsToDTOs(products);
+        return convertProductsToDTOs(products, member);
     }
 
-    public List<ProductViewDTO> getProductsByCategory(String categoryValue) {
+    public List<ProductViewDTO> getProductsByCategory(String categoryValue, Member member) {
         Category category = Category.fromValue(categoryValue);
         List<Product> products = productRepository.findProductByCategory(category);
         validateProducts(products);
-        return convertProductsToDTOs(products);
+        return convertProductsToDTOs(products, member);
     }
 
-    //todo: 상품 상세 엔티티 생성 후 코드 수정
-    public ProductViewDTO getProductDetail(Long productId) {
+    public ProductDetailDTO getProductDetail(Long productId, Member member) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
-        return convertToProductViewDTO(product);
+        return convertToProductDetailDTO(product, member);
     }
 
     private void validateProducts(List<Product> products) {
@@ -47,9 +52,9 @@ public class ProductViewService {
         }
     }
 
-    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products) {
+    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products, Member member) {
         return products.stream()
-                .map(this::convertToProductViewDTO)
+                .map(product -> convertToProductViewDTO(product, member))
                 .toList();
     }
 
