@@ -33,7 +33,6 @@ public interface ProductControllerSwagger {
                     content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
-    ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam("category") String category);
     ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam("category") String category,
                                                       @AuthenticationPrincipal Member member);
 
@@ -45,4 +44,35 @@ public interface ProductControllerSwagger {
     })
     ResponseEntity<ResponseDTO> productDetail(@PathVariable(value = "productId") Long productId,
                                               @AuthenticationPrincipal Member member);
+
+    @Operation(summary = "찜 목록 조회", description = "찜 목록 조회 Api")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal Member member);
+
+    @Operation(summary = "찜 여부 확인", description = "찜 여부 확인 Api")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> isFavorite(@PathVariable(value = "productId") Long productId,
+                                           @AuthenticationPrincipal Member member);
+
+    @Operation(summary = "찜 목록 등록", description = "찜 목록 추가 Api")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "409", description = "Conflict (Duplicate)")
+    })
+    ResponseEntity<ResponseDTO> addFavorite(@PathVariable(value = "productId") Long productId,
+                                                   @AuthenticationPrincipal Member member);
+
+    @Operation(summary = "찜 목록 삭제", description = "찜 목록 삭제 Api")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Not Found")
+    })
+    ResponseEntity<ResponseDTO> removeFavorite(@PathVariable(value = "productId") Long productId,
+                                            @AuthenticationPrincipal Member member);
 }
