@@ -54,21 +54,52 @@ public class ProductViewService {
     }
 
     private Integer calculateSalePrice(Integer originalPrice, BigDecimal saleRate) {
-        BigDecimal originalPriceDecimal = new BigDecimal(originalPrice);
-        BigDecimal discount = originalPriceDecimal.multiply(saleRate).divide(BigDecimal.valueOf(100));
+        BigDecimal originalPriceDecimal = BigDecimal.valueOf(originalPrice);
+        BigDecimal discount = originalPriceDecimal.multiply(saleRate)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         BigDecimal salePrice = originalPriceDecimal.subtract(discount);
-        return salePrice.setScale(0, RoundingMode.HALF_UP).intValue();
+        return salePrice.intValue();
     }
 
-    private ProductViewDTO convertToProductViewDTO(Product product) {
+    public boolean isProductFavorite(Member loginMember, Long productId) {
+        Member member = memberRepository.findByEmailAndPlatform(loginMember.getEmail(), loginMember.getPlatform())
+                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
+        return favoriteRepository.existsByMemberIdAndProductId(member.getId(), product.getId());
+    }
+
+    private ProductViewDTO convertToProductViewDTO(Product product, Member member) {
+        boolean isFavorite = isProductFavorite(member, product.getId());
         return new ProductViewDTO(
+                product.getId(),
+                product.getSubtitle(),
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
                 product.getSaleRate(),
                 calculateSalePrice(product.getOriginalPrice(), product.getSaleRate()),
                 product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount()
+                product.getMaxPurchaseCount(),
+                isFavorite
+        );
+    }
+
+    private ProductDetailDTO convertToProductDetailDTO(Product product, Member member) {
+        boolean isFavorite = isProductFavorite(member, product.getId());
+        return new ProductDetailDTO(
+                product.getId(),
+                product.getSubtitle(),
+                product.getProductName(),
+                product.getProductImage(),
+                product.getOriginalPrice(),
+                product.getSaleRate(),
+                calculateSalePrice(product.getOriginalPrice(), product.getSaleRate()),
+                product.getPurchaseParticipantCount(),
+                product.getMaxPurchaseCount(),
+                isFavorite,
+                product.getOptions(),
+                product.getDescription()
         );
     }
 }
