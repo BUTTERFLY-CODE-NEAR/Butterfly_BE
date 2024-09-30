@@ -61,8 +61,18 @@ public class ProductViewService {
         return salePrice.intValue();
     }
 
-    private ProductViewDTO convertToProductViewDTO(Product product) {
+    public boolean isProductFavorite(Member loginMember, Long productId) {
+        Member member = memberRepository.findByEmailAndPlatform(loginMember.getEmail(), loginMember.getPlatform())
+                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
+        return favoriteRepository.existsByMemberIdAndProductId(member.getId(), product.getId());
+    }
+
+    private ProductViewDTO convertToProductViewDTO(Product product, Member member) {
+        boolean isFavorite = isProductFavorite(member, product.getId());
         return new ProductViewDTO(
+                product.getId(),
                 product.getSubtitle(),
                 product.getProductName(),
                 product.getProductImage(),
@@ -70,7 +80,26 @@ public class ProductViewService {
                 product.getSaleRate(),
                 calculateSalePrice(product.getOriginalPrice(), product.getSaleRate()),
                 product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount()
+                product.getMaxPurchaseCount(),
+                isFavorite
+        );
+    }
+
+    private ProductDetailDTO convertToProductDetailDTO(Product product, Member member) {
+        boolean isFavorite = isProductFavorite(member, product.getId());
+        return new ProductDetailDTO(
+                product.getId(),
+                product.getSubtitle(),
+                product.getProductName(),
+                product.getProductImage(),
+                product.getOriginalPrice(),
+                product.getSaleRate(),
+                calculateSalePrice(product.getOriginalPrice(), product.getSaleRate()),
+                product.getPurchaseParticipantCount(),
+                product.getMaxPurchaseCount(),
+                isFavorite,
+                product.getOptions(),
+                product.getDescription()
         );
     }
 }
