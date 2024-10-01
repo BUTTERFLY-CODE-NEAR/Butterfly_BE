@@ -4,6 +4,7 @@ import com.codenear.butterfly.auth.domain.dto.AuthLoginDTO;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class EmailLoginService {
     private final PasswordEncoder passwordEncoder;
 
     public Member login(AuthLoginDTO requestDTO, String password) {
-        Member member = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), requestDTO.getPlatform())
+        Member member = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), Platform.CODENEAR)
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
