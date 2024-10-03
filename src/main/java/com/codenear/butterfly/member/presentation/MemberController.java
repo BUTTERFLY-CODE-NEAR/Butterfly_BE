@@ -1,9 +1,9 @@
 package com.codenear.butterfly.member.presentation;
 
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.application.MemberService;
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.presentation.swagger.MemberControllerSwagger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class MemberController implements MemberControllerSwagger {
     private final MemberService memberService;
 
     @GetMapping("/info")
-    public ResponseEntity<ResponseDTO> memberInfo(@AuthenticationPrincipal Member member) {
-        return ResponseUtil.createSuccessResponse(memberService.getMemberInfo(member));
+    public ResponseEntity<ResponseDTO> memberInfo(@AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(memberService.getMemberInfo(memberDTO));
     }
 }

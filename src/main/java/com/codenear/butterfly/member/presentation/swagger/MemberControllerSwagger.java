@@ -1,7 +1,7 @@
 package com.codenear.butterfly.member.presentation.swagger;
 
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberInfoDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,5 +21,5 @@ public interface MemberControllerSwagger {
                     content = @Content(schema = @Schema(implementation = MemberInfoDTO.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
-    ResponseEntity<ResponseDTO> memberInfo(@AuthenticationPrincipal Member member);
+    ResponseEntity<ResponseDTO> memberInfo(@AuthenticationPrincipal MemberDTO memberDTO);
 }
