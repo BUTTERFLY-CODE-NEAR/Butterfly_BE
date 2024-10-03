@@ -2,6 +2,7 @@ package com.codenear.butterfly.support.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,8 +25,8 @@ public interface InquiryControllerSwagger {
                     content = @Content(schema = @Schema(implementation = InquiryListDTO.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
-    public ResponseEntity<ResponseDTO> getInquiryList(@AuthenticationPrincipal Member loginMember);
+    public ResponseEntity<ResponseDTO> getInquiryList(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "고객 문의 등록", description = "고객 문의 등록 API")
-    public ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO dto, @AuthenticationPrincipal Member loginMember);
+    public ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO dto, @AuthenticationPrincipal MemberDTO memberDTO);
 }

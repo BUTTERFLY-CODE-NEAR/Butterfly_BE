@@ -29,9 +29,8 @@ public class MemberService {
     }
 
     @Cacheable(value = "userCache", key = "#memberId")
-    public MemberDTO loadMemberByMemberId(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+    public MemberDTO getMemberDTOByMemberId(Long memberId) {
+        Member member = loadMemberByMemberId(memberId);
 
         return new MemberDTO(
                 member.getId(),
@@ -44,5 +43,10 @@ public class MemberService {
                 member.getGrade(),
                 member.getPlatform()
         );
+    }
+
+    public Member loadMemberByMemberId(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
     }
 }
