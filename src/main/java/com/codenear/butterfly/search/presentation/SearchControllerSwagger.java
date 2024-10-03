@@ -1,7 +1,7 @@
 package com.codenear.butterfly.search.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +16,15 @@ public interface SearchControllerSwagger {
     public ResponseEntity<ResponseDTO> getRelatedKeywords(@RequestParam String keyword);
 
     @Operation(summary = "최근 검색어 정보", description = "최근 검색어 목록 정보 API")
-    public ResponseEntity<ResponseDTO> getSearchLogList(@AuthenticationPrincipal Member member);
+    public ResponseEntity<ResponseDTO> getSearchLogList(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "최근 검색어 전체 삭제", description = "최근 검체어 목록 전체 삭제 API")
-    public ResponseEntity<ResponseDTO> deleteAllSearchLog(@AuthenticationPrincipal Member member);
+    public ResponseEntity<ResponseDTO> deleteAllSearchLog(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "최근 검색어 선택 삭제", description = "최근 검색어 목록 선택 삭제 API")
-    public ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal Member member);
+    public ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "테스트 검색 데이터 추가", description = "테스트 검색 데이터 추가 API")
-    public ResponseEntity<ResponseDTO> testSearchLog(@RequestParam String keyword, @AuthenticationPrincipal Member member);
+    public ResponseEntity<ResponseDTO> testSearchLog(@RequestParam String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
 }
