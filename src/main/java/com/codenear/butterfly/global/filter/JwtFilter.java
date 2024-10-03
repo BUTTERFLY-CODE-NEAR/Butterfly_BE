@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (isTokenExpired(response, token)) return;
 
         Long memberId = jwtUtil.getMemberId(token);
-        MemberDTO memberDTO = memberService.loadMemberByMemberId(memberId);
+        MemberDTO memberDTO = memberService.getMemberDTOByMemberId(memberId);
 
         setAuthentication(memberDTO);
         filterChain.doFilter(request, response);
