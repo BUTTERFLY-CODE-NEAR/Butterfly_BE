@@ -13,9 +13,6 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    public static final String EMAIL = "email";
-    public static final String PLATFORM = "platform";
-
     @Value("${jwt.secret-key}")
     private String key;
 
