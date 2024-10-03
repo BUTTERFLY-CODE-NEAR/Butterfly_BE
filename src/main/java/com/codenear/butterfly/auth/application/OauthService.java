@@ -20,17 +20,19 @@ public class OauthService {
     private final NicknameService nicknameService;
 
     public void socialLoginAndIssueJwt(OauthDTO dto, HttpServletResponse response) {
-        registerOrLogin(dto);
-        jwtService.processTokens(dto.getEmail(), dto.getPlatform().name(), response);
+        Member member = registerOrLogin(dto);
+        jwtService.processTokens(member.getId(), response);
     }
 
-    private void registerOrLogin(OauthDTO dto) {
+    private Member registerOrLogin(OauthDTO dto) {
         Optional<Member> optMember = memberRepository.findByEmailAndPlatform(dto.getEmail(), dto.getPlatform());
 
         if (optMember.isEmpty()) {
             Member member = createMember(dto);
-            memberRepository.save(member);
+            return memberRepository.save(member);
         }
+
+        return optMember.get();
     }
 
     private Member createMember(OauthDTO dto) {

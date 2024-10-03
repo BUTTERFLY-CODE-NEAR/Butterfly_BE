@@ -4,8 +4,8 @@ import com.codenear.butterfly.auth.util.JwtUtil;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.property.SecurityProperties;
-import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.Platform;
+import com.codenear.butterfly.member.application.MemberService;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -14,7 +14,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,9 +22,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
+import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -34,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final SecurityProperties securityProperties;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -45,22 +44,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String authorization = request.getHeader(AUTHORIZATION_HEADER);
-
         if (isTokenNull(response, authorization)) return;
 
         String token = authorization.split(" ")[1];
-
         if (isTokenExpired(response, token)) return;
 
-        String email = jwtUtil.getEmail(token);
-        String platform = jwtUtil.getPlatform(token);
+        Long memberId = jwtUtil.getMemberId(token);
+        MemberDTO memberDTO = memberService.loadMemberByMemberId(memberId);
 
-        Member member = Member.builder()
-                .email(email)
-                .platform(Platform.valueOf(platform))
-                .build();
-
-        setAuthentication(member);
+        setAuthentication(memberDTO);
         filterChain.doFilter(request, response);
     }
 
@@ -86,11 +78,11 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     // 인증 정보 저장
-    private static void setAuthentication(Member member) {
+    private static void setAuthentication(MemberDTO memberDTO) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(
-                member,
+                memberDTO,
                 null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                List.of(new SimpleGrantedAuthority(memberDTO.getAuthorities())));
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }

@@ -1,6 +1,5 @@
 package com.codenear.butterfly.auth.domain;
 
-import com.codenear.butterfly.member.domain.Platform;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,11 +17,7 @@ public class JwtRefresh {
     private Long id;
 
     @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Platform platform;
+    private Long memberId;
 
     @Column(nullable = false)
     private String refresh;
