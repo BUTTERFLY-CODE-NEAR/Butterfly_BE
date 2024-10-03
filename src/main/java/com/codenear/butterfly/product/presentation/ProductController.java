@@ -2,7 +2,7 @@ package com.codenear.butterfly.product.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
-import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.application.CategoryService;
 import com.codenear.butterfly.product.application.FavoriteService;
 import com.codenear.butterfly.product.application.ProductViewService;
@@ -30,23 +30,23 @@ public class ProductController implements ProductControllerSwagger {
 
     @GetMapping
     public ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam(value = "category", required = false) String category,
-                                                             @AuthenticationPrincipal Member member) {
+                                                             @AuthenticationPrincipal MemberDTO memberDTO) {
         if (category == null || category.isEmpty()) {
-            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(member));
+            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(memberDTO));
         } else {
-            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, member));
+            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO));
         }
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> productDetail(@PathVariable(value = "productId") Long productId,
-                                                     @AuthenticationPrincipal Member member) {
-        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, member));
+                                                     @AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, memberDTO));
     }
 
     @GetMapping("/favorites")
-    public ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal Member member) {
-        List<Long> favorites = favoriteService.getFavoriteAll(member);
+    public ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal MemberDTO memberDTO) {
+        List<Long> favorites = favoriteService.getFavoriteAll(memberDTO);
 
         if (favorites.isEmpty()) {
             return ResponseUtil.createSuccessResponse(HttpStatus.NO_CONTENT, "찜 목록이 비어있습니다.", null);
@@ -57,21 +57,21 @@ public class ProductController implements ProductControllerSwagger {
 
     @GetMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> isFavorite(@PathVariable(value = "productId") Long productId,
-                                                  @AuthenticationPrincipal Member member) {
-        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(member, productId));
+                                                  @AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(memberDTO, productId));
     }
 
     @PostMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> addFavorite(@PathVariable(value = "productId") Long productId,
-                                                   @AuthenticationPrincipal Member member) {
-        favoriteService.addFavorite(member, productId);
+                                                   @AuthenticationPrincipal MemberDTO memberDTO) {
+        favoriteService.addFavorite(memberDTO, productId);
         return ResponseUtil.createSuccessResponse(null);
     }
 
     @DeleteMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> removeFavorite(@PathVariable(value = "productId") Long productId,
-                                                      @AuthenticationPrincipal Member member) {
-        favoriteService.removeFavorite(member, productId);
+                                                      @AuthenticationPrincipal MemberDTO memberDTO) {
+        favoriteService.removeFavorite(memberDTO, productId);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
