@@ -1,27 +1,48 @@
 package com.codenear.butterfly.member.application;
 
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberInfoDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.point.application.PointService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PointService pointService;
 
-    public MemberInfoDTO getMemberInfo(Member loginMember) {
-        Member member = memberRepository.findByEmailAndPlatform(loginMember.getEmail(), loginMember.getPlatform())
-                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+    public MemberInfoDTO getMemberInfo(MemberDTO memberDTO) {
+        Integer pointValue = pointService.loadPointByMemberId(memberDTO.getId()).getPoint();
 
         return new MemberInfoDTO(
+                memberDTO.getNickname(),
+                memberDTO.getProfileImage(),
+                memberDTO.getGrade().getGrade(),
+                pointValue
+        );
+    }
+
+    @Cacheable(value = "userCache", key = "#memberId")
+    public MemberDTO loadMemberByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+
+        return new MemberDTO(
+                member.getId(),
+                member.getUsername(),
+                member.getEmail(),
+                member.getPhoneNumber(),
+                member.getPassword(),
                 member.getNickname(),
                 member.getProfileImage(),
-                member.getGrade().getGrade(),
-                member.getPoint().getPoint()
+                member.getGrade(),
+                member.getPlatform()
         );
     }
 }
