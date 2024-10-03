@@ -10,7 +10,6 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
 import com.codenear.butterfly.point.domain.Point;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,20 +19,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmailRegisterService {
 
-    private final CustomUserDetailsService userDetailsService;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final ForbiddenWordFilter forbiddenWordFilter;
 
-    public void emailRegister(AuthRegisterDTO authRegisterDTO) {
-        if (hasMember(authRegisterDTO.getEmail())) {
-            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
-        }
+    public Member emailRegister(AuthRegisterDTO authRegisterDTO) {
+//        if (hasMember(authRegisterDTO.getEmail())) { // todo : 재현 수정 부탁
+//            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
+//        }
 
         validateNickname(authRegisterDTO.getNickname());
 
         Member newMember = register(authRegisterDTO);
-        memberRepository.save(newMember);
+        return memberRepository.save(newMember);
     }
 
     private void validateNickname(String nickname) {
@@ -42,14 +40,14 @@ public class EmailRegisterService {
         }
     }
 
-    private boolean hasMember(String email) {
-        try {
-            userDetailsService.loadUserByUsername(email);
-            return true;
-        } catch (UsernameNotFoundException e) {
-            return false;
-        }
-    }
+//    private boolean hasMember(String email) {
+//        try {
+//            userDetailsService.loadUserByUsername(email);
+//            return true;
+//        } catch (UsernameNotFoundException e) {
+//            return false;
+//        }
+//    }
 
     private Member register(AuthRegisterDTO requestDTO) {
         Member member = Member.builder()
