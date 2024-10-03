@@ -5,7 +5,6 @@ import com.codenear.butterfly.auth.domain.JwtRefresh;
 import com.codenear.butterfly.auth.domain.JwtRefreshRepository;
 import com.codenear.butterfly.auth.util.CookieUtil;
 import com.codenear.butterfly.auth.util.JwtUtil;
-import com.codenear.butterfly.member.domain.Platform;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +21,14 @@ public class JwtService {
     private final TokenValidator tokenValidator;
 
     // 새로운 Access, Refresh 토큰 발급
-    public void processTokens(String email, String platform, HttpServletResponse response) {
-        String accessToken = jwtUtil.createAccessJwt(email, platform);
-        String refreshToken = jwtUtil.createRefreshJwt(email, platform);
+    public void processTokens(Long memberId, HttpServletResponse response) {
+        String accessToken = jwtUtil.createAccessJwt(memberId);
+        String refreshToken = jwtUtil.createRefreshJwt(memberId);
 
-        Optional<JwtRefresh> optJwtRefresh = jwtRefreshRepository.findByEmailAndPlatform(email, Platform.valueOf(platform));
+        Optional<JwtRefresh> optJwtRefresh = jwtRefreshRepository.findByMemberId(memberId);
         optJwtRefresh.ifPresent(jwtRefresh -> jwtRefreshRepository.deleteByRefresh(jwtRefresh.getRefresh()));
 
-        addRefreshEntity(email, platform, refreshToken); // Refresh 토큰은 DB 저장
+        addRefreshEntity(memberId, refreshToken); // Refresh 토큰은 DB 저장
 
         setResponse(accessToken, refreshToken, response);
     }
@@ -42,17 +41,16 @@ public class JwtService {
 
         jwtRefreshRepository.deleteByRefresh(refreshToken); // 기존 Refresh 토큰 데이터 삭제
 
-        String email = jwtUtil.getEmail(refreshToken);
-        String platform = jwtUtil.getPlatform(refreshToken);
-        processTokens(email, platform, response);
+        Long memberId = jwtUtil.getMemberId(refreshToken);
+        processTokens(memberId, response);
     }
 
-    public void addRefreshEntity(String email, String platform, String refresh) {
-        JwtRefresh refreshEntity = jwtUtil.buildRefreshEntity(email, Platform.valueOf(platform), refresh);
+    private void addRefreshEntity(Long memberId, String refresh) {
+        JwtRefresh refreshEntity = jwtUtil.buildRefreshEntity(memberId, refresh);
         jwtRefreshRepository.save(refreshEntity);
     }
 
-    public void setResponse(String accessToken, String refreshToken, HttpServletResponse response) {
+    private void setResponse(String accessToken, String refreshToken, HttpServletResponse response) {
         response.setHeader("Authorization", "Bearer " + accessToken);
         response.addCookie(cookieUtil.createCookie("Refresh", refreshToken));
     }

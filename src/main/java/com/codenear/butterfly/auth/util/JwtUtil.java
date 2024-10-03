@@ -1,7 +1,6 @@
 package com.codenear.butterfly.auth.util;
 
 import com.codenear.butterfly.auth.domain.JwtRefresh;
-import com.codenear.butterfly.member.domain.Platform;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +27,7 @@ public class JwtUtil {
 
     private SecretKey secretKey;
 
-    @PostConstruct // 스프링 빈 초기화 이후 실행되는 로직
+    @PostConstruct
     public void init() {
         this.secretKey = new SecretKeySpec(
                 key.getBytes(StandardCharsets.UTF_8),
@@ -38,20 +37,12 @@ public class JwtUtil {
                     .getAlgorithm());
     }
 
-    public String createAccessJwt(String email, String platform) {
-        return createJwt(email, platform, accessTokenExpirationMillis);
+    public String createAccessJwt(Long memberId) {
+        return createJwt(memberId, accessTokenExpirationMillis);
     }
 
-    public String createRefreshJwt(String email, String platform) {
-        return createJwt(email, platform, refreshTokenExpirationMillis);
-    }
-
-    public String getEmail(String token) {
-        return getTokenInfo(token, EMAIL);
-    }
-
-    public String getPlatform(String token) {
-        return getTokenInfo(token, PLATFORM);
+    public String createRefreshJwt(Long memberId) {
+        return createJwt(memberId, refreshTokenExpirationMillis);
     }
 
     public void isExpired(String token) {
@@ -64,31 +55,29 @@ public class JwtUtil {
                 .before(new Date());
     }
 
-    public JwtRefresh buildRefreshEntity(String email, Platform platform, String refresh) {
+    public Long getMemberId(String token) {
+        return Long.parseLong(Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject());
+    }
+
+    public JwtRefresh buildRefreshEntity(Long memberId, String refresh) {
         return JwtRefresh.builder()
-                .email(email)
-                .platform(platform)
+                .memberId(memberId)
                 .refresh(refresh)
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMillis))
                 .build();
     }
 
-    private String createJwt(String email, String platform, Long tokenExpirationMillis) {
+    private String createJwt(Long memberId, Long tokenExpirationMillis) {
         return Jwts.builder()
-                .claim(EMAIL, email)
-                .claim(PLATFORM, platform)
+                .subject(String.valueOf(memberId))
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + tokenExpirationMillis))
                 .signWith(secretKey)
                 .compact();
-    }
-
-    private String getTokenInfo(String token, String info) {
-        return Jwts.parser()
-                .verifyWith(secretKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get(info, String.class);
     }
 }
