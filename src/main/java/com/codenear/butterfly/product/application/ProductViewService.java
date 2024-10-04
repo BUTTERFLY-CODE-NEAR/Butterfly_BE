@@ -2,6 +2,7 @@ package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
@@ -27,23 +28,23 @@ public class ProductViewService {
     private final FavoriteRepository favoriteRepository;
     private final MemberRepository memberRepository;
 
-    public List<ProductViewDTO> getAllProducts(Member member) {
+    public List<ProductViewDTO> getAllProducts(Long memberId) {
         List<Product> products = productRepository.findAll();
         validateProducts(products);
-        return convertProductsToDTOs(products, member);
+        return convertProductsToDTOs(products, memberId);
     }
 
-    public List<ProductViewDTO> getProductsByCategory(String categoryValue, Member member) {
+    public List<ProductViewDTO> getProductsByCategory(String categoryValue, Long memberId) {
         Category category = Category.fromValue(categoryValue);
         List<Product> products = productRepository.findProductByCategory(category);
         validateProducts(products);
-        return convertProductsToDTOs(products, member);
+        return convertProductsToDTOs(products, memberId);
     }
 
-    public ProductDetailDTO getProductDetail(Long productId, Member member) {
+    public ProductDetailDTO getProductDetail(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
-        return convertToProductDetailDTO(product, member);
+        return convertToProductDetailDTO(product, memberId);
     }
 
     private void validateProducts(List<Product> products) {
@@ -52,9 +53,9 @@ public class ProductViewService {
         }
     }
 
-    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products, Member member) {
+    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products, Long memberId) {
         return products.stream()
-                .map(product -> convertToProductViewDTO(product, member))
+                .map(product -> convertToProductViewDTO(product, memberId))
                 .toList();
     }
 
@@ -66,16 +67,16 @@ public class ProductViewService {
         return salePrice.intValue();
     }
 
-    public boolean isProductFavorite(Member loginMember, Long productId) {
-        Member member = memberRepository.findByEmailAndPlatform(loginMember.getEmail(), loginMember.getPlatform())
+    public boolean isProductFavorite(Long memberId, Long productId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
         return favoriteRepository.existsByMemberIdAndProductId(member.getId(), product.getId());
     }
 
-    private ProductViewDTO convertToProductViewDTO(Product product, Member member) {
-        boolean isFavorite = isProductFavorite(member, product.getId());
+    private ProductViewDTO convertToProductViewDTO(Product product, Long memberId) {
+        boolean isFavorite = isProductFavorite(memberId, product.getId());
         return new ProductViewDTO(
                 product.getId(),
                 product.getSubtitle(),
@@ -90,8 +91,8 @@ public class ProductViewService {
         );
     }
 
-    private ProductDetailDTO convertToProductDetailDTO(Product product, Member member) {
-        boolean isFavorite = isProductFavorite(member, product.getId());
+    private ProductDetailDTO convertToProductDetailDTO(Product product, Long memberId) {
+        boolean isFavorite = isProductFavorite(memberId, product.getId());
         return new ProductDetailDTO(
                 product.getId(),
                 product.getSubtitle(),

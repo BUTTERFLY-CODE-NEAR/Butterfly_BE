@@ -2,6 +2,7 @@ package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Product;
@@ -26,9 +27,7 @@ public class FavoriteService {
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
-    public List<Long> getFavoriteAll(Member loginMember) {
-        Long memberId = getMember(loginMember).getId();
-
+    public List<Long> getFavoriteAll(Long memberId) {
         return queryFactory
                 .select(favorite.id)
                 .from(favorite)
@@ -36,8 +35,8 @@ public class FavoriteService {
                 .fetch();
     }
 
-    public void addFavorite(Member loginMember, Long productId) {
-        Member member = getMember(loginMember);
+    public void addFavorite(MemberDTO memberDTO, Long productId) {
+        Member member = getMember(memberDTO);
         Product product = getProduct(productId);
 
         if (isFavoriteExists(member, product)) {
@@ -47,8 +46,8 @@ public class FavoriteService {
         member.addFavorite(product);
     }
 
-    public void removeFavorite(Member loginMember, Long productId) {
-        Member member = getMember(loginMember);
+    public void removeFavorite(MemberDTO memberDTO, Long productId) {
+        Member member = getMember(memberDTO);
         Product product = getProduct(productId);
 
         if (!isFavoriteExists(member, product)) {
@@ -58,8 +57,8 @@ public class FavoriteService {
         member.removeFavorite(product);
     }
 
-    private Member getMember(Member loginMember) {
-        return memberRepository.findByEmailAndPlatform(loginMember.getEmail(), loginMember.getPlatform())
+    private Member getMember(MemberDTO memberDTO) {
+        return memberRepository.findById(memberDTO.getId())
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
     }
 
