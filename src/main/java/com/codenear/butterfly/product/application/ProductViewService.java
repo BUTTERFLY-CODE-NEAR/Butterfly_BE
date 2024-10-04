@@ -28,23 +28,23 @@ public class ProductViewService {
     private final FavoriteRepository favoriteRepository;
     private final MemberRepository memberRepository;
 
-    public List<ProductViewDTO> getAllProducts(MemberDTO memberDTO) {
+    public List<ProductViewDTO> getAllProducts(Long memberId) {
         List<Product> products = productRepository.findAll();
         validateProducts(products);
-        return convertProductsToDTOs(products, memberDTO);
+        return convertProductsToDTOs(products, memberId);
     }
 
-    public List<ProductViewDTO> getProductsByCategory(String categoryValue, MemberDTO memberDTO) {
+    public List<ProductViewDTO> getProductsByCategory(String categoryValue, Long memberId) {
         Category category = Category.fromValue(categoryValue);
         List<Product> products = productRepository.findProductByCategory(category);
         validateProducts(products);
-        return convertProductsToDTOs(products, memberDTO);
+        return convertProductsToDTOs(products, memberId);
     }
 
-    public ProductDetailDTO getProductDetail(Long productId, MemberDTO memberDTO) {
+    public ProductDetailDTO getProductDetail(Long productId, Long memberId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
-        return convertToProductDetailDTO(product, memberDTO);
+        return convertToProductDetailDTO(product, memberId);
     }
 
     private void validateProducts(List<Product> products) {
@@ -53,9 +53,9 @@ public class ProductViewService {
         }
     }
 
-    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products, MemberDTO memberDTO) {
+    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products, Long memberId) {
         return products.stream()
-                .map(product -> convertToProductViewDTO(product, memberDTO))
+                .map(product -> convertToProductViewDTO(product, memberId))
                 .toList();
     }
 
@@ -67,16 +67,16 @@ public class ProductViewService {
         return salePrice.intValue();
     }
 
-    public boolean isProductFavorite(MemberDTO memberDTO, Long productId) {
-        Member member = memberRepository.findById(memberDTO.getId())
+    public boolean isProductFavorite(Long memberId, Long productId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
         return favoriteRepository.existsByMemberIdAndProductId(member.getId(), product.getId());
     }
 
-    private ProductViewDTO convertToProductViewDTO(Product product, MemberDTO memberDTO) {
-        boolean isFavorite = isProductFavorite(memberDTO, product.getId());
+    private ProductViewDTO convertToProductViewDTO(Product product, Long memberId) {
+        boolean isFavorite = isProductFavorite(memberId, product.getId());
         return new ProductViewDTO(
                 product.getId(),
                 product.getSubtitle(),
@@ -91,8 +91,8 @@ public class ProductViewService {
         );
     }
 
-    private ProductDetailDTO convertToProductDetailDTO(Product product, MemberDTO memberDTO) {
-        boolean isFavorite = isProductFavorite(memberDTO, product.getId());
+    private ProductDetailDTO convertToProductDetailDTO(Product product, Long memberId) {
+        boolean isFavorite = isProductFavorite(memberId, product.getId());
         return new ProductDetailDTO(
                 product.getId(),
                 product.getSubtitle(),

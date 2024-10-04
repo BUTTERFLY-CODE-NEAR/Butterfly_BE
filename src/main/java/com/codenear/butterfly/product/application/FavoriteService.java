@@ -27,9 +27,7 @@ public class FavoriteService {
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
-    public List<Long> getFavoriteAll(MemberDTO memberDTO) {
-        Long memberId = getMember(memberDTO).getId();
-
+    public List<Long> getFavoriteAll(Long memberId) {
         return queryFactory
                 .select(favorite.id)
                 .from(favorite)

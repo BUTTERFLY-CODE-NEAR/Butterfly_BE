@@ -32,21 +32,21 @@ public class ProductController implements ProductControllerSwagger {
     public ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam(value = "category", required = false) String category,
                                                              @AuthenticationPrincipal MemberDTO memberDTO) {
         if (category == null || category.isEmpty()) {
-            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(memberDTO));
+            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(memberDTO.getId()));
         } else {
-            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO));
+            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO.getId()));
         }
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> productDetail(@PathVariable(value = "productId") Long productId,
                                                      @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, memberDTO));
+        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, memberDTO.getId()));
     }
 
     @GetMapping("/favorites")
     public ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal MemberDTO memberDTO) {
-        List<Long> favorites = favoriteService.getFavoriteAll(memberDTO);
+        List<Long> favorites = favoriteService.getFavoriteAll(memberDTO.getId());
 
         if (favorites.isEmpty()) {
             return ResponseUtil.createSuccessResponse(HttpStatus.NO_CONTENT, "찜 목록이 비어있습니다.", null);
@@ -58,7 +58,7 @@ public class ProductController implements ProductControllerSwagger {
     @GetMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> isFavorite(@PathVariable(value = "productId") Long productId,
                                                   @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(memberDTO, productId));
+        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(memberDTO.getId(), productId));
     }
 
     @PostMapping("/favorites/{productId}")
