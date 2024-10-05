@@ -7,6 +7,7 @@ import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
+import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
 import com.codenear.butterfly.point.domain.Point;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,9 @@ public class EmailRegisterService {
     private final ForbiddenWordFilter forbiddenWordFilter;
 
     public Member emailRegister(AuthRegisterDTO authRegisterDTO) {
-//        if (hasMember(authRegisterDTO.getEmail())) { // todo : 재현 수정 부탁
-//            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
-//        }
+        if (hasMember(authRegisterDTO.getEmail())) {
+            throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
+        }
 
         validateNickname(authRegisterDTO.getNickname());
 
@@ -40,14 +41,9 @@ public class EmailRegisterService {
         }
     }
 
-//    private boolean hasMember(String email) {
-//        try {
-//            userDetailsService.loadUserByUsername(email);
-//            return true;
-//        } catch (UsernameNotFoundException e) {
-//            return false;
-//        }
-//    }
+    private boolean hasMember(String email) {
+        return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).isPresent();
+    }
 
     private Member register(AuthRegisterDTO requestDTO) {
         Member member = Member.builder()

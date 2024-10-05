@@ -22,7 +22,7 @@ public class EmailLoginService {
 
     public Member login(AuthLoginDTO requestDTO, String password) {
         Member member = memberRepository.findByEmailAndPlatform(requestDTO.getEmail(), Platform.CODENEAR)
-                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, null));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new AuthException(ErrorCode.INVALID_EMAIL_OR_PASSWORD, null);
