@@ -30,6 +30,8 @@ public enum ErrorCode {
     // 404 (NOT_FOUND)
     PRODUCT_NOT_FOUND(40400, "등록된 상품이 없습니다.", HttpStatus.NOT_FOUND),
     FAVORITE_NOT_FOUND(40401, "찜 목록에 해당 상품이 없습니다.", HttpStatus.NOT_FOUND),
+    PAY_CANCEL(40402,"결제가 취소되었습니다.", HttpStatus.NOT_FOUND),
+    PAY_FAILED(40403,"결제가 실패하였습니다.", HttpStatus.NOT_FOUND),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
