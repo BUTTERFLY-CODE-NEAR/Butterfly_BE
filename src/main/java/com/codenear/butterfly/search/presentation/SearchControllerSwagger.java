@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface SearchControllerSwagger {
 
     @Operation(summary = "연관 검색어 정보", description = "연관 검색어 정보 API")
-    public ResponseEntity<ResponseDTO> getRelatedKeywords(@RequestParam String keyword);
+    ResponseEntity<ResponseDTO> getRelatedKeywords(@RequestParam String keyword);
 
     @Operation(summary = "최근 검색어 정보", description = "최근 검색어 목록 정보 API")
-    public ResponseEntity<ResponseDTO> getSearchLogList(@AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> getSearchLogList(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "최근 검색어 전체 삭제", description = "최근 검체어 목록 전체 삭제 API")
-    public ResponseEntity<ResponseDTO> deleteAllSearchLog(@AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> deleteAllSearchLog(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "최근 검색어 선택 삭제", description = "최근 검색어 목록 선택 삭제 API")
-    public ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "테스트 검색 데이터 추가", description = "테스트 검색 데이터 추가 API")
-    public ResponseEntity<ResponseDTO> testSearchLog(@RequestParam String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> testSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
 }
