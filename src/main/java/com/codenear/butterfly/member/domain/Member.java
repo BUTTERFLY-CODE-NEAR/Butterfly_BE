@@ -1,5 +1,6 @@
 package com.codenear.butterfly.member.domain;
 
+import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.global.domain.BaseEntity;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
@@ -36,8 +37,8 @@ public class Member extends BaseEntity {
 
     private String profileImage;
 
-    //todo : 주소 테이블로 옮길지, 1:N 연결 고려
-    private String address;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addresses = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private Grade grade;
