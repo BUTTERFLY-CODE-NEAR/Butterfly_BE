@@ -2,10 +2,12 @@ package com.codenear.butterfly.kakaoPay.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentRequestDTO;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -13,14 +15,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface SinglePayControllerSwagger {
 
     @Operation(summary = "결제 준비", description = "결제 준비 API")
-    ResponseEntity<ResponseDTO> paymentRequest(@RequestBody PaymentRequestDTO paymentRequestDto);
+    ResponseEntity<ResponseDTO> paymentRequest(@RequestBody PaymentRequestDTO paymentRequestDto,
+                                               @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "결제 성공", description = "결제 성공 API")
-    void successPaymentRequest(@RequestParam("pg_token") String pgToken, HttpServletResponse response);
+    void successPaymentRequest(@RequestParam("pg_token") String pgToken,
+                               @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "결제 취소", description = "결제 취소 API")
-    void cancelPaymentRequest();
+    void cancelPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "결제 실패", description = "결제 실패 API")
-    void failPaymentRequest();
+    void failPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 }

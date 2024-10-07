@@ -7,6 +7,7 @@ import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,13 +37,17 @@ public class SinglePaymentService {
 
     private ReadyResponseDTO kakaoPayReady;
     private final SinglePaymentRepository singlePaymentRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final SinglePaymentMapper singlePaymentMapper;
 
-    public ReadyResponseDTO kakaoPayReady(PaymentRequestDTO paymentRequestDTO) {
+    public ReadyResponseDTO kakaoPayReady(PaymentRequestDTO paymentRequestDTO, Long memberId) {
+        String partnerOrderId = UUID.randomUUID().toString();
+
         // 카카오페이 요청 양식
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("cid", CID);
-        parameters.put("partner_order_id", paymentRequestDTO.getOrderId());
-        parameters.put("partner_user_id", paymentRequestDTO.getMemberId());
+        parameters.put("partner_order_id", partnerOrderId);
+        parameters.put("partner_user_id", memberId.toString());
         parameters.put("item_name", paymentRequestDTO.getProductName());
         parameters.put("quantity", paymentRequestDTO.getQuantity());
         parameters.put("total_amount", paymentRequestDTO.getTotal());
@@ -57,26 +65,31 @@ public class SinglePaymentService {
 
         log.info("kakaoPayReadyURL={}", host+"/ready");
 
-        kakaoPayReady = restTemplate.postForObject(
-                host+"/ready", //post 요청 url
+        ReadyResponseDTO kakaoPayReady = restTemplate.postForObject(
+                host+"/ready",
                 requestEntity,
                 ReadyResponseDTO.class);
 
         log.info("kakaoPayReady={}", kakaoPayReady);
 
+        // Redis에 주문 ID와 거래 ID 저장
+        saveOrderId(memberId, partnerOrderId);
+        saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
+
         return kakaoPayReady;
     }
 
-    // 결제 승인
-    public ApproveResponseDTO approveResponse(String pgToken) {
+    @Transactional
+    public void approveResponse(String pgToken, Long memberId) {
+        String orderId = getOrderId(memberId);
+        String transactionId = getTransactionId(memberId);
+
         // 카카오 요청
-        // todo: 사용자 인증 정보에서 user id 가져오게 수정
-        // todo: order id도 동일
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("cid", CID);
-        parameters.put("tid", kakaoPayReady.getTid());
-        parameters.put("partner_user_id", 1);
-        parameters.put("partner_order_id", 1);
+        parameters.put("tid", transactionId);
+        parameters.put("partner_order_id", orderId);
+        parameters.put("partner_user_id", memberId.toString());
         parameters.put("pg_token", pgToken);
 
         // 파라미터, 헤더
@@ -85,6 +98,7 @@ public class SinglePaymentService {
         RestTemplate restTemplate = new RestTemplate();
 
         ApproveResponseDTO approveResponse = restTemplate.postForObject(
+        restTemplate.postForObject(
                 host+"/approve",
                 requestEntity,
                 ApproveResponseDTO.class);
@@ -92,16 +106,56 @@ public class SinglePaymentService {
         //결제 데이터 저장
 //        singlePaymentRepository.save(mapper.approveResponseDtoToSinglePayment(approveResponseDTO));
         return approveResponse;
+        // Redis에서 주문 ID와 거래 ID 삭제
+        removeOrderId(memberId);
+        removeTransactionId(memberId);
+    }
 
+    public void cancelPayment(Long memberId) {
+        removeOrderId(memberId);
+        removeTransactionId(memberId);
+    }
+
+    public void failPayment(Long memberId) {
+        removeOrderId(memberId);
+        removeTransactionId(memberId);
+    }
+
+    private void saveOrderId(Long memberId, String orderId) {
+        String key = "order:" + memberId;
+        redisTemplate.opsForValue().set(key, orderId, 30, TimeUnit.MINUTES);
+    }
+
+    public String getOrderId(Long memberId) {
+        String key = "order:" + memberId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    private void removeOrderId(Long memberId) {
+        String key = "order:" + memberId;
+        redisTemplate.delete(key);
+    }
+
+    private void saveTransactionId(Long memberId, String tid) {
+        String key = "transaction:" + memberId;
+        redisTemplate.opsForValue().set(key, tid, 30, TimeUnit.MINUTES);
+    }
+
+    private String getTransactionId(Long memberId) {
+        String key = "transaction:" + memberId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    private void removeTransactionId(Long memberId) {
+        String key = "transaction:" + memberId;
+        redisTemplate.delete(key);
     }
 
     // 카카오가 요구한 헤더값
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
-
         headers.set("Content-Type", "application/json");
         headers.set("Authorization", "SECRET_KEY " + secret_key);
-
         return headers;
     }
 }
