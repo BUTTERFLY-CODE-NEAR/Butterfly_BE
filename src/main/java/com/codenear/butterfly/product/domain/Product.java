@@ -25,6 +25,7 @@ public class Product {
 
     private String productImage;
 
+    @Lob
     private String description;
 
     @Column(nullable = false)
