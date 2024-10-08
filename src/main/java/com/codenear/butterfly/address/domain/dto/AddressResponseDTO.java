@@ -2,7 +2,7 @@ package com.codenear.butterfly.address.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(title = "주소 목록 JSON", description = "주소 목록 요청 시 반환되는 응답 JSON 데이터 입니다.")
+@Schema(title = "주소 목록, 상세 JSON", description = "주소 목록, 상세 요청 시 반환되는 응답 JSON 데이터 입니다.")
 public record AddressResponseDTO(
         @Schema(description = "주소 ID") Long id,
         @Schema(description = "주소 이름") String addressName,
