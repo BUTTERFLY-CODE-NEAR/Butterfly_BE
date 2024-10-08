@@ -28,16 +28,18 @@ public class AddressService {
     public List<AddressResponseDTO> getAddresses(MemberDTO memberDTO) {
         LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
 
-        moveMainAddress(addresses);
+        moveMainAddress(addresses); // 메인 주소 가장 상단 배치
 
         return addresses.stream()
-                .map(address -> new AddressResponseDTO(
-                        address.getId(),
-                        address.getAddressName(),
-                        address.getAddress(),
-                        address.getDetailedAddress(),
-                        address.getEntrancePassword()))
+                .map(this::convertToAddressResponseDTO)
                 .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    public AddressResponseDTO getAddress(Long addressId) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+
+        return convertToAddressResponseDTO(address);
     }
 
     public void createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
@@ -60,6 +62,16 @@ public class AddressService {
                 .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
 
         address.updateAddress(addressUpdateDTO);
+    }
+
+    private AddressResponseDTO convertToAddressResponseDTO(Address address) {
+        return new AddressResponseDTO(
+                address.getId(),
+                address.getAddressName(),
+                address.getAddress(),
+                address.getDetailedAddress(),
+                address.getEntrancePassword()
+        );
     }
 
     private void moveMainAddress(LinkedList<Address> addresses) {
