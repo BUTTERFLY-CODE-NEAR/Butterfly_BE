@@ -3,6 +3,8 @@ package com.codenear.butterfly.product.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,5 +23,11 @@ public class Option {
 
     @Column(nullable = false)
     private String productName;
+
+    @Column(nullable = false)
+    private Integer originalPrice;
+
+    @Column(nullable = false, precision = 4, scale = 1)
+    private BigDecimal saleRate;
 
 }

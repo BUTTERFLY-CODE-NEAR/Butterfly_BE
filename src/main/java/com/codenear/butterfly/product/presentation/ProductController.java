@@ -6,6 +6,7 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.application.CategoryService;
 import com.codenear.butterfly.product.application.FavoriteService;
 import com.codenear.butterfly.product.application.ProductViewService;
+import com.codenear.butterfly.product.domain.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +47,7 @@ public class ProductController implements ProductControllerSwagger {
 
     @GetMapping("/favorites")
     public ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal MemberDTO memberDTO) {
-        List<Long> favorites = favoriteService.getFavoriteAll(memberDTO.getId());
-
-        if (favorites.isEmpty()) {
-            return ResponseUtil.createSuccessResponse(HttpStatus.NO_CONTENT, "찜 목록이 비어있습니다.", null);
-        }
+        List<Product> favorites = favoriteService.getFavoriteAll(memberDTO.getId());
 
         return ResponseUtil.createSuccessResponse(favorites);
     }
@@ -71,7 +68,7 @@ public class ProductController implements ProductControllerSwagger {
     @DeleteMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> removeFavorite(@PathVariable(value = "productId") Long productId,
                                                       @AuthenticationPrincipal MemberDTO memberDTO) {
-        favoriteService.removeFavorite(memberDTO, productId);
-        return ResponseUtil.createSuccessResponse(null);
+        boolean isRemoved = favoriteService.removeFavorite(memberDTO, productId);
+        return ResponseUtil.createSuccessResponse(isRemoved);
     }
 }

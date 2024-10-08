@@ -7,6 +7,7 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.dto.OptionDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
@@ -93,6 +94,18 @@ public class ProductViewService {
 
     private ProductDetailDTO convertToProductDetailDTO(Product product, Long memberId) {
         boolean isFavorite = isProductFavorite(memberId, product.getId());
+
+        List<OptionDTO> optionDTO = product.getOptions().stream()
+                .map(option -> new OptionDTO(
+                        option.getId(),
+                        option.getSubtitle(),
+                        option.getProductName(),
+                        option.getProductImage(),
+                        option.getOriginalPrice(),
+                        option.getSaleRate(),
+                        calculateSalePrice(option.getOriginalPrice(), option.getSaleRate())
+                )).toList();
+
         return new ProductDetailDTO(
                 product.getId(),
                 product.getSubtitle(),
@@ -104,7 +117,7 @@ public class ProductViewService {
                 product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(),
                 isFavorite,
-                product.getOptions(),
+                optionDTO,
                 product.getDescription()
         );
     }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.codenear.butterfly.product.domain.QFavorite.favorite;
 
@@ -27,9 +28,9 @@ public class FavoriteService {
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
-    public List<Long> getFavoriteAll(Long memberId) {
+    public List<Product> getFavoriteAll(Long memberId) {
         return queryFactory
-                .select(favorite.id)
+                .select(favorite.product)
                 .from(favorite)
                 .where(favorite.member.id.eq(memberId))
                 .fetch();
@@ -37,24 +38,24 @@ public class FavoriteService {
 
     public void addFavorite(MemberDTO memberDTO, Long productId) {
         Member member = getMember(memberDTO);
-        Product product = getProduct(productId);
+        Optional<Product> product = getProduct(productId);
 
-        if (isFavoriteExists(member, product)) {
+        if (isFavoriteExists(member, product.orElse(null))) {
             throw new ProductException(ErrorCode.DUPLICATE_FAVORITE, null);
         }
 
-        member.addFavorite(product);
+        member.addFavorite(product.orElse(null));
     }
 
-    public void removeFavorite(MemberDTO memberDTO, Long productId) {
+    public boolean removeFavorite(MemberDTO memberDTO, Long productId) {
         Member member = getMember(memberDTO);
-        Product product = getProduct(productId);
+        Optional<Product> product = getProduct(productId);
 
-        if (!isFavoriteExists(member, product)) {
-            throw new ProductException(ErrorCode.FAVORITE_NOT_FOUND, null);
+        if (product.isPresent() && isFavoriteExists(member, product.get())) {
+            member.removeFavorite(product.get());
+            return true;
         }
-
-        member.removeFavorite(product);
+        return false;
     }
 
     private Member getMember(MemberDTO memberDTO) {
@@ -62,9 +63,8 @@ public class FavoriteService {
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
     }
 
-    private Product getProduct(Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND, null));
+    private Optional<Product> getProduct(Long productId) {
+        return productRepository.findById(productId);
     }
 
     private boolean isFavoriteExists(Member member, Product product) {

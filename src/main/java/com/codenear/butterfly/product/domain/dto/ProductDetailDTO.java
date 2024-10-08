@@ -1,6 +1,5 @@
 package com.codenear.butterfly.product.domain.dto;
 
-import com.codenear.butterfly.product.domain.Option;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -18,7 +17,7 @@ public record ProductDetailDTO(
         @Schema(description = "현재 구매 수량") Integer purchaseParticipantCount,
         @Schema(description = "최대 구매 수량") Integer maxPurchaseCount,
         @Schema(description = "좋아요 여부") Boolean isFavorite,
-        @Schema(description = "상품 옵션") List<Option> option,
+        @Schema(description = "상품 옵션") List<OptionDTO> option,
         @Schema(description = "상품 설명") String description
 ) {
 }

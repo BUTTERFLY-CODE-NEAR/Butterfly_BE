@@ -15,5 +15,6 @@ public record ProductViewDTO(
         @Schema(description = "상품 할인가") Integer salePrice,
         @Schema(description = "현재 구매 수량") Integer purchaseParticipantCount,
         @Schema(description = "최대 구매 수량") Integer maxPurchaseCount,
-        @Schema(description = "좋아요 여부") Boolean isFavorite) {
+        @Schema(description = "좋아요 여부") Boolean isFavorite
+) {
 }
