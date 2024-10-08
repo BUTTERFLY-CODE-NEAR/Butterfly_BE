@@ -72,7 +72,6 @@ public interface ProductControllerSwagger {
     @Operation(summary = "찜 목록 삭제", description = "찜 목록 삭제 Api")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success"),
-            @ApiResponse(responseCode = "404", description = "Not Found")
     })
     ResponseEntity<ResponseDTO> removeFavorite(@PathVariable(value = "productId") Long productId,
                                             @AuthenticationPrincipal MemberDTO memberDTO);
