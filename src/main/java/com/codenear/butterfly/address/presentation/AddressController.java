@@ -23,6 +23,11 @@ public class AddressController implements AddressControllerSwagger {
         return ResponseUtil.createSuccessResponse(addressService.getAddresses(memberDTO));
     }
 
+    @GetMapping("/{addressId}")
+    public ResponseEntity<ResponseDTO> getAddress(@PathVariable Long addressId) {
+        return ResponseUtil.createSuccessResponse(addressService.getAddress(addressId));
+    }
+
     @PostMapping
     public ResponseEntity<ResponseDTO> createAddress(@Valid @RequestBody AddressCreateDTO addressCreateDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
         addressService.createAddress(addressCreateDTO, memberDTO);
