@@ -36,10 +36,12 @@ public interface AddressControllerSwagger {
     })
     ResponseEntity<ResponseDTO> getAddress(@PathVariable Long addressId);
 
-
     @Operation(summary = "주소 추가", description = "주소 추가 API")
     ResponseEntity<ResponseDTO> createAddress(@Valid @RequestBody AddressCreateDTO addressCreateDTO, @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "주소 수정", description = "주소 수정 API")
-    ResponseEntity<ResponseDTO> updateAddress(@Valid @RequestBody AddressUpdateDTO addressUpdateDTO);
+    ResponseEntity<ResponseDTO> updateAddress(@Valid @RequestBody AddressUpdateDTO addressUpdateDTO, @AuthenticationPrincipal MemberDTO memberDTO);
+
+    @Operation(summary = "메인 주소 변경", description = "메인 주소 변경 API")
+    ResponseEntity<ResponseDTO> updateMainAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO);
 }
