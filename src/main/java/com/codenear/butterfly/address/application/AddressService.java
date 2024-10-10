@@ -57,11 +57,30 @@ public class AddressService {
         addressRepository.save(address);
     }
 
-    public void updateAddress(AddressUpdateDTO addressUpdateDTO) {
+    public void updateAddress(AddressUpdateDTO addressUpdateDTO, MemberDTO memberDTO) {
         Address address = addressRepository.findById(addressUpdateDTO.getId())
                 .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
 
+        if (!address.getMember().getId().equals(memberDTO.getId()))
+            throw new AddressException(ErrorCode.SERVER_ERROR, null);
+
         address.updateAddress(addressUpdateDTO);
+    }
+
+    public void updateMainAddress(Long addressId, MemberDTO memberDTO) {
+        LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
+
+        addresses.stream()
+                .filter(Address::isMainAddress)
+                .findFirst()
+                .ifPresent(mainAddress -> mainAddress.setMainAddress(false));
+
+        Address newAddress = addresses.stream()
+                .filter(address -> address.getId().equals(addressId))
+                .findFirst()
+                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+
+        newAddress.setMainAddress(true);
     }
 
     private AddressResponseDTO convertToAddressResponseDTO(Address address) {

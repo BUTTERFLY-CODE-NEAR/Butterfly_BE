@@ -23,6 +23,7 @@ public class Address {
 
     private String entrancePassword; // 현관 비밀번호
 
+    @Setter
     private boolean isMainAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)

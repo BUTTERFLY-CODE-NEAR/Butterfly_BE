@@ -35,8 +35,14 @@ public class AddressController implements AddressControllerSwagger {
     }
 
     @PatchMapping
-    public ResponseEntity<ResponseDTO> updateAddress(@Valid @RequestBody AddressUpdateDTO addressUpdateDTO) {
-        addressService.updateAddress(addressUpdateDTO);
+    public ResponseEntity<ResponseDTO> updateAddress(@Valid @RequestBody AddressUpdateDTO addressUpdateDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
+        addressService.updateAddress(addressUpdateDTO, memberDTO);
+        return ResponseUtil.createSuccessResponse(null);
+    }
+
+    @PatchMapping("/{addressId}")
+    public ResponseEntity<ResponseDTO> updateMainAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO) {
+        addressService.updateMainAddress(addressId, memberDTO);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
