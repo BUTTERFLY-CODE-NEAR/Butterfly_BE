@@ -6,9 +6,8 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.application.CategoryService;
 import com.codenear.butterfly.product.application.FavoriteService;
 import com.codenear.butterfly.product.application.ProductViewService;
-import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +46,7 @@ public class ProductController implements ProductControllerSwagger {
 
     @GetMapping("/favorites")
     public ResponseEntity<ResponseDTO> getFavorites(@AuthenticationPrincipal MemberDTO memberDTO) {
-        List<Product> favorites = favoriteService.getFavoriteAll(memberDTO.getId());
+        List<ProductViewDTO> favorites = favoriteService.getFavoriteAll(memberDTO.getId());
 
         return ResponseUtil.createSuccessResponse(favorites);
     }
