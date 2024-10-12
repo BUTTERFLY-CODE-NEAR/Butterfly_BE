@@ -44,4 +44,7 @@ public interface AddressControllerSwagger {
 
     @Operation(summary = "메인 주소 변경", description = "메인 주소 변경 API")
     ResponseEntity<ResponseDTO> updateMainAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO);
+
+    @Operation(summary = "주소 삭제", description = "주소 삭제 API (메인 주소 삭제 : 마지막 주소로 메인 변경)")
+    ResponseEntity<ResponseDTO> deleteAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO);
 }

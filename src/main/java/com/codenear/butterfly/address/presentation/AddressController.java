@@ -45,4 +45,10 @@ public class AddressController implements AddressControllerSwagger {
         addressService.updateMainAddress(addressId, memberDTO);
         return ResponseUtil.createSuccessResponse(null);
     }
+
+    @DeleteMapping("/{addressId}")
+    public ResponseEntity<ResponseDTO> deleteAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO) {
+        addressService.deleteAddress(addressId, memberDTO);
+        return ResponseUtil.createSuccessResponse(null);
+    }
 }
