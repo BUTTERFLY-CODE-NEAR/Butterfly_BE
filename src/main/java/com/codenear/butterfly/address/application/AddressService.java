@@ -14,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,6 +80,24 @@ public class AddressService {
                 .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
 
         newAddress.setMainAddress(true);
+    }
+
+    public void deleteAddress(Long addressId, MemberDTO memberDTO) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+
+        if (address.isMainAddress()) {
+            List<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
+            Collections.reverse(addresses);
+
+            Optional<Address> first = addresses.stream()
+                    .filter(findAddress -> !address.getId().equals(findAddress.getId()))
+                    .findFirst();
+
+            first.ifPresent(value -> value.setMainAddress(true));
+        }
+
+        addressRepository.delete(address);
     }
 
     private AddressResponseDTO convertToAddressResponseDTO(Address address) {
