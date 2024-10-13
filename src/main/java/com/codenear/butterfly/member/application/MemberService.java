@@ -21,8 +21,10 @@ public class MemberService {
         Integer pointValue = pointService.loadPointByMemberId(memberDTO.getId()).getPoint();
 
         return new MemberInfoDTO(
+                memberDTO.getEmail(),
                 memberDTO.getNickname(),
                 memberDTO.getProfileImage(),
+                0, // TODO : 추후 쿠폰 시스템 도입 후 수정
                 memberDTO.getGrade().getGrade(),
                 pointValue
         );
