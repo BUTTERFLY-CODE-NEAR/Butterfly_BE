@@ -3,6 +3,7 @@ package com.codenear.butterfly.global.exception;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +29,12 @@ public class GlobalExceptionHandler {
 
         log.warn(ERROR_MESSAGE, ex.getMessage(), ex);
         return createErrorResponse(ErrorCode.VALIDATION_FAILED, fieldError.getDefaultMessage(), filed);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseDTO> notReadException(HttpMessageNotReadableException ex) {
+        log.warn(ERROR_MESSAGE, ex.getMessage(), ex);
+        return createErrorResponse(ErrorCode.VALIDATION_FAILED, null);
     }
 
     @ExceptionHandler(BusinessBaseException.class)
