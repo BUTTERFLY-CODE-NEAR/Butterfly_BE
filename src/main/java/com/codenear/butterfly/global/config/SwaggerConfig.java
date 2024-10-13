@@ -45,7 +45,8 @@ public class SwaggerConfig {
             createGroupedOpenApi("고객 문의 API", "/support/**"),
             createGroupedOpenApi("검색 API", "/search/**"),
             createGroupedOpenApi("주소 API", "/address/**"),
-            createGroupedOpenApi("카카오페이 단건결제 API", "/payment/**")
+            createGroupedOpenApi("카카오페이 단건결제 API", "/payment/**"),
+            createGroupedOpenApi("수신 동의 API", "/consent/**")
         );
     }
 
