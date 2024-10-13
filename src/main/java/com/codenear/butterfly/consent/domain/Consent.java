@@ -23,4 +23,8 @@ public class Consent extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void toggleAgreement() {
+        this.isAgreed = !this.isAgreed;
+    }
 }
