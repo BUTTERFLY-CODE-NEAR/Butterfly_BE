@@ -1,6 +1,7 @@
 package com.codenear.butterfly.member.domain;
 
 import com.codenear.butterfly.address.domain.Address;
+import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.global.domain.BaseEntity;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
@@ -46,8 +47,11 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Platform platform;
 
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
     private Point point;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Consent> consents = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorite> favorites = new ArrayList<>();
