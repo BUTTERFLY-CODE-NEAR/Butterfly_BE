@@ -3,7 +3,6 @@ package com.codenear.butterfly.consent.presentation;
 import com.codenear.butterfly.consent.dto.ConsentInfoResponseDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
-import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
