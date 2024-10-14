@@ -1,7 +1,7 @@
 package com.codenear.butterfly.global.config;
 
-import com.codenear.butterfly.global.filter.JwtFilter;
 import com.codenear.butterfly.auth.util.JwtUtil;
+import com.codenear.butterfly.global.filter.JwtFilter;
 import com.codenear.butterfly.global.property.SecurityProperties;
 import com.codenear.butterfly.member.application.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
@@ -27,10 +29,13 @@ import java.util.Collections;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    public static final String LOGOUT_URL = "/logout";
 
     private final JwtUtil jwtUtil;
     private final SecurityProperties securityProperties;
     private final MemberService memberService;
+    private final LogoutHandler logoutHandler;
+    private final LogoutSuccessHandler logoutSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -59,9 +64,15 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil, securityProperties, memberService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, securityProperties, memberService), LogoutFilter.class)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .logout(logout -> logout
+                        .logoutUrl(LOGOUT_URL)
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .addLogoutHandler(logoutHandler)
+                        .logoutSuccessHandler(logoutSuccessHandler)
                 );
 
         return http.build();
