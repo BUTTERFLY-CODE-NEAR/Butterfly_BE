@@ -9,7 +9,7 @@ public class Amount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long amountId;
+    private Long id;
     private Integer total; // 총 결제 금액
     private Integer taxFree; // 비과세 금액
     private Integer vat; // 부가세 금액

@@ -29,6 +29,7 @@ public enum ErrorCode {
 
     // 404 (NOT_FOUND)
     PRODUCT_NOT_FOUND(40400, "등록된 상품이 없습니다.", HttpStatus.NOT_FOUND),
+    ADDRESS_NOT_FOUND(40401, "해당 주소가 없습니다.", HttpStatus.NOT_FOUND),
     PAY_CANCEL(40402,"결제가 취소되었습니다.", HttpStatus.NOT_FOUND),
     PAY_FAILED(40403,"결제가 실패하였습니다.", HttpStatus.NOT_FOUND),
     MEMBER_NOT_FOUND(40404, "등록되지 않은 회원입니다.", HttpStatus.NOT_FOUND),
