@@ -11,7 +11,7 @@ public class CardInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cardInfoId;
+    private Long id;
     private String kakaopayPurchaseCorp; // 카카오페이 매입사명
     private String kakaopayPurchaseCorpCode; // 카카오페이 매입사 코드
     private String kakaopayIssuerCorp; // 카카오페이 발급사명
