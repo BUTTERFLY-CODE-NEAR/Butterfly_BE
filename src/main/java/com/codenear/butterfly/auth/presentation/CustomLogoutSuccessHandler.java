@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         response.setCharacterEncoding(CHARSET_UTF_8);
 
         ResponseDTO responseDTO = new ResponseDTO(
-                200,
+                HttpStatus.OK.value(),
                 SUCCESS_MESSAGE,
                 null
         );
