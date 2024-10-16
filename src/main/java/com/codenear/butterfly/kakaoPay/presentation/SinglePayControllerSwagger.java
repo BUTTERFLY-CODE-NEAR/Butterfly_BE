@@ -23,7 +23,7 @@ public interface SinglePayControllerSwagger {
                                                        @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "결제 성공", description = "결제 성공 API")
-    void successPaymentRequest(@RequestParam("pg_token") String pgToken,
+    ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
                                @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "결제 취소", description = "결제 취소 API")
