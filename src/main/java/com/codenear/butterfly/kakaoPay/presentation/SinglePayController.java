@@ -9,6 +9,7 @@ import com.codenear.butterfly.kakaoPay.domain.dto.PickupPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +34,10 @@ public class SinglePayController implements SinglePayControllerSwagger {
     }
 
     @GetMapping("/success")
-    public void successPaymentRequest(@RequestParam("pg_token") String pgToken,
+    public ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
                                       @AuthenticationPrincipal MemberDTO memberDTO) {
         singlePaymentService.approveResponse(pgToken, memberDTO.getId());
+        return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제가 성공적으로 완료되었습니다.", null);
     }
 
     @GetMapping("/cancel")
