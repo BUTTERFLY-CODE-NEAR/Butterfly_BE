@@ -78,7 +78,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     // 인증 정보 저장
-    private static void setAuthentication(MemberDTO memberDTO) {
+    private void setAuthentication(MemberDTO memberDTO) {
         Authentication authToken = new UsernamePasswordAuthenticationToken(
                 memberDTO,
                 null,
