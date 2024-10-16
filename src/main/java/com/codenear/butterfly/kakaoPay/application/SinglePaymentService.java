@@ -7,8 +7,9 @@ import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
+import com.codenear.butterfly.kakaoPay.domain.dto.BasePaymentRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
-import com.codenear.butterfly.kakaoPay.domain.dto.PaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
@@ -29,6 +30,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -54,7 +56,7 @@ public class SinglePaymentService {
     private final OrderDetailsRepository orderDetailsRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public ReadyResponseDTO kakaoPayReady(PaymentRequestDTO paymentRequestDTO, Long memberId) {
+    public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
 
         // 카카오페이 요청 양식
@@ -90,20 +92,18 @@ public class SinglePaymentService {
         saveOrderId(memberId, partnerOrderId);
         saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
 
-        saveOrderTypeAndAddressId(memberId, paymentRequestDTO);
-
+        saveOrderTypeAndAddressId(memberId, orderType, paymentRequestDTO);
         return kakaoPayReady;
     }
 
-    private void saveOrderTypeAndAddressId(Long memberId, PaymentRequestDTO paymentRequestDTO) {
-        // Redis에 주문 유형 저장
+    private void saveOrderTypeAndAddressId(Long memberId, String orderType, BasePaymentRequestDTO paymentRequestDTO) {
         String orderTypeKey = "orderType:" + memberId;
-        redisTemplate.opsForValue().set(orderTypeKey, paymentRequestDTO.getOrderType(), 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(orderTypeKey, orderType, 30, TimeUnit.MINUTES);
 
-        // 배달 주문일 경우 주소 ID 저장
-        if (OrderType.DELIVER.getType().equals(paymentRequestDTO.getOrderType())) {
+        if ("deliver".equals(orderType)) {
+            DeliveryPaymentRequestDTO deliveryDTO = (DeliveryPaymentRequestDTO) paymentRequestDTO;
             String addressIdKey = "addressId:" + memberId;
-            redisTemplate.opsForValue().set(addressIdKey, paymentRequestDTO.getAddressId().toString(), 30, TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(addressIdKey, deliveryDTO.getAddressId().toString(), 30, TimeUnit.MINUTES);
         }
     }
 
