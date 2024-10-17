@@ -22,6 +22,7 @@ public class MemberService {
 
         return new MemberInfoDTO(
                 memberDTO.getEmail(),
+                memberDTO.getPhoneNumber(),
                 memberDTO.getNickname(),
                 memberDTO.getProfileImage(),
                 0, // TODO : 추후 쿠폰 시스템 도입 후 수정
