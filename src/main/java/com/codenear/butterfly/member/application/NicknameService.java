@@ -60,11 +60,7 @@ public class NicknameService {
     }
 
     private boolean isNicknameExists(String baseNickname) {
-        try {
-            return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
-        } catch (DataAccessException e) {
-            throw new MemberException(ErrorCode.SERVER_ERROR, baseNickname);
-        }
+        return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
     }
 
     private String generateBaseNickname() {
