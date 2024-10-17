@@ -59,6 +59,11 @@ public class NicknameService {
         }
     }
 
+    private void validatorNicknameDuplication(String nickname) {
+        if (isNicknameExists(nickname))
+            throw new MemberException(ErrorCode.NICKNAME_ALREADY_IN_USE, null);
+    }
+
     private boolean isNicknameExists(String baseNickname) {
         return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
     }
