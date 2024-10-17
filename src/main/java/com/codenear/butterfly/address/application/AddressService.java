@@ -106,7 +106,8 @@ public class AddressService {
                 address.getAddressName(),
                 address.getAddress(),
                 address.getDetailedAddress(),
-                address.getEntrancePassword()
+                address.getEntrancePassword(),
+                address.isMainAddress()
         );
     }
 
