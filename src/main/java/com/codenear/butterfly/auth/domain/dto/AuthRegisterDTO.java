@@ -26,4 +26,7 @@ public class AuthRegisterDTO {
     @NotNull
     private String nickname;
 
+    @Schema(description = "마케팅 동의", example = "true")
+    @NotNull
+    private boolean marketingAgreed;
 }

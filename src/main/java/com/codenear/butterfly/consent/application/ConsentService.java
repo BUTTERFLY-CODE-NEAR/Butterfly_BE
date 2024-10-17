@@ -68,6 +68,11 @@ public class ConsentService {
         consentRepository.save(consent);
     }
 
+    public void saveConsent(ConsentType type, boolean agreed, Member member) {
+        Consent consent = createConsent(type, agreed, member);
+        consentRepository.save(consent);
+    }
+
     private Consent createConsent(ConsentType type, boolean agreed, Member member) {
         return Consent.builder()
                 .consentType(type)
