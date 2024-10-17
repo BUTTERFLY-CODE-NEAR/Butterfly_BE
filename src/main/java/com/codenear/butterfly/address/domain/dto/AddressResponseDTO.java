@@ -8,5 +8,6 @@ public record AddressResponseDTO(
         @Schema(description = "주소 이름") String addressName,
         @Schema(description = "주소") String address,
         @Schema(description = "상세 주소") String detailedAddress,
-        @Schema(description = "현관 비밀번호") String entrancePassword) {
+        @Schema(description = "현관 비밀번호") String entrancePassword,
+        @Schema(description = "메인 주소 여부") boolean isMainAddress) {
 }
