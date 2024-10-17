@@ -37,6 +37,7 @@ public enum ErrorCode {
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
     DUPLICATE_FAVORITE(40901, "이미 찜 목록에 추가된 상품입니다.", HttpStatus.CONFLICT),
+    NICKNAME_ALREADY_IN_USE(40902, "이미 사용 중인 닉네임입니다.", HttpStatus.CONFLICT),
 
     // 500 (INTERNAL_SERVER_ERROR)
     SERVER_ERROR(500, "이용에 불편을 드려 죄송합니다. 현재 시스템 오류가 발생했습니다. 잠시 후 다시 시도 및 고객 문의 바랍니다.", HttpStatus.INTERNAL_SERVER_ERROR);

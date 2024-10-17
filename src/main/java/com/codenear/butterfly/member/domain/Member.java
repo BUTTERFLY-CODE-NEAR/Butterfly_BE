@@ -34,6 +34,7 @@ public class Member extends BaseEntity {
     private String password;
 
     @Column(nullable = false)
+    @Setter
     private String nickname;
 
     private String profileImage;
