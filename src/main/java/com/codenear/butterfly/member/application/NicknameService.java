@@ -1,21 +1,24 @@
 package com.codenear.butterfly.member.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.NicknameDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.util.NicknameList;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class NicknameService {
-
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public NicknameDTO nicknameResponse() {
         String generatedNickname = generateNickname();
@@ -40,6 +43,14 @@ public class NicknameService {
         }
     }
 
+    @CacheEvict(value = "userCache", key = "#memberId")
+    public void updateNickname(Long memberId, String newNickname) {
+        validatorNicknameDuplication(newNickname);
+
+        Member member = memberService.loadMemberByMemberId(memberId);
+        member.setNickname(newNickname);
+    }
+
     private Optional<String> findMaxNumberedNickname(String baseNickname) {
         try {
             return memberRepository.findMaxNumberedNickname(baseNickname);
@@ -59,12 +70,13 @@ public class NicknameService {
         }
     }
 
+    private void validatorNicknameDuplication(String nickname) {
+        if (isNicknameExists(nickname))
+            throw new MemberException(ErrorCode.NICKNAME_ALREADY_IN_USE, null);
+    }
+
     private boolean isNicknameExists(String baseNickname) {
-        try {
-            return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
-        } catch (DataAccessException e) {
-            throw new MemberException(ErrorCode.SERVER_ERROR, baseNickname);
-        }
+        return memberRepository.findMaxNumberedNickname(baseNickname).isPresent();
     }
 
     private String generateBaseNickname() {
