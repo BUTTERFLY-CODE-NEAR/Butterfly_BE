@@ -22,13 +22,13 @@ public interface SinglePayControllerSwagger {
     ResponseEntity<ResponseDTO> deliveryPaymentRequest(@RequestBody DeliveryPaymentRequestDTO paymentRequestDTO,
                                                        @AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "결제 성공", description = "결제 성공 API")
+    @Operation(summary = "결제 성공", description = "결제 성공 API", hidden = true)
     ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
                                @AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "결제 취소", description = "결제 취소 API")
+    @Operation(summary = "결제 취소", description = "결제 취소 API", hidden = true)
     void cancelPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "결제 실패", description = "결제 실패 API")
+    @Operation(summary = "결제 실패", description = "결제 실패 API", hidden = true)
     void failPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 }
