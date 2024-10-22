@@ -30,8 +30,7 @@ public class AddressController implements AddressControllerSwagger {
 
     @PostMapping
     public ResponseEntity<ResponseDTO> createAddress(@Valid @RequestBody AddressCreateDTO addressCreateDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
-        addressService.createAddress(addressCreateDTO, memberDTO);
-        return ResponseUtil.createSuccessResponse(null);
+        return ResponseUtil.createSuccessResponse(addressService.createAddress(addressCreateDTO, memberDTO));
     }
 
     @PatchMapping
