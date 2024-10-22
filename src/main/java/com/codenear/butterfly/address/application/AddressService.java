@@ -27,6 +27,9 @@ public class AddressService {
     public List<AddressResponseDTO> getAddresses(MemberDTO memberDTO) {
         LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
 
+        if (addresses.isEmpty())
+            return null;
+
         moveMainAddress(addresses); // 메인 주소 가장 상단 배치
 
         return addresses.stream()
