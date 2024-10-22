@@ -3,10 +3,7 @@ package com.codenear.butterfly.s3.application;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.s3.domain.S3Directory;
 import com.codenear.butterfly.s3.exception.S3Exception;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -27,20 +26,20 @@ public class S3Service {
 
     public String uploadFile(MultipartFile file, S3Directory directory) {
         try {
-            String fileKey = createFileKey(directory);
+            String fileKey = createFileKey(directory, file.getOriginalFilename());
+            String contentType = file.getContentType();
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(BUKKIT_NAME)
                     .key(fileKey)
+                    .contentType(contentType)
+                    .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
 
-            Path path = getPath(file);
-            byte[] bytes = get(path);
-
-            RequestBody requestBody = RequestBody.fromBytes(bytes);
+            RequestBody requestBody = RequestBody.fromInputStream(file.getInputStream(), file.getSize());
             amazonS3Client.putObject(putObjectRequest, requestBody);
 
-            deleteTempFile(path); // 임시 파일 삭제
-            return fileKey;
+            return generateFileUrl(fileKey);
         } catch (Exception e) {
             throw new S3Exception(ErrorCode.SERVER_ERROR, null);
         }
@@ -55,23 +54,18 @@ public class S3Service {
         amazonS3Client.deleteObject(deleteObjectRequest);
     }
 
-    private void deleteTempFile(Path bytes) throws IOException {
-        Files.delete(bytes);
+    private String generateFileUrl(String fileKey) {
+        GetUrlRequest getUrlRequest = GetUrlRequest.builder()
+                .bucket(BUKKIT_NAME)
+                .key(fileKey)
+                .build();
+
+        URL url = amazonS3Client.utilities().getUrl(getUrlRequest);
+        return url.toString();
     }
 
-    private String createFileKey(S3Directory directory) {
-        UUID randomUUID = UUID.randomUUID();
-        return directory.getValue() + randomUUID;
-    }
-    
-    private byte[] get(Path tempFile) throws IOException {
-        String string = tempFile.toString();
-        return Files.readAllBytes(Paths.get(string));
-    }
-
-    private Path getPath(MultipartFile file) throws IOException {
-        Path tempFile = Files.createTempFile("tempFile-", file.getOriginalFilename());
-        file.transferTo(tempFile.toFile());
-        return tempFile;
+    private String createFileKey(S3Directory directory, String originalFilename) {
+        String uniqueId = UUID.randomUUID().toString();
+        return directory.getValue() + uniqueId + originalFilename;
     }
 }
