@@ -1,5 +1,6 @@
 package com.codenear.butterfly.address.presentation;
 
+import com.codenear.butterfly.address.domain.dto.AddressAddResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
 import com.codenear.butterfly.address.domain.dto.AddressResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
@@ -37,6 +38,11 @@ public interface AddressControllerSwagger {
     ResponseEntity<ResponseDTO> getAddress(@PathVariable Long addressId);
 
     @Operation(summary = "주소 추가", description = "주소 추가 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = AddressAddResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
     ResponseEntity<ResponseDTO> createAddress(@Valid @RequestBody AddressCreateDTO addressCreateDTO, @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "주소 수정", description = "주소 수정 API")
