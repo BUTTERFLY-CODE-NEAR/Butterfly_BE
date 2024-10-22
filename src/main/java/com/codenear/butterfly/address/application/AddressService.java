@@ -2,6 +2,7 @@ package com.codenear.butterfly.address.application;
 
 import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.address.domain.AddressRepository;
+import com.codenear.butterfly.address.domain.dto.AddressAddResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
 import com.codenear.butterfly.address.domain.dto.AddressResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
@@ -44,7 +45,7 @@ public class AddressService {
         return convertToAddressResponseDTO(address);
     }
 
-    public void createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
+    public AddressAddResponseDTO createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
         Member member = memberService.loadMemberByMemberId(memberDTO.getId());
 
         Address address = Address.builder()
@@ -56,7 +57,9 @@ public class AddressService {
                 .member(member)
                 .build();
 
-        addressRepository.save(address);
+        Address saveAddress = addressRepository.save(address);
+
+        return new AddressAddResponseDTO(saveAddress.getId());
     }
 
     public void updateAddress(AddressUpdateDTO addressUpdateDTO, MemberDTO memberDTO) {
