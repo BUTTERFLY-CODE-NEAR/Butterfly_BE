@@ -37,6 +37,7 @@ public class Member extends BaseEntity {
     @Setter
     private String nickname;
 
+    @Setter
     private String profileImage;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
