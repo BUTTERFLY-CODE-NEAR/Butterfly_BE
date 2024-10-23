@@ -13,6 +13,7 @@ public enum ErrorCode {
     NICKNAME_GENERATION_FAILED(40001, "닉네임 생성 중 오류 발생", HttpStatus.BAD_REQUEST),
     INVALID_NICKNAME_FORMAT(40002, "잘못된 닉네임 형식", HttpStatus.BAD_REQUEST),
     FORBIDDEN_NICKNAME(40003, "사용할 수 없는 닉네임입니다.", HttpStatus.BAD_REQUEST),
+    VALIDATION_FAILED_CODE_MISMATCH(40004, "인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 401 (UNAUTHORIZED)
     NULL_JWT_ACCESS_TOKEN(40100, "(Access) 토큰이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
