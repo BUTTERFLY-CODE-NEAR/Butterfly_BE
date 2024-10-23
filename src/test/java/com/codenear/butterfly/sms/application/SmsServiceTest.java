@@ -14,7 +14,7 @@ class SmsServiceTest {
     @Autowired
     private SmsService smsService;
 
-    @Value("${cool.sms.from}")
+    @Value("${cool.sms.test}")
     private String fromPhoneNumber;
 
     @Test
