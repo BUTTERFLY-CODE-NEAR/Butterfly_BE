@@ -1,4 +1,4 @@
-package com.codenear.butterfly.kakaoPay.presentation;
+package com.codenear.butterfly.kakaoPay.presentation.singlepay;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;

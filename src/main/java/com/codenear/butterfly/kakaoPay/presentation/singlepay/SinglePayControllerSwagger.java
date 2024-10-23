@@ -1,4 +1,4 @@
-package com.codenear.butterfly.kakaoPay.presentation;
+package com.codenear.butterfly.kakaoPay.presentation.singlepay;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.DeliveryPaymentRequestDTO;
@@ -26,9 +26,9 @@ public interface SinglePayControllerSwagger {
     ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
                                @AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "결제 취소", description = "결제 취소 API")
+    @Operation(summary = "결제 취소", description = "결제 취소 API", hidden = true)
     void cancelPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "결제 실패", description = "결제 실패 API")
+    @Operation(summary = "결제 실패", description = "결제 실패 API", hidden = true)
     void failPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO);
 }
