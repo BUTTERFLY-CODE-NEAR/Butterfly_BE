@@ -8,11 +8,14 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.point.application.PointService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PointService pointService;
@@ -46,6 +49,12 @@ public class MemberService {
                 member.getGrade(),
                 member.getPlatform()
         );
+    }
+
+    @CacheEvict(value = "userCache", key = "#memberId")
+    public void updatePhoneNumber(Long memberId, String phoneNumber) {
+        Member member = loadMemberByMemberId(memberId);
+        member.setPhoneNumber(phoneNumber);
     }
 
     public Member loadMemberByMemberId(Long memberId) {
