@@ -40,7 +40,7 @@ public class SwaggerConfig {
     public List<GroupedOpenApi> apis() {
         return List.of(
             createGroupedOpenApi("회원가입, 로그인 API", "/auth/**", "/oauth/**", "/logout"),
-            createGroupedOpenApi("유저 API", "/member/**"),
+            createGroupedOpenApi("유저 API", "/member/**","/certify/**" ),
             createGroupedOpenApi("상품 API", "/products/**"),
             createGroupedOpenApi("고객 문의 API", "/support/**"),
             createGroupedOpenApi("검색 API", "/search/**"),
