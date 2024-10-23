@@ -6,7 +6,6 @@ import com.codenear.butterfly.kakaoPay.domain.dto.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +20,6 @@ import java.util.Objects;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@Slf4j
 public class CancelPaymentService {
 
     @Value("${kakao.payment.cid}")
@@ -50,7 +48,6 @@ public class CancelPaymentService {
                 requestEntity,
                 CancelResponseDTO.class);
 
-        log.info("cancelResponseDTO={}", cancelResponseDTO);
         CancelPayment cancelPayment = getCancelPayment(cancelResponseDTO);
 
         CanceledAmount canceledAmount = getApprovedCancelAmount(cancelResponseDTO);
