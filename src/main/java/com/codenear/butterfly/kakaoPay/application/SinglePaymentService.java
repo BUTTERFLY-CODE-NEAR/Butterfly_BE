@@ -16,7 +16,6 @@ import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
@@ -129,14 +128,14 @@ public class SinglePaymentService {
                 ApproveResponseDTO.class);
 
         // 결제 데이터 저장
-        SinglePayment singlePayment = getSinglePayment(approveResponseDTO);
+        SinglePayment singlePayment = createSinglePayment(approveResponseDTO);
 
-        Amount amount = getAmount(approveResponseDTO);
+        Amount amount = createAmount(approveResponseDTO);
         singlePayment.setAmount(amount);
 
         // CardInfo 엔티티 생성 및 설정
         if (Objects.requireNonNull(approveResponseDTO).getPayment_method_type().equals("CARD")) {
-            CardInfo cardInfo = getCardInfo(approveResponseDTO);
+            CardInfo cardInfo = createCardInfo(approveResponseDTO);
             singlePayment.setCardInfo(cardInfo);
         }
 
@@ -239,7 +238,7 @@ public class SinglePaymentService {
         return headers;
     }
 
-    private SinglePayment getSinglePayment(ApproveResponseDTO approveResponseDTO) {
+    private SinglePayment createSinglePayment(ApproveResponseDTO approveResponseDTO) {
         SinglePayment singlePayment = new SinglePayment();
         singlePayment.setAid(Objects.requireNonNull(approveResponseDTO).getAid());
         singlePayment.setTid(approveResponseDTO.getTid());
@@ -257,7 +256,7 @@ public class SinglePaymentService {
         return singlePayment;
     }
 
-    private Amount getAmount(ApproveResponseDTO approveResponseDTO) {
+    private Amount createAmount(ApproveResponseDTO approveResponseDTO) {
         Amount amount = new Amount();
         amount.setTotal(Objects.requireNonNull(approveResponseDTO).getAmount().getTotal());
         amount.setTaxFree(approveResponseDTO.getAmount().getTax_free());
@@ -267,7 +266,7 @@ public class SinglePaymentService {
         return amount;
     }
 
-    private CardInfo getCardInfo(ApproveResponseDTO approveResponseDTO) {
+    private CardInfo createCardInfo(ApproveResponseDTO approveResponseDTO) {
         CardInfo cardInfo = new CardInfo();
         cardInfo.setApprovedId(approveResponseDTO.getCard_info().getApproved_id());
         cardInfo.setBin(approveResponseDTO.getCard_info().getBin());

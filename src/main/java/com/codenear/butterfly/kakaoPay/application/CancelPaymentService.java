@@ -48,15 +48,15 @@ public class CancelPaymentService {
                 requestEntity,
                 CancelResponseDTO.class);
 
-        CancelPayment cancelPayment = getCancelPayment(cancelResponseDTO);
+        CancelPayment cancelPayment = createCancelPayment(cancelResponseDTO);
 
-        CanceledAmount canceledAmount = getApprovedCancelAmount(cancelResponseDTO);
+        CanceledAmount canceledAmount = createApprovedCancelAmount(cancelResponseDTO);
         cancelPayment.setCanceledAmount(canceledAmount);
 
         cancelPaymentRepository.save(cancelPayment);
     }
 
-    private CancelPayment getCancelPayment(CancelResponseDTO cancelResponseDTO) {
+    private CancelPayment createCancelPayment(CancelResponseDTO cancelResponseDTO) {
         CancelPayment cancelPayment = new CancelPayment();
         cancelPayment.setAid(Objects.requireNonNull(cancelResponseDTO).getAid());
         cancelPayment.setTid(cancelResponseDTO.getTid());
@@ -74,7 +74,7 @@ public class CancelPaymentService {
         return cancelPayment;
     }
 
-    private CanceledAmount getApprovedCancelAmount(CancelResponseDTO cancelResponseDTO) {
+    private CanceledAmount createApprovedCancelAmount(CancelResponseDTO cancelResponseDTO) {
         CanceledAmount canceledAmount = new CanceledAmount();
         canceledAmount.setTotal(Objects.requireNonNull(cancelResponseDTO).getAmount().getTotal());
         canceledAmount.setTaxFree(cancelResponseDTO.getAmount().getTax_free());
