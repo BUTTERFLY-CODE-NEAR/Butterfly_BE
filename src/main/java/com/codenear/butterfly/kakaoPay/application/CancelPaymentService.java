@@ -36,8 +36,8 @@ public class CancelPaymentService {
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("cid", CID);
-        parameters.put("tid", cancelRequestDTO.tid());
-        parameters.put("cancel_amount", cancelRequestDTO.cancelAmount());
+        parameters.put("tid", cancelRequestDTO.getTid());
+        parameters.put("cancel_amount", cancelRequestDTO.getCancelAmount());
         parameters.put("cancel_tax_free_amount", 0);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
