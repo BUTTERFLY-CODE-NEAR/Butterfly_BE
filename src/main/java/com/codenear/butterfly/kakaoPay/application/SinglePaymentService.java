@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Slf4j
 public class SinglePaymentService {
 
     @Value("${kakao.payment.cid}")
@@ -79,14 +78,10 @@ public class SinglePaymentService {
         // 외부에 보낼 url
         RestTemplate restTemplate = new RestTemplate();
 
-        log.info("kakaoPayReadyURL={}", host+"/ready");
-
         ReadyResponseDTO kakaoPayReady = restTemplate.postForObject(
                 host+"/ready",
                 requestEntity,
                 ReadyResponseDTO.class);
-
-        log.info("kakaoPayReady={}", kakaoPayReady);
 
         // Redis에 주문 ID와 거래 ID 저장
         saveOrderId(memberId, partnerOrderId);
@@ -134,7 +129,6 @@ public class SinglePaymentService {
                 ApproveResponseDTO.class);
 
         // 결제 데이터 저장
-        log.info("approveResponseDTO={}", approveResponseDTO);
         SinglePayment singlePayment = getSinglePayment(approveResponseDTO);
 
         Amount amount = getAmount(approveResponseDTO);
