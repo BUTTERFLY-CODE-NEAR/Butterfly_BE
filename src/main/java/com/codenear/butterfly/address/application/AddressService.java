@@ -28,9 +28,6 @@ public class AddressService {
     public List<AddressResponseDTO> getAddresses(MemberDTO memberDTO) {
         LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
 
-        if (addresses.isEmpty())
-            return null;
-
         moveMainAddress(addresses); // 메인 주소 가장 상단 배치
 
         return addresses.stream()
@@ -39,10 +36,11 @@ public class AddressService {
     }
 
     public AddressResponseDTO getAddress(Long addressId) {
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+        Optional<Address> optAddress = addressRepository.findById(addressId);
 
-        return convertToAddressResponseDTO(address);
+        return optAddress
+                .map(this::convertToAddressResponseDTO)
+                .orElse(null);
     }
 
     public AddressAddResponseDTO createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
