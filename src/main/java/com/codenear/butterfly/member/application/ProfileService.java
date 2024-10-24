@@ -1,6 +1,5 @@
 package com.codenear.butterfly.member.application;
 
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.dto.ProfileUpdateRequestDTO;
 import com.codenear.butterfly.s3.application.S3Service;
@@ -8,6 +7,7 @@ import com.codenear.butterfly.s3.domain.S3Directory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -17,24 +17,32 @@ public class ProfileService {
     private final MemberService memberService;
     private final NicknameService nicknameService;
 
-    public void updateMemberProfile(ProfileUpdateRequestDTO memberProfileRequestDTO, MemberDTO memberDTO) {
+    public void updateMemberProfile(ProfileUpdateRequestDTO requestDTO, MemberDTO memberDTO) {
+        updateNicknameIfChanged(requestDTO, memberDTO);
+        updateProfileImageIfPresent(requestDTO, memberDTO);
+    }
 
-        if (isNotNicknameEquals(memberProfileRequestDTO, memberDTO))
-            nicknameService.updateNickname(memberDTO.getId(), memberProfileRequestDTO.getNickname());
-
-        if (memberProfileRequestDTO.getProfileImage() != null) {
-            Member member = memberService.loadMemberByMemberId(memberDTO.getId());
-            if (member.getProfileImage() != null) {
-                s3Service.deleteFile(member.getProfileImage());
-            }
-
-            String imageUrl = s3Service.uploadFile(memberProfileRequestDTO.getProfileImage(),
-                    S3Directory.PROFILE_IMAGE);
-            member.setProfileImage(imageUrl);
+    private void updateNicknameIfChanged(ProfileUpdateRequestDTO requestDTO, MemberDTO memberDTO) {
+        if (!requestDTO.getNickname().equals(memberDTO.getNickname())) {
+            nicknameService.updateNickname(memberDTO.getId(), requestDTO.getNickname());
         }
     }
 
-    private boolean isNotNicknameEquals(ProfileUpdateRequestDTO memberProfileRequestDTO, MemberDTO memberDTO) {
-        return !memberProfileRequestDTO.getNickname().equals(memberDTO.getNickname());
+    private void updateProfileImageIfPresent(ProfileUpdateRequestDTO requestDTO, MemberDTO memberDTO) {
+        if (requestDTO.getProfileImage() != null) {
+            deleteExistingProfileImage(memberDTO);
+            String imageUrl = uploadNewProfileImage(requestDTO.getProfileImage());
+            memberService.updateMemberProfileImage(memberDTO.getId(), imageUrl);
+        }
+    }
+
+    private void deleteExistingProfileImage(MemberDTO memberDTO) {
+        if (memberDTO.getProfileImage() != null) {
+            s3Service.deleteFile(memberDTO.getProfileImage());
+        }
+    }
+
+    private String uploadNewProfileImage(MultipartFile profileImage) {
+        return s3Service.uploadFile(profileImage, S3Directory.PROFILE_IMAGE);
     }
 }
