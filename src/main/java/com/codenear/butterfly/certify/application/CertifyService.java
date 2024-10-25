@@ -1,6 +1,6 @@
 package com.codenear.butterfly.certify.application;
 
-import com.codenear.butterfly.certify.dto.CertifyRequestDTO;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
 import com.codenear.butterfly.global.util.RandomUtil;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
