@@ -52,6 +52,12 @@ public class MemberService {
     }
 
     @CacheEvict(value = "userCache", key = "#memberId")
+    public void updateMemberProfileImage(Long memberId, String imageUrl) {
+        Member member = loadMemberByMemberId(memberId);
+        member.setProfileImage(imageUrl);
+    }
+
+    @CacheEvict(value = "userCache", key = "#memberId")
     public void updatePhoneNumber(Long memberId, String phoneNumber) {
         Member member = loadMemberByMemberId(memberId);
         member.setPhoneNumber(phoneNumber);
