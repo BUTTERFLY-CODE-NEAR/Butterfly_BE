@@ -1,6 +1,6 @@
 package com.codenear.butterfly.certify.presentation;
 
-import com.codenear.butterfly.certify.dto.CertifyRequestDTO;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
