@@ -25,15 +25,16 @@ public enum ErrorCode {
     INVALID_JWT_REFRESH_SIGNATURE(40101, "(Refresh) 유효하지 않은 JWT 서명입니다.", HttpStatus.UNAUTHORIZED),
     BLACKLIST_JWT_REFRESH_TOKEN(40101, "(Refresh) 사용이 금지된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
+    // 402 (PAYMENT_REQUIRED)
+    PAY_FAILED(40200,"결제가 실패하였습니다.", HttpStatus.PAYMENT_REQUIRED),
+
     // 403 (FORBIDDEN)
     INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN),
 
-    // 404 (NOT_FOUND)
+    // 404 (NOT_FOUND),
     PRODUCT_NOT_FOUND(40400, "등록된 상품이 없습니다.", HttpStatus.NOT_FOUND),
     ADDRESS_NOT_FOUND(40401, "해당 주소가 없습니다.", HttpStatus.NOT_FOUND),
-    PAY_CANCEL(40402,"결제가 취소되었습니다.", HttpStatus.NOT_FOUND),
-    PAY_FAILED(40403,"결제가 실패하였습니다.", HttpStatus.NOT_FOUND),
-    MEMBER_NOT_FOUND(40404, "등록되지 않은 회원입니다.", HttpStatus.NOT_FOUND),
+    MEMBER_NOT_FOUND(40402, "등록되지 않은 회원입니다.", HttpStatus.NOT_FOUND),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", HttpStatus.CONFLICT),
