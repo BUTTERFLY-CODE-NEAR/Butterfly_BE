@@ -35,20 +35,27 @@ public class SinglePayController implements SinglePayControllerSwagger {
 
     @GetMapping("/success")
     public ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
-                                      @AuthenticationPrincipal MemberDTO memberDTO) {
-        singlePaymentService.approveResponse(pgToken, memberDTO.getId());
+                                                             @RequestParam("memberId") Long memberId) {
+        singlePaymentService.approveResponse(pgToken, memberId);
         return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제가 성공적으로 완료되었습니다.", null);
     }
 
     @GetMapping("/cancel")
-    public void cancelPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO) {
-        singlePaymentService.cancelPayment(memberDTO.getId());
-        throw new KakaoPayException(ErrorCode.PAY_CANCEL, null);
+    public ResponseEntity<ResponseDTO> cancelPaymentRequest(@RequestParam("memberId") Long memberId) {
+        singlePaymentService.cancelPayment(memberId);
+        return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제가 취소되었습니다.", null);
     }
 
     @GetMapping("/fail")
-    public void failPaymentRequest(@AuthenticationPrincipal MemberDTO memberDTO) {
-        singlePaymentService.failPayment(memberDTO.getId());
+    public void failPaymentRequest(@RequestParam("memberId") Long memberId) {
+        singlePaymentService.failPayment(memberId);
         throw new KakaoPayException(ErrorCode.PAY_FAILED, null);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<ResponseDTO> checkPaymentStatus(@AuthenticationPrincipal MemberDTO memberDTO) {
+        String status = singlePaymentService.checkPaymentStatus(memberDTO.getId());
+        singlePaymentService.updatePaymentStatus(memberDTO.getId());
+        return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제 상태 조회 성공", status);
     }
 }

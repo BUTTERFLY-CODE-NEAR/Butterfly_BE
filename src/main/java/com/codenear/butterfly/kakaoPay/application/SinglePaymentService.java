@@ -67,9 +67,9 @@ public class SinglePaymentService {
         parameters.put("total_amount", paymentRequestDTO.getTotal());
         parameters.put("vat_amount", 0);
         parameters.put("tax_free_amount", 0);
-        parameters.put("approval_url", requestUrl+"/payment/success");
-        parameters.put("cancel_url", requestUrl+"/payment/cancel");
-        parameters.put("fail_url", requestUrl+"/payment/fail");
+        parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
+        parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
+        parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
 
         // 파라미터, 헤더
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
@@ -82,11 +82,10 @@ public class SinglePaymentService {
                 requestEntity,
                 ReadyResponseDTO.class);
 
-        // Redis에 주문 ID와 거래 ID 저장
         saveOrderId(memberId, partnerOrderId);
         saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
-
         saveOrderTypeAndAddressId(memberId, orderType, paymentRequestDTO);
+        savePaymentStatus(memberId, "READY");
         return kakaoPayReady;
     }
 
@@ -145,6 +144,7 @@ public class SinglePaymentService {
 
         // Redis에서 주문 관련 데이터 삭제
         removeOrderRelatedData(memberId);
+        savePaymentStatus(memberId, "SUCCESS");
     }
 
     private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO) {
@@ -164,11 +164,21 @@ public class SinglePaymentService {
         orderDetailsRepository.save(orderDetails);
     }
 
+    public String checkPaymentStatus(Long memberId) {
+        String status = getPaymentStatus(memberId);
+        if (status == null) {
+            return "NONE";
+        }
+        return status;
+    }
+
     public void cancelPayment(Long memberId) {
+        savePaymentStatus(memberId, "CANCEL");
         removeOrderRelatedData(memberId);
     }
 
     public void failPayment(Long memberId) {
+        savePaymentStatus(memberId, "FAIL");
         removeOrderRelatedData(memberId);
     }
 
@@ -228,6 +238,26 @@ public class SinglePaymentService {
     private void removeAddressId(Long memberId) {
         String key = "addressId:" + memberId;
         redisTemplate.delete(key);
+    }
+
+    private void savePaymentStatus(Long memberId, String status) {
+        String key = "paymentStatus:" + memberId;
+        redisTemplate.opsForValue().set(key, status, 30, TimeUnit.MINUTES);
+    }
+
+    private String getPaymentStatus(Long memberId) {
+        String key = "paymentStatus:" + memberId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public void updatePaymentStatus(Long memberId) {
+        String status = getPaymentStatus(memberId);
+        String key = "paymentStatus:" + memberId;
+        if (status == null) {
+            savePaymentStatus(memberId, "NONE");
+        } else if (status.equals("SUCCESS")) {
+            redisTemplate.delete(key);
+        }
     }
 
     // 카카오가 요구한 헤더값
