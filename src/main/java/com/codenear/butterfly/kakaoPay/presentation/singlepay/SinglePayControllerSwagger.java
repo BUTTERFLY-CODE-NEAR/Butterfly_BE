@@ -38,4 +38,8 @@ public interface SinglePayControllerSwagger {
     @Operation(summary = "결제 상태 조회", description = "결제 상태 조회 API")
     @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공")
     ResponseEntity<ResponseDTO> checkPaymentStatus(@AuthenticationPrincipal MemberDTO memberDTO);
+
+    @Operation(summary = "주문 내역 조회", description = "주문 내역 조회 API")
+    @ApiResponse(responseCode = "200", description = "주문 내역 조회 성공")
+    ResponseEntity<ResponseDTO> getAllOrderDetails(@AuthenticationPrincipal MemberDTO memberDTO);
 }

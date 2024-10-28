@@ -15,4 +15,7 @@ public abstract class BasePaymentRequestDTO {
 
     @Schema(description = "총 금액", example = "30000")
     private int total;
+
+    @Schema(description = "옵션 이름", example = "옵션 B")
+    private String optionName;
 }

@@ -3,6 +3,7 @@ package com.codenear.butterfly.kakaoPay.presentation.singlepay;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
+import com.codenear.butterfly.kakaoPay.application.OrderDetailsService;
 import com.codenear.butterfly.kakaoPay.application.SinglePaymentService;
 import com.codenear.butterfly.kakaoPay.domain.dto.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.PickupPaymentRequestDTO;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class SinglePayController implements SinglePayControllerSwagger {
 
     private final SinglePaymentService singlePaymentService;
+    private final OrderDetailsService orderDetailsService;
 
     @PostMapping("/ready/pickup")
     public ResponseEntity<ResponseDTO> pickupPaymentRequest(@RequestBody PickupPaymentRequestDTO paymentRequestDTO,
@@ -57,5 +59,13 @@ public class SinglePayController implements SinglePayControllerSwagger {
         String status = singlePaymentService.checkPaymentStatus(memberDTO.getId());
         singlePaymentService.updatePaymentStatus(memberDTO.getId());
         return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제 상태 조회 성공", status);
+    }
+
+    @GetMapping("/order-details")
+    public ResponseEntity<ResponseDTO> getAllOrderDetails(@AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(
+                HttpStatus.OK,
+                "주문 내역 조회 성공",
+                orderDetailsService.getAllOrderDetails(memberDTO.getId()));
     }
 }

@@ -15,6 +15,11 @@ import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
+import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
+import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -53,6 +58,8 @@ public class SinglePaymentService {
     private final AddressRepository addressRepository;
     private final OrderDetailsRepository orderDetailsRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
@@ -84,12 +91,12 @@ public class SinglePaymentService {
 
         saveOrderId(memberId, partnerOrderId);
         saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
-        saveOrderTypeAndAddressId(memberId, orderType, paymentRequestDTO);
+        saveOrderRelatedData(memberId, orderType, paymentRequestDTO);
         savePaymentStatus(memberId, "READY");
         return kakaoPayReady;
     }
 
-    private void saveOrderTypeAndAddressId(Long memberId, String orderType, BasePaymentRequestDTO paymentRequestDTO) {
+    private void saveOrderRelatedData(Long memberId, String orderType, BasePaymentRequestDTO paymentRequestDTO) {
         String orderTypeKey = "orderType:" + memberId;
         redisTemplate.opsForValue().set(orderTypeKey, orderType, 30, TimeUnit.MINUTES);
 
@@ -98,6 +105,9 @@ public class SinglePaymentService {
             String addressIdKey = "addressId:" + memberId;
             redisTemplate.opsForValue().set(addressIdKey, deliveryDTO.getAddressId().toString(), 30, TimeUnit.MINUTES);
         }
+
+        String optionNameKey = "optionName:" + memberId;
+        redisTemplate.opsForValue().set(optionNameKey, paymentRequestDTO.getOptionName(), 30, TimeUnit.MINUTES);
     }
 
     @Transactional
@@ -107,6 +117,7 @@ public class SinglePaymentService {
         String orderTypeString = getOrderType(memberId);
         OrderType orderType = OrderType.fromType(orderTypeString);
         Long addressId = getAddressId(memberId);
+        String optionName = getOptionName(memberId);
 
         // 카카오 요청
         Map<String, Object> parameters = new HashMap<>();
@@ -138,7 +149,7 @@ public class SinglePaymentService {
             singlePayment.setCardInfo(cardInfo);
         }
 
-        saveOrderDetails(orderType, addressId, approveResponseDTO);
+        saveOrderDetails(orderType, addressId, approveResponseDTO, optionName, memberId);
 
         singlePaymentRepository.save(singlePayment);
 
@@ -147,12 +158,13 @@ public class SinglePaymentService {
         savePaymentStatus(memberId, "SUCCESS");
     }
 
-    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO) {
+    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
         OrderDetails orderDetails = new OrderDetails();
         orderDetails.setOrderType(orderType);
 
         if (OrderType.PICKUP.getType().equals(orderType.getType())) {
-            orderDetails.setPickupPlace(approveResponseDTO.getItem_name());
+            // todo: 추후 픽업 장소 추가되면 리팩토링
+            orderDetails.setPickupPlace("W4");
             orderDetails.setPickupDate(LocalDate.now());
             orderDetails.setPickupTime(LocalTime.now());
         } else if (OrderType.DELIVER.getType().equals(orderType.getType())) {
@@ -160,6 +172,20 @@ public class SinglePaymentService {
                     .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
             orderDetails.setAddress(address);
         }
+
+        orderDetails.setTotal(approveResponseDTO.getAmount().getTotal());
+        orderDetails.setProductName(approveResponseDTO.getItem_name());
+
+        Product product = productRepository.findProductByProductName(approveResponseDTO.getItem_name());
+
+        orderDetails.setProductImage(product.getProductImage());
+        orderDetails.setOptionName(optionName);
+        orderDetails.setQuantity(approveResponseDTO.getQuantity());
+        orderDetails.setOrderStatus("배송 준비 중");
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+        orderDetails.setMember(member);
 
         orderDetailsRepository.save(orderDetails);
     }
@@ -223,11 +249,22 @@ public class SinglePaymentService {
         return addressIdStr != null ? Long.parseLong(addressIdStr) : null;
     }
 
+    private String getOptionName(Long memberId) {
+        String key = "optionName:" + memberId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    private void removeOptionName(Long memberId) {
+        String key = "optionName:" + memberId;
+        redisTemplate.delete(key);
+    }
+
     private void removeOrderRelatedData(Long memberId) {
         removeOrderId(memberId);
         removeTransactionId(memberId);
         removeOrderType(memberId);
         removeAddressId(memberId);
+        removeOptionName(memberId);
     }
 
     private void removeOrderType(Long memberId) {
