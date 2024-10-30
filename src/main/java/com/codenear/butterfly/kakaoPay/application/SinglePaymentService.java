@@ -106,9 +106,13 @@ public class SinglePaymentService {
             redisTemplate.opsForValue().set(addressIdKey, deliveryDTO.getAddressId().toString(), 30, TimeUnit.MINUTES);
         }
 
-        String optionNameKey = "optionName:" + memberId;
-        redisTemplate.opsForValue().set(optionNameKey, paymentRequestDTO.getOptionName(), 30, TimeUnit.MINUTES);
+        String optionName = paymentRequestDTO.getOptionName();
+        if (optionName != null) {
+            String optionNameKey = "optionName:" + memberId;
+            redisTemplate.opsForValue().set(optionNameKey, optionName, 30, TimeUnit.MINUTES);
+        }
     }
+
 
     @Transactional
     public void approveResponse(String pgToken, Long memberId) {
