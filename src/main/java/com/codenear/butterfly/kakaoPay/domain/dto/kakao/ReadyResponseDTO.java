@@ -11,6 +11,7 @@ public class ReadyResponseDTO {
 
     private String tid; // 결제 고유 번호
     private String next_redirect_app_url; // 결제 페이지 url 받기
+    private String next_redirect_mobile_url; // 모바일 다이렉트 url
     private String next_redirect_pc_url; // 로컬 테스트용 url
     private String created_at;
 //    private String partner_order_id;
