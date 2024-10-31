@@ -6,7 +6,10 @@ import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequest
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +41,11 @@ public interface SinglePayControllerSwagger {
 
     @Operation(summary = "결제 상태 조회", description = "결제 상태 조회 API")
     @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = PaymentStatus.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
     ResponseEntity<ResponseDTO> checkPaymentStatus(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "주문 내역 조회", description = "주문 내역 조회 API")
