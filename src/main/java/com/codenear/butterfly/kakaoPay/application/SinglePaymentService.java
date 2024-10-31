@@ -7,11 +7,12 @@ import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
-import com.codenear.butterfly.kakaoPay.domain.dto.BasePaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.DeliveryPaymentRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
@@ -22,7 +23,6 @@ import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional(readOnly = true)
@@ -57,105 +56,57 @@ public class SinglePaymentService {
     private final SinglePaymentRepository singlePaymentRepository;
     private final AddressRepository addressRepository;
     private final OrderDetailsRepository orderDetailsRepository;
-    private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
+    private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
 
-        // 카카오페이 요청 양식
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", CID);
-        parameters.put("partner_order_id", partnerOrderId);
-        parameters.put("partner_user_id", memberId.toString());
-        parameters.put("item_name", paymentRequestDTO.getProductName());
-        parameters.put("quantity", paymentRequestDTO.getQuantity());
-        parameters.put("total_amount", paymentRequestDTO.getTotal());
-        parameters.put("vat_amount", 0);
-        parameters.put("tax_free_amount", 0);
-        parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
-        parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
-        parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
-
-        // 파라미터, 헤더
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
-
-        // 외부에 보낼 url
-        RestTemplate restTemplate = new RestTemplate();
-
-        ReadyResponseDTO kakaoPayReady = restTemplate.postForObject(
-                host+"/ready",
+        Map<String, Object> parameters = getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, getHeaders());
+        ReadyResponseDTO kakaoPayReady = new RestTemplate().postForObject(
+                host + "/ready",
                 requestEntity,
                 ReadyResponseDTO.class);
 
-        saveOrderId(memberId, partnerOrderId);
-        saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
-        saveOrderRelatedData(memberId, orderType, paymentRequestDTO);
-        savePaymentStatus(memberId, "READY");
+        kakaoPaymentRedisRepository.saveOrderId(memberId, partnerOrderId);
+        kakaoPaymentRedisRepository.saveTransactionId(memberId, Objects.requireNonNull(kakaoPayReady).getTid());
+        kakaoPaymentRedisRepository.saveOrderRelatedData(memberId, orderType, paymentRequestDTO);
+        kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.READY.name());
         return kakaoPayReady;
-    }
-
-    private void saveOrderRelatedData(Long memberId, String orderType, BasePaymentRequestDTO paymentRequestDTO) {
-        String orderTypeKey = "orderType:" + memberId;
-        redisTemplate.opsForValue().set(orderTypeKey, orderType, 30, TimeUnit.MINUTES);
-
-        if ("deliver".equals(orderType)) {
-            DeliveryPaymentRequestDTO deliveryDTO = (DeliveryPaymentRequestDTO) paymentRequestDTO;
-            String addressIdKey = "addressId:" + memberId;
-            redisTemplate.opsForValue().set(addressIdKey, deliveryDTO.getAddressId().toString(), 30, TimeUnit.MINUTES);
-        }
-
-        String optionNameKey = "optionName:" + memberId;
-        redisTemplate.opsForValue().set(optionNameKey, paymentRequestDTO.getOptionName(), 30, TimeUnit.MINUTES);
     }
 
     @Transactional
     public void approveResponse(String pgToken, Long memberId) {
-        String orderId = getOrderId(memberId);
-        String transactionId = getTransactionId(memberId);
-        String orderTypeString = getOrderType(memberId);
+        String orderId = kakaoPaymentRedisRepository.getOrderId(memberId);
+        String transactionId = kakaoPaymentRedisRepository.getTransactionId(memberId);
+        String orderTypeString = kakaoPaymentRedisRepository.getOrderType(memberId);
         OrderType orderType = OrderType.fromType(orderTypeString);
-        Long addressId = getAddressId(memberId);
-        String optionName = getOptionName(memberId);
+        Long addressId = kakaoPaymentRedisRepository.getAddressId(memberId);
+        String optionName = kakaoPaymentRedisRepository.getOptionName(memberId);
 
-        // 카카오 요청
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", CID);
-        parameters.put("tid", transactionId);
-        parameters.put("partner_order_id", orderId);
-        parameters.put("partner_user_id", memberId.toString());
-        parameters.put("pg_token", pgToken);
-
-        // 파라미터, 헤더
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
-        // 외부에 보낼 url
-        RestTemplate restTemplate = new RestTemplate();
-
-        ApproveResponseDTO approveResponseDTO = restTemplate.postForObject(
-                host+"/approve",
+        Map<String, Object> parameters = getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, getHeaders());
+        ApproveResponseDTO approveResponseDTO = new RestTemplate().postForObject(
+                host + "/approve",
                 requestEntity,
                 ApproveResponseDTO.class);
 
-        // 결제 데이터 저장
         SinglePayment singlePayment = createSinglePayment(approveResponseDTO);
-
         Amount amount = createAmount(approveResponseDTO);
         singlePayment.setAmount(amount);
 
-        // CardInfo 엔티티 생성 및 설정
         if (Objects.requireNonNull(approveResponseDTO).getPayment_method_type().equals("CARD")) {
             CardInfo cardInfo = createCardInfo(approveResponseDTO);
             singlePayment.setCardInfo(cardInfo);
         }
 
         saveOrderDetails(orderType, addressId, approveResponseDTO, optionName, memberId);
-
         singlePaymentRepository.save(singlePayment);
 
-        // Redis에서 주문 관련 데이터 삭제
-        removeOrderRelatedData(memberId);
-        savePaymentStatus(memberId, "SUCCESS");
+        kakaoPaymentRedisRepository.removeOrderRelatedData(memberId);
+        kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
     }
 
     private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
@@ -190,121 +141,6 @@ public class SinglePaymentService {
         orderDetailsRepository.save(orderDetails);
     }
 
-    public String checkPaymentStatus(Long memberId) {
-        String status = getPaymentStatus(memberId);
-        if (status == null) {
-            return "NONE";
-        }
-        return status;
-    }
-
-    public void cancelPayment(Long memberId) {
-        savePaymentStatus(memberId, "CANCEL");
-        removeOrderRelatedData(memberId);
-    }
-
-    public void failPayment(Long memberId) {
-        savePaymentStatus(memberId, "FAIL");
-        removeOrderRelatedData(memberId);
-    }
-
-    private void saveOrderId(Long memberId, String orderId) {
-        String key = "order:" + memberId;
-        redisTemplate.opsForValue().set(key, orderId, 30, TimeUnit.MINUTES);
-    }
-
-    public String getOrderId(Long memberId) {
-        String key = "order:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removeOrderId(Long memberId) {
-        String key = "order:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void saveTransactionId(Long memberId, String tid) {
-        String key = "transaction:" + memberId;
-        redisTemplate.opsForValue().set(key, tid, 30, TimeUnit.MINUTES);
-    }
-
-    private String getTransactionId(Long memberId) {
-        String key = "transaction:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removeTransactionId(Long memberId) {
-        String key = "transaction:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private String getOrderType(Long memberId) {
-        String key = "orderType:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private Long getAddressId(Long memberId) {
-        String key = "addressId:" + memberId;
-        String addressIdStr = redisTemplate.opsForValue().get(key);
-        return addressIdStr != null ? Long.parseLong(addressIdStr) : null;
-    }
-
-    private String getOptionName(Long memberId) {
-        String key = "optionName:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removeOptionName(Long memberId) {
-        String key = "optionName:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void removeOrderRelatedData(Long memberId) {
-        removeOrderId(memberId);
-        removeTransactionId(memberId);
-        removeOrderType(memberId);
-        removeAddressId(memberId);
-        removeOptionName(memberId);
-    }
-
-    private void removeOrderType(Long memberId) {
-        String key = "orderType:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void removeAddressId(Long memberId) {
-        String key = "addressId:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void savePaymentStatus(Long memberId, String status) {
-        String key = "paymentStatus:" + memberId;
-        redisTemplate.opsForValue().set(key, status, 30, TimeUnit.MINUTES);
-    }
-
-    private String getPaymentStatus(Long memberId) {
-        String key = "paymentStatus:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    public void updatePaymentStatus(Long memberId) {
-        String status = getPaymentStatus(memberId);
-        String key = "paymentStatus:" + memberId;
-        if (status == null) {
-            savePaymentStatus(memberId, "NONE");
-        } else if (status.equals("SUCCESS")) {
-            redisTemplate.delete(key);
-        }
-    }
-
-    // 카카오가 요구한 헤더값
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("Authorization", "SECRET_KEY " + secretKey);
-        return headers;
-    }
-
     private SinglePayment createSinglePayment(ApproveResponseDTO approveResponseDTO) {
         SinglePayment singlePayment = new SinglePayment();
         singlePayment.setAid(Objects.requireNonNull(approveResponseDTO).getAid());
@@ -321,6 +157,34 @@ public class SinglePaymentService {
         singlePayment.setApprovedAt(approveResponseDTO.getApproved_at());
         singlePayment.setPayload(approveResponseDTO.getPayload());
         return singlePayment;
+    }
+
+    public String checkPaymentStatus(Long memberId) {
+        String status = kakaoPaymentRedisRepository.getPaymentStatus(memberId);
+        if (status == null) {
+            return PaymentStatus.NONE.name();
+        }
+        return status;
+    }
+
+    public void cancelPayment(Long memberId) {
+        kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.CANCEL.name());
+        kakaoPaymentRedisRepository.removeOrderRelatedData(memberId);
+    }
+
+    public void failPayment(Long memberId) {
+        kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
+        kakaoPaymentRedisRepository.removeOrderRelatedData(memberId);
+    }
+
+    public void updatePaymentStatus(Long memberId) {
+        String status = kakaoPaymentRedisRepository.getPaymentStatus(memberId);
+        String key = "paymentStatus:" + memberId;
+        if (status == null) {
+            kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.NONE.name());
+        } else if (status.equals(PaymentStatus.SUCCESS.name())) {
+            kakaoPaymentRedisRepository.removePaymentStatus(key);
+        }
     }
 
     private Amount createAmount(ApproveResponseDTO approveResponseDTO) {
@@ -347,5 +211,38 @@ public class SinglePaymentService {
         cardInfo.setKakaopayIssuerCorp(approveResponseDTO.getCard_info().getKakaopay_issuer_corp());
         cardInfo.setKakaopayIssuerCorpCode(approveResponseDTO.getCard_info().getKakaopay_issuer_corp_code());
         return cardInfo;
+    }
+
+    private Map<String, Object> getKakaoPayReadyParameters(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String partnerOrderId) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cid", CID);
+        parameters.put("partner_order_id", partnerOrderId);
+        parameters.put("partner_user_id", memberId.toString());
+        parameters.put("item_name", paymentRequestDTO.getProductName());
+        parameters.put("quantity", paymentRequestDTO.getQuantity());
+        parameters.put("total_amount", paymentRequestDTO.getTotal());
+        parameters.put("vat_amount", 0);
+        parameters.put("tax_free_amount", 0);
+        parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
+        parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
+        parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
+        return parameters;
+    }
+
+    private Map<String, Object> getKakaoPayApproveParameters(Long memberId, String orderId, String transactionId, String pgToken) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cid", CID);
+        parameters.put("tid", transactionId);
+        parameters.put("partner_order_id", orderId);
+        parameters.put("partner_user_id", memberId.toString());
+        parameters.put("pg_token", pgToken);
+        return parameters;
+    }
+
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        headers.set("Authorization", "SECRET_KEY " + secretKey);
+        return headers;
     }
 }

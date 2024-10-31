@@ -1,4 +1,4 @@
-package com.codenear.butterfly.kakaoPay.domain.dto;
+package com.codenear.butterfly.kakaoPay.domain.dto.request;
 
 public record ApproveRequestDTO (
         String tid,

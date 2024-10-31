@@ -1,4 +1,4 @@
-package com.codenear.butterfly.kakaoPay.domain.dto;
+package com.codenear.butterfly.kakaoPay.domain.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -16,6 +16,6 @@ public abstract class BasePaymentRequestDTO {
     @Schema(description = "총 금액", example = "30000")
     private int total;
 
-    @Schema(description = "옵션 이름", example = "옵션 B")
+    @Schema(description = "옵션 이름", example = "옵션 B", nullable = true)
     private String optionName;
 }
