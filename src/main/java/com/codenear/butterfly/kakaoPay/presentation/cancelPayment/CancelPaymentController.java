@@ -3,7 +3,7 @@ package com.codenear.butterfly.kakaoPay.presentation.cancelPayment;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.kakaoPay.application.CancelPaymentService;
-import com.codenear.butterfly.kakaoPay.domain.dto.CancelRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
