@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<ul th:fragment="sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- 사이드바 브랜드 섹션 -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" th:href="@{/admin}">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">CODE NEAR</div>
+    </a>
+
+    <!-- 구분선 -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- 유저 정보 메뉴 항목 -->
+    <li class="nav-item">
+        <a class="nav-link" th:href="@{/admin/user-info}">
+            <i class="fas fa-fw fa-user"></i>
+            <span style="font-size: medium; font-weight: bold">유저 정보</span>
+        </a>
+    </li>
+
+    <!-- 상품 메뉴 항목 (하위 메뉴 포함) -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
+           aria-expanded="true" aria-controls="collapseProducts">
+            <i class="fas fa-fw fa-box"></i>
+            <span style="font-size: medium; font-weight: bold">상품</span>
+        </a>
+        <div id="collapseProducts" class="collapse" aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" th:href="@{/admin/products}">상품 목록</a>
+                <a class="collapse-item" th:href="@{/admin/products/add}">상품 추가</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- 배달 현황 메뉴 항목 -->
+    <li class="nav-item">
+    <a class="nav-link" th:href="@{/admin/delivery-status}">
+        <i class="fas fa-fw fa-truck"></i>
+        <span style="font-size: medium; font-weight: bold">배달 현황</span>
+    </a>
+    </li>
+
+    <!-- QnA 메뉴 항목 (하위 메뉴 포함) -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseQnA"
+           aria-expanded="true" aria-controls="collapseQnA">
+            <i class="fas fa-fw fa-question-circle"></i>
+            <span style="font-size: medium; font-weight: bold">QnA</span>
+        </a>
+        <div id="collapseQnA" class="collapse" aria-labelledby="headingQnA" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" th:href="@{/admin/faq}">FAQ</a>
+                <a class="collapse-item" th:href="@{/admin/customer-inquiries}">고객 문의</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- 구분선 -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- 사이드바 토글 버튼 -->
+    <div class="text-center" style="margin-top: 20px;">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+</ul>
+</body>
+</html>
