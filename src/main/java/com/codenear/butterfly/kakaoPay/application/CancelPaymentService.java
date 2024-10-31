@@ -2,7 +2,7 @@ package com.codenear.butterfly.kakaoPay.application;
 
 import com.codenear.butterfly.kakaoPay.domain.CancelPayment;
 import com.codenear.butterfly.kakaoPay.domain.CanceledAmount;
-import com.codenear.butterfly.kakaoPay.domain.dto.CancelRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
 import lombok.RequiredArgsConstructor;

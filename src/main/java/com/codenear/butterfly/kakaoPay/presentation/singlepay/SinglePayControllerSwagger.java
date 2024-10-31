@@ -1,8 +1,9 @@
 package com.codenear.butterfly.kakaoPay.presentation.singlepay;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.DeliveryPaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.PickupPaymentRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
