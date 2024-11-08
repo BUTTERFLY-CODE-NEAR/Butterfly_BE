@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(title = "주문 내역 JSON", description = "주문 내역 정보 요청 시 반환되는 응답 JSON 데이터 입니다.")
 public record OrderDetailsDTO(
+        @Schema(description = "주문 번호") String orderCode,
+        @Schema(description = "주문 날짜") String orderDate,
         @Schema(description = "상품 이름") String productName,
         @Schema(description = "옵션 이름") String optionName,
         @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") String productImage,
