@@ -2,13 +2,21 @@ package com.codenear.butterfly.kakaoPay.domain.repository;
 
 import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 @Repository
 public class KakaoPaymentRedisRepository {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     private final RedisTemplate<String, String> redisTemplate;
 
     public KakaoPaymentRedisRepository(RedisTemplate<String, String> redisTemplate) {
@@ -49,6 +57,12 @@ public class KakaoPaymentRedisRepository {
         saveOrderType(memberId, orderType);
         saveAddressId(memberId, paymentRequestDTO);
         saveOptionName(memberId, paymentRequestDTO);
+
+        if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupDTO) {
+            savePickupPlace(memberId, pickupDTO.getPickupPlace());
+            savePickupDate(memberId, pickupDTO.getPickupDate());
+            savePickupTime(memberId, pickupDTO.getPickupTime());
+        }
     }
 
     private void saveOrderType(Long memberId, String orderType) {
@@ -102,12 +116,70 @@ public class KakaoPaymentRedisRepository {
         redisTemplate.delete(key);
     }
 
+    private void savePickupDate(Long memberId, LocalDate pickupDate) {
+        if (pickupDate != null) {
+            String key = "pickupDate:" + memberId;
+            String dateStr = pickupDate.format(DATE_FORMATTER);
+            redisTemplate.opsForValue().set(key, dateStr, 30, TimeUnit.MINUTES);
+        }
+    }
+
+    public LocalDate getPickupDate(Long memberId) {
+        String key = "pickupDate:" + memberId;
+        String dateStr = redisTemplate.opsForValue().get(key);
+        return dateStr != null ? LocalDate.parse(dateStr, DATE_FORMATTER) : null;
+    }
+
+    private void removePickupDate(Long memberId) {
+        String key = "pickupDate:" + memberId;
+        redisTemplate.delete(key);
+    }
+
+    private void savePickupTime(Long memberId, LocalTime pickupTime) {
+        if (pickupTime != null) {
+            String key = "pickupTime:" + memberId;
+            String timeStr = pickupTime.format(TIME_FORMATTER);
+            redisTemplate.opsForValue().set(key, timeStr, 30, TimeUnit.MINUTES);
+        }
+    }
+
+    public LocalTime getPickupTime(Long memberId) {
+        String key = "pickupTime:" + memberId;
+        String timeStr = redisTemplate.opsForValue().get(key);
+        return timeStr != null ? LocalTime.parse(timeStr, TIME_FORMATTER) : null;
+    }
+
+    private void removePickupTime(Long memberId) {
+        String key = "pickupTime:" + memberId;
+        redisTemplate.delete(key);
+    }
+
+    private void savePickupPlace(Long memberId, String pickupPlace) {
+        if (pickupPlace != null) {
+            String key = "pickupPlace:" + memberId;
+            redisTemplate.opsForValue().set(key, pickupPlace, 30, TimeUnit.MINUTES);
+        }
+    }
+
+    public String getPickupPlace(Long memberId) {
+        String key = "pickupPlace:" + memberId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    private void removePickupPlace(Long memberId) {
+        String key = "pickupPlace:" + memberId;
+        redisTemplate.delete(key);
+    }
+
     public void removeOrderRelatedData(Long memberId) {
         removeOrderId(memberId);
         removeTransactionId(memberId);
         removeOrderType(memberId);
         removeAddressId(memberId);
         removeOptionName(memberId);
+        removePickupDate(memberId);
+        removePickupTime(memberId);
+        removePickupPlace(memberId);
     }
 
     public void savePaymentStatus(Long memberId, String status) {

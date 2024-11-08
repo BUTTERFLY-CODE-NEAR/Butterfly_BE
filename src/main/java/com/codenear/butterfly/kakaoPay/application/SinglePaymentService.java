@@ -7,11 +7,11 @@ import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
-import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
+import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
@@ -29,8 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -112,12 +112,14 @@ public class SinglePaymentService {
     private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
         OrderDetails orderDetails = new OrderDetails();
         orderDetails.setOrderType(orderType);
+        orderDetails.setOrderCode(generateOrderCode());
+        orderDetails.setCreatedAt(LocalDateTime.parse(approveResponseDTO.getCreated_at()));
+        orderDetails.setTid(approveResponseDTO.getTid());
 
         if (OrderType.PICKUP.getType().equals(orderType.getType())) {
-            // todo: 추후 픽업 장소 추가되면 리팩토링
-            orderDetails.setPickupPlace("W4");
-            orderDetails.setPickupDate(LocalDate.now());
-            orderDetails.setPickupTime(LocalTime.now());
+            orderDetails.setPickupPlace(kakaoPaymentRedisRepository.getPickupPlace(memberId));
+            orderDetails.setPickupDate(kakaoPaymentRedisRepository.getPickupDate(memberId));
+            orderDetails.setPickupTime(kakaoPaymentRedisRepository.getPickupTime(memberId));
         } else if (OrderType.DELIVER.getType().equals(orderType.getType())) {
             Address address = addressRepository.findById(addressId)
                     .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
@@ -139,6 +141,12 @@ public class SinglePaymentService {
         orderDetails.setMember(member);
 
         orderDetailsRepository.save(orderDetails);
+    }
+
+    private String generateOrderCode() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmssSSSS");
+        return now.format(formatter);
     }
 
     private SinglePayment createSinglePayment(ApproveResponseDTO approveResponseDTO) {

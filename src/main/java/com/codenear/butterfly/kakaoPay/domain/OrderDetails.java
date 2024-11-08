@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -25,6 +26,12 @@ public class OrderDetails {
 
     @Enumerated(EnumType.STRING)
     private OrderType orderType;
+
+    @Column(length = 16)
+    private String orderCode;
+
+    private String tid;
+    private LocalDateTime createdAt;
 
     // 직거래 시
     private String pickupPlace;
