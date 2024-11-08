@@ -2,7 +2,6 @@ package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
-import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
@@ -80,7 +79,7 @@ public class ProductViewService {
         boolean isFavorite = isProductFavorite(memberId, product.getId());
         return new ProductViewDTO(
                 product.getId(),
-                product.getSubtitle(),
+                product.getCompanyName(),
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
@@ -108,7 +107,7 @@ public class ProductViewService {
 
         return new ProductDetailDTO(
                 product.getId(),
-                product.getSubtitle(),
+                product.getCompanyName(),
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),

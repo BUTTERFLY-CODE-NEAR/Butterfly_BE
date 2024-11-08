@@ -53,7 +53,7 @@ public class FavoriteService {
 
         return new ProductViewDTO(
                 product.getId(),
-                product.getSubtitle(),
+                product.getCompanyName(),
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
