@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Long> {
     List<OrderDetails> findAllByMemberId(Long memberId);
+
+    OrderDetails findByOrderCode(String orderCode);
 }
