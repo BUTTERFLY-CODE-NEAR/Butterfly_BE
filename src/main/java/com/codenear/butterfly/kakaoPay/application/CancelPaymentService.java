@@ -2,9 +2,11 @@ package com.codenear.butterfly.kakaoPay.application;
 
 import com.codenear.butterfly.kakaoPay.domain.CancelPayment;
 import com.codenear.butterfly.kakaoPay.domain.CanceledAmount;
+import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
+import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -32,11 +34,15 @@ public class CancelPaymentService {
     private String host;
 
     private final CancelPaymentRepository cancelPaymentRepository;
+    private final OrderDetailsRepository orderDetailsRepository;
 
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
+
+        OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
+
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("cid", CID);
-        parameters.put("tid", cancelRequestDTO.getTid());
+        parameters.put("tid", orderDetails.getTid());
         parameters.put("cancel_amount", cancelRequestDTO.getCancelAmount());
         parameters.put("cancel_tax_free_amount", 0);
 
