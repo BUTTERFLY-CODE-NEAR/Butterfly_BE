@@ -7,8 +7,6 @@ import com.codenear.butterfly.geocoding.domain.dto.GeocodingResponse;
 import com.codenear.butterfly.geocoding.exception.GeocodingException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -17,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("local")
 class GeocodingClientTest {
 
-    private static final Logger log = LoggerFactory.getLogger(GeocodingClientTest.class);
     @Autowired
     private GeocodingClient geocodingClient;
 
@@ -28,7 +25,7 @@ class GeocodingClientTest {
         Address address = new Address(arrivalAddress, BASIC);
 
         // when
-        GeocodingResponse response = geocodingClient.loadGeocoding(address);
+        GeocodingResponse response = geocodingClient.loadGeocoding(address).get();
 
         // then
         Assertions.assertThat(response.getAddresses().get(0).getDistance())
