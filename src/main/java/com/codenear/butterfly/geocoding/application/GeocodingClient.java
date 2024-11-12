@@ -4,6 +4,7 @@ import com.codenear.butterfly.geocoding.domain.Address;
 import com.codenear.butterfly.geocoding.domain.dto.GeocodingResponse;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,6 +18,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 @RequiredArgsConstructor
 public class GeocodingClient {
+
+    private static final String ARRIVAL_PARAM = "query";
+    private static final String DEPARTURE_PARAM = "coordinate";
     private static final String API_KEY_ID_HEADER = "x-ncp-apigw-api-key-id";
     private static final String API_KEY_HEADER = "x-ncp-apigw-api-key";
 
@@ -32,14 +36,13 @@ public class GeocodingClient {
     @Value("${naver.client.url}")
     private String url;
 
-    public GeocodingResponse loadGeocoding(Address address) {
+    public Optional<GeocodingResponse> loadGeocoding(Address address) {
         URI uri = createRequestUri(address);
         HttpEntity<String> entity = createHttpEntity();
         ResponseEntity<GeocodingResponse> response = sendRequest(uri, entity);
 
-        geocodingValidator.validateResponse(response);
-
-        return response.getBody();
+        geocodingValidator.validateResponse(response.getBody());
+        return Optional.ofNullable(response.getBody());
     }
 
     private ResponseEntity<GeocodingResponse> sendRequest(URI query, HttpEntity<String> entity) {
@@ -53,8 +56,8 @@ public class GeocodingClient {
 
     private URI createRequestUri(Address address) {
         return UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("query", address.getArrivalAddress())
-                .queryParam("coordinate", address.getDepartureAddress().getAddress())
+                .queryParam(ARRIVAL_PARAM, address.getArrivalAddress())
+                .queryParam(DEPARTURE_PARAM, address.getDepartureAddress().getAddress())
                 .encode(StandardCharsets.UTF_8)
                 .build()
                 .toUri();
