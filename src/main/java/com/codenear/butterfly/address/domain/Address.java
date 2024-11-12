@@ -23,6 +23,8 @@ public class Address {
 
     private String entrancePassword; // 현관 비밀번호
 
+    private int distance;
+
     @Setter
     private boolean isMainAddress;
 
