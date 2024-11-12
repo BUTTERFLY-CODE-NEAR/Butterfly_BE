@@ -7,6 +7,7 @@ import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
 import com.codenear.butterfly.address.domain.dto.AddressResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
 import com.codenear.butterfly.address.exception.AddressException;
+import com.codenear.butterfly.geocoding.application.GeocodingService;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class AddressService {
     private final MemberService memberService;
     private final AddressRepository addressRepository;
+    private final GeocodingService geocodingService;
 
     public List<AddressResponseDTO> getAddresses(MemberDTO memberDTO) {
         LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
@@ -51,6 +53,7 @@ public class AddressService {
                 .address(addressCreateDTO.getAddress())
                 .detailedAddress(addressCreateDTO.getDetailedAddress())
                 .entrancePassword(addressCreateDTO.getEntrancePassword())
+                .distance(geocodingService.fetchDistance(addressCreateDTO.getAddress()))
                 .isMainAddress(member.getAddresses().isEmpty()) // 첫 주소 등록 시, 메인 주소로 설정
                 .member(member)
                 .build();
