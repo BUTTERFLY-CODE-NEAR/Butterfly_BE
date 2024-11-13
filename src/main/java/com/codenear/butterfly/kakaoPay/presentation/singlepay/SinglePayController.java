@@ -9,11 +9,14 @@ import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequest
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/payment")
@@ -36,22 +39,25 @@ public class SinglePayController implements SinglePayControllerSwagger {
     }
 
     @GetMapping("/success")
-    public ResponseEntity<ResponseDTO> successPaymentRequest(@RequestParam("pg_token") String pgToken,
-                                                             @RequestParam("memberId") Long memberId) {
+    public void successPaymentRequest(@RequestParam("pg_token") String pgToken,
+                                                             @RequestParam("memberId") Long memberId,
+                                                             HttpServletResponse response) throws IOException {
         singlePaymentService.approveResponse(pgToken, memberId);
-        return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제가 성공적으로 완료되었습니다.", null);
+        response.sendRedirect("butterfly://kakaopay/success");
     }
 
     @GetMapping("/cancel")
-    public ResponseEntity<ResponseDTO> cancelPaymentRequest(@RequestParam("memberId") Long memberId) {
+    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
+                                                            HttpServletResponse response) throws IOException {
         singlePaymentService.cancelPayment(memberId);
-        return ResponseUtil.createSuccessResponse(HttpStatus.OK, "결제가 취소되었습니다.", null);
+        response.sendRedirect("butterfly://kakaopay/cancel");
     }
 
     @GetMapping("/fail")
-    public void failPaymentRequest(@RequestParam("memberId") Long memberId) {
+    public void failPaymentRequest(@RequestParam("memberId") Long memberId,
+                                   HttpServletResponse response) throws IOException {
         singlePaymentService.failPayment(memberId);
-        throw new KakaoPayException(ErrorCode.PAY_FAILED, null);
+        response.sendRedirect("butterfly://kakaopay/fail");
     }
 
     @GetMapping("/status")
