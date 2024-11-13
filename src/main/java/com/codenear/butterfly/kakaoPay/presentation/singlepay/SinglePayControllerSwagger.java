@@ -1,6 +1,7 @@
 package com.codenear.butterfly.kakaoPay.presentation.singlepay;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
@@ -56,5 +57,10 @@ public interface SinglePayControllerSwagger {
 
     @Operation(summary = "주문 내역 조회", description = "주문 내역 조회 API")
     @ApiResponse(responseCode = "200", description = "주문 내역 조회 성공")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = OrderStatus.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
     ResponseEntity<ResponseDTO> getAllOrderDetails(@AuthenticationPrincipal MemberDTO memberDTO);
 }
