@@ -7,6 +7,7 @@ import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
+import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
@@ -134,7 +135,7 @@ public class SinglePaymentService {
         orderDetails.setProductImage(product.getProductImage());
         orderDetails.setOptionName(optionName);
         orderDetails.setQuantity(approveResponseDTO.getQuantity());
-        orderDetails.setOrderStatus("배송 준비 중");
+        orderDetails.setOrderStatus(OrderStatus.READY);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
