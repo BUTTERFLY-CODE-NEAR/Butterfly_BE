@@ -3,6 +3,7 @@ package com.codenear.butterfly.kakaoPay.application;
 import com.codenear.butterfly.kakaoPay.domain.CancelPayment;
 import com.codenear.butterfly.kakaoPay.domain.CanceledAmount;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
+import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
@@ -59,6 +60,7 @@ public class CancelPaymentService {
         CanceledAmount canceledAmount = createApprovedCancelAmount(cancelResponseDTO);
         cancelPayment.setCanceledAmount(canceledAmount);
 
+        orderDetails.setOrderStatus(OrderStatus.CANCELED);
         cancelPaymentRepository.save(cancelPayment);
     }
 
