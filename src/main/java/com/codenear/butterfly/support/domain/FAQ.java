@@ -33,8 +33,8 @@ public class FAQ extends BaseEntity {
     private boolean status; // 표시 여부
 
     public void updateFAQ(FAQRequest request) {
-        this.question = request.getQuestion();
-        this.answer = request.getAnswer();
-        this.status = request.isStatus();
+        this.question = request.question();
+        this.answer = request.answer();
+        this.status = request.status();
     }
 }
