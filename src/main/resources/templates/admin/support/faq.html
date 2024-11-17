@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>FAQ 관리</title>
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid pt-3">
+                <h1 class="h3 mb-4 text-gray-800">FAQ 목록</h1>
+
+                <!-- FAQ 생성 버튼 -->
+                <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#faqModal">
+                    새 FAQ 생성
+                </button>
+
+                <!-- FAQ 목록 테이블 -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>질문</th>
+                                    <th>상태</th>
+                                    <th>작업</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- FAQ 항목 반복 -->
+                                <tr th:each="faq : ${faqs}">
+                                    <td th:text="${faq.id}"></td>
+                                    <td th:text="${faq.question}"></td>
+                                    <td>
+                                        <span th:if="${faq.status}" class="badge badge-success badge-pill">활성</span>
+                                        <span th:unless="${faq.status}" class="badge badge-secondary badge-pill">비활성</span>
+                                    </td>
+
+                                    <td>
+                                        <!-- 상세보기, 수정, 삭제 버튼 -->
+                                        <a th:href="@{/admin/support/faq/{id}(id=${faq.id})}" class="btn btn-info btn-sm">상세보기</a>
+
+                                        <a href="#" class="btn btn-warning btn-sm edit-faq"
+                                           th:data-id="${faq.id}"
+                                           th:data-question="${faq.question}"
+                                           th:data-answer="${faq.answer}"
+                                           th:data-status="${faq.status}">수정</a>
+
+                                        <a th:href="@{/admin/support/faq/{id}/delete(id=${faq.id})}" class="btn btn-danger btn-sm"
+                                           onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{admin/support/create-modal :: createModal}"></th:block>
+<th:block th:replace="~{admin/support/edit-modal :: editModal}"></th:block>
+<th:block th:replace="~{fragments/scripts}"></th:block>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<script th:src="@{/sb-admin/js/faqEdit.js}"></script>
+<script th:src="@{/sb-admin/js/faqCreate.js}"></script>
+</body>
+</html>
