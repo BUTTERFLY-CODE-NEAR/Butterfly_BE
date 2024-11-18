@@ -1,5 +1,6 @@
 package com.codenear.butterfly.support.domain;
 
+import com.codenear.butterfly.admin.support.domain.dto.FAQRequest;
 import com.codenear.butterfly.global.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,4 +31,10 @@ public class FAQ extends BaseEntity {
     private String answer;
 
     private boolean status; // 표시 여부
+
+    public void updateFAQ(FAQRequest request) {
+        this.question = request.question();
+        this.answer = request.answer();
+        this.status = request.status();
+    }
 }
