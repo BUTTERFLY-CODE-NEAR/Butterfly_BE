@@ -25,8 +25,8 @@ public interface InquiryControllerSwagger {
                     content = @Content(schema = @Schema(implementation = InquiryListDTO.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
-    public ResponseEntity<ResponseDTO> getInquiryList(@AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> getInquiryList(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "고객 문의 등록", description = "고객 문의 등록 API")
-    public ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO dto, @AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO dto, @AuthenticationPrincipal MemberDTO memberDTO);
 }
