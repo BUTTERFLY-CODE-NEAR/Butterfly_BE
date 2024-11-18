@@ -1,5 +1,6 @@
-package com.codenear.butterfly.support.domain;
+package com.codenear.butterfly.support.domain.repositroy;
 
+import com.codenear.butterfly.support.domain.Inquiry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

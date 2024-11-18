@@ -4,7 +4,7 @@ import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.domain.Inquiry;
-import com.codenear.butterfly.support.domain.InquiryRepository;
+import com.codenear.butterfly.support.domain.repositroy.InquiryRepository;
 import com.codenear.butterfly.support.domain.InquiryStatus;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;

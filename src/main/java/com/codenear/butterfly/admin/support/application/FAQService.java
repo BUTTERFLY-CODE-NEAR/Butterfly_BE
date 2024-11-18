@@ -5,7 +5,7 @@ import static com.codenear.butterfly.global.exception.ErrorCode.*;
 import com.codenear.butterfly.admin.exception.AdminException;
 import com.codenear.butterfly.admin.support.domain.dto.FAQRequest;
 import com.codenear.butterfly.support.domain.FAQ;
-import com.codenear.butterfly.support.domain.FAQRepository;
+import com.codenear.butterfly.support.domain.repositroy.FAQRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
