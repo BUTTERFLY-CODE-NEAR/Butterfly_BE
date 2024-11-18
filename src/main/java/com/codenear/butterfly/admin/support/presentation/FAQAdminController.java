@@ -1,7 +1,7 @@
 package com.codenear.butterfly.admin.support.presentation;
 
-import com.codenear.butterfly.admin.support.application.FAQService;
-import com.codenear.butterfly.admin.support.domain.dto.FAQRequest;
+import com.codenear.butterfly.admin.support.application.FAQAdminService;
+import com.codenear.butterfly.admin.support.domain.dto.FAQAdminRequest;
 import com.codenear.butterfly.support.domain.FAQ;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/support/faq")
-public class AdminFAQController {
+public class FAQAdminController {
 
-    private final FAQService faqService;
+    private final FAQAdminService faqService;
 
     @GetMapping
     public String viewFAQList(Model model) {
@@ -37,14 +37,14 @@ public class AdminFAQController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createFAQ(@RequestBody FAQRequest faqRequest) {
+    public ResponseEntity<Void> createFAQ(@RequestBody FAQAdminRequest faqRequest) {
         faqService.createFAQ(faqRequest);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/edit")
     @ResponseBody
-    public ResponseEntity<Void> editFAQ(@PathVariable Long id, @RequestBody FAQRequest faqRequest) {
+    public ResponseEntity<Void> editFAQ(@PathVariable Long id, @RequestBody FAQAdminRequest faqRequest) {
         faqService.updateFAQ(id, faqRequest);
         return ResponseEntity.ok().build();
     }
