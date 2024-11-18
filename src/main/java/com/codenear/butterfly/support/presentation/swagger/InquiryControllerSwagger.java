@@ -1,7 +1,6 @@
-package com.codenear.butterfly.support.presentation;
+package com.codenear.butterfly.support.presentation.swagger;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
