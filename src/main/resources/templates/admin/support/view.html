@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>FAQ 상세 정보</title>
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid pt-3">
+                <h1 class="h3 mb-4 text-gray-800">FAQ 상세 정보</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary" th:text="${faq.question}"></h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- FAQ 답변 -->
+                        <p>내용: <span th:text="${faq.answer}"></span></p>
+
+                        <p>생성일: <span th:text="${#temporals.format(faq.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+                        <p>수정일: <span th:text="${#temporals.format(faq.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+
+                        <p>상태: <span th:text="${faq.status}" class="badge badge-primary"></span></p>
+
+                        <!-- 수정 및 목록으로 돌아가기 버튼 -->
+                        <a href="#" class="btn btn-warning btn-sm edit-faq"
+                           th:data-id="${faq.id}"
+                           th:data-question="${faq.question}"
+                           th:data-answer="${faq.answer}"
+                           th:data-status="${faq.status}">수정</a>
+
+                        <a th:href="@{/admin/support/faq}" class="btn btn-secondary">목록으로 돌아가기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<th:block th:replace="~{admin/support/edit-modal :: editModal}"></th:block>
+<th:block th:replace="~{fragments/scripts :: body}"></th:block>
+
+<script th:src="@{/sb-admin/js/faqEdit.js}"></script>
+</body>
+</html>

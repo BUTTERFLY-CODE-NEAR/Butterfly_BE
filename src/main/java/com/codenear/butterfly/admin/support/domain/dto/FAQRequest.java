@@ -5,7 +5,7 @@ import com.codenear.butterfly.support.domain.FAQ;
 public record FAQRequest(
         String question,
         String answer,
-        boolean status
+        Boolean status
 ) {
 
     public FAQ toEntity() {

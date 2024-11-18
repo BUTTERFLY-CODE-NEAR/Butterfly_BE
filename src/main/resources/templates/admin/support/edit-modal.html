@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<div th:fragment="editModal">
+    <div class="modal fade" id="editFaqModal" tabindex="-1" role="dialog" aria-labelledby="editFaqModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFaqModalLabel">FAQ 수정</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editFaqForm">
+                        <input type="hidden" id="editFaqId">
+                        <div class="form-group">
+                            <label for="editQuestion">질문:</label>
+                            <input type="text" class="form-control" id="editQuestion" name="question" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAnswer">답변:</label>
+                            <textarea class="form-control" id="editAnswer" name="answer" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStatus">상태:</label>
+                            <select class="form-control" id="editStatus" name="status">
+                                <option value="false">비활성화</option>
+                                <option value="true">활성화</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" id="submitEditFaq">수정</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
