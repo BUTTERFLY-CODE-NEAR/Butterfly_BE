@@ -5,6 +5,7 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.application.InquiryService;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
+import com.codenear.butterfly.support.presentation.swagger.InquiryControllerSwagger;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

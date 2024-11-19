@@ -8,10 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.codenear.butterfly.admin.exception.AdminException;
-import com.codenear.butterfly.admin.support.domain.dto.FAQRequest;
+import com.codenear.butterfly.admin.support.domain.dto.FAQAdminRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.support.domain.FAQ;
-import com.codenear.butterfly.support.domain.FAQRepository;
+import com.codenear.butterfly.support.domain.repositroy.FAQRepository;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +22,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class FAQServiceTest {
+class FAQAdminServiceTest {
 
     @Mock
     private FAQRepository faqRepository;
 
     @InjectMocks
-    private FAQService faqService;
+    private FAQAdminService faqService;
 
     @Test
     void FAQ_전체를_반환한다() {
@@ -85,7 +85,7 @@ class FAQServiceTest {
     @Test
     void FAQ를_생성한다() {
         // given
-        FAQRequest request = new FAQRequest("테스트 질문", "테스트 답변", false);
+        FAQAdminRequest request = new FAQAdminRequest("테스트 질문", "테스트 답변", false);
         FAQ faq = createFAQ(request.question(), request.answer());
 
         when(faqRepository.save(any(FAQ.class))).thenReturn(faq);
@@ -106,7 +106,7 @@ class FAQServiceTest {
     void FAQ를_수정한다() {
         // given
         Long id = 1L;
-        FAQRequest request = new FAQRequest("수정된 질문", "수정된 답변", true);
+        FAQAdminRequest request = new FAQAdminRequest("수정된 질문", "수정된 답변", true);
         FAQ existingFAQ = createFAQ("기존 질문", "기존 답변");
 
         when(faqRepository.findById(id)).thenReturn(Optional.of(existingFAQ));
