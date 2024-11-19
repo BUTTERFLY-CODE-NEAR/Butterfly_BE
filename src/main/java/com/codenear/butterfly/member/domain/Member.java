@@ -72,4 +72,9 @@ public class Member extends BaseEntity {
     public void removeFavorite(Product product) {
         this.favorites.removeIf(favorite -> favorite.getProduct().equals(product));
     }
+
+    public boolean hasFavorite(Product product) {
+        return favorites.stream()
+                .anyMatch(favorite -> favorite.getProduct().equals(product));
+    }
 }

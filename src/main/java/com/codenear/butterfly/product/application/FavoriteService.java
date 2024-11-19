@@ -9,15 +9,13 @@ import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import com.codenear.butterfly.product.exception.ProductException;
+import com.codenear.butterfly.product.util.ProductMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
-import java.util.Optional;
 
 import static com.codenear.butterfly.product.domain.QFavorite.favorite;
 
@@ -38,58 +36,30 @@ public class FavoriteService {
                 .where(favorite.member.id.eq(memberId))
                 .fetch();
 
-        return convertProductsToDTOs(favoriteProducts);
-    }
-
-    private List<ProductViewDTO> convertProductsToDTOs(List<Product> products) {
-        return products.stream()
-                .map(this::convertToProductViewDTO)
+        return favoriteProducts.stream()
+                .map(product -> ProductMapper.toProductViewDTO(product, true))
                 .toList();
     }
 
-    private ProductViewDTO convertToProductViewDTO(Product product) {
-        boolean isFavorite = true;
-        int salePrice = calculateSalePrice(product.getOriginalPrice(), product.getSaleRate());
-
-        return new ProductViewDTO(
-                product.getId(),
-                product.getCompanyName(),
-                product.getProductName(),
-                product.getProductImage(),
-                product.getOriginalPrice(),
-                product.getSaleRate(),
-                salePrice,
-                product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount(),
-                isFavorite
-        );
-    }
-
-    private Integer calculateSalePrice(Integer originalPrice, BigDecimal saleRate) {
-        BigDecimal originalPriceDecimal = BigDecimal.valueOf(originalPrice);
-        BigDecimal discount = originalPriceDecimal.multiply(saleRate)
-                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        BigDecimal salePrice = originalPriceDecimal.subtract(discount);
-        return salePrice.intValue();
-    }
-
+    @Transactional
     public void addFavorite(MemberDTO memberDTO, Long productId) {
         Member member = getMember(memberDTO);
-        Optional<Product> product = getProduct(productId);
+        Product product = getProduct(productId);
 
-        if (isFavoriteExists(member, product.orElse(null))) {
+        if (member.hasFavorite(product)) {
             throw new ProductException(ErrorCode.DUPLICATE_FAVORITE, null);
         }
 
-        member.addFavorite(product.orElse(null));
+        member.addFavorite(product);
     }
 
+    @Transactional
     public boolean removeFavorite(MemberDTO memberDTO, Long productId) {
         Member member = getMember(memberDTO);
-        Optional<Product> product = getProduct(productId);
+        Product product = getProduct(productId);
 
-        if (product.isPresent() && isFavoriteExists(member, product.get())) {
-            member.removeFavorite(product.get());
+        if (member.hasFavorite(product)) {
+            member.removeFavorite(product);
             return true;
         }
         return false;
@@ -100,12 +70,8 @@ public class FavoriteService {
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
     }
 
-    private Optional<Product> getProduct(Long productId) {
-        return productRepository.findById(productId);
-    }
-
-    private boolean isFavoriteExists(Member member, Product product) {
-        return member.getFavorites().stream()
-                .anyMatch(favorite -> favorite.getProduct().equals(product));
+    private Product getProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
     }
 }

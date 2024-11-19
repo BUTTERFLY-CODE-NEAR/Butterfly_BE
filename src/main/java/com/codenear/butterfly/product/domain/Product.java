@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,9 +32,6 @@ public class Product {
     @Column(nullable = false)
     private Integer originalPrice;
 
-    @Column(nullable = false, precision = 4, scale = 1)
-    private BigDecimal saleRate;
-
     @Convert(converter = CategoryConverter.class)
     @Column(nullable = false)
     private Category category;
@@ -58,4 +56,22 @@ public class Product {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Keyword> keywords;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DiscountRate> discountRates = new ArrayList<>();
+
+    public BigDecimal getCurrentDiscountRate() {
+        double participationRate = calculateParticipationRate();
+        return discountRates.stream()
+                .filter(rate -> participationRate > rate.getMinParticipationRate()
+                        && participationRate <= rate.getMaxParticipationRate())
+                .findFirst()
+                .map(DiscountRate::getDiscountRate)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private double calculateParticipationRate() {
+        return maxPurchaseCount == 0 ? 0 :
+                (double) purchaseParticipantCount / maxPurchaseCount;
+    }
 }
