@@ -1,5 +1,7 @@
 package com.codenear.butterfly.member.application;
 
+import static com.codenear.butterfly.member.util.ImageResizeUtil.resizeImage;
+
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.dto.ProfileUpdateRequestDTO;
 import com.codenear.butterfly.s3.application.S3Service;
@@ -43,6 +45,7 @@ public class ProfileService {
     }
 
     private String uploadNewProfileImage(MultipartFile profileImage) {
-        return s3Service.uploadFile(profileImage, S3Directory.PROFILE_IMAGE);
+        MultipartFile resized = resizeImage(profileImage); // 이미지 리사이즈
+        return s3Service.uploadFile(resized, S3Directory.PROFILE_IMAGE);
     }
 }
