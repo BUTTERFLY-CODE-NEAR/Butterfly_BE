@@ -77,4 +77,8 @@ public class Product {
         return maxPurchaseCount == 0 ? 0 :
                 (double) purchaseParticipantCount / maxPurchaseCount;
     }
+
+    public boolean isSoldOut() {
+        return stockQuantity == 0;
+    }
 }
