@@ -29,4 +29,8 @@ public class InquiryAdminService {
 
         return InquiryDetailsResponse.fromEntity(inquiry, member);
     }
+
+    public void deleteInquiry(Long id) {
+        inquiryRepository.deleteById(id);
+    }
 }
