@@ -1,11 +1,11 @@
 package com.codenear.butterfly.member.application;
 
 import static com.codenear.butterfly.member.util.ImageResizeUtil.resizeImage;
+import static com.codenear.butterfly.s3.domain.S3Directory.PROFILE_IMAGE;
 
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.dto.ProfileUpdateRequestDTO;
 import com.codenear.butterfly.s3.application.S3Service;
-import com.codenear.butterfly.s3.domain.S3Directory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,12 +40,12 @@ public class ProfileService {
 
     private void deleteExistingProfileImage(MemberDTO memberDTO) {
         if (memberDTO.getProfileImage() != null) {
-            s3Service.deleteFile(memberDTO.getProfileImage());
+            s3Service.deleteFile(memberDTO.getProfileImage(), PROFILE_IMAGE);
         }
     }
 
     private String uploadNewProfileImage(MultipartFile profileImage) {
         MultipartFile resized = resizeImage(profileImage); // 이미지 리사이즈
-        return s3Service.uploadFile(resized, S3Directory.PROFILE_IMAGE);
+        return s3Service.uploadFile(resized, PROFILE_IMAGE);
     }
 }
