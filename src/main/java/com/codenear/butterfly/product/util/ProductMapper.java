@@ -28,7 +28,8 @@ public class ProductMapper {
                 price.calculateSalePrice(),
                 product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(),
-                isFavorite
+                isFavorite,
+                product.isSoldOut()
         );
     }
 
