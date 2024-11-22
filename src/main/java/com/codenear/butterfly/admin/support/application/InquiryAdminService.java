@@ -17,7 +17,7 @@ public class InquiryAdminService {
     private final InquiryFacade inquiryFacade;
     private final InquiryRepository inquiryRepository;
 
-    public InquiresResponse getInquires() {
+    public InquiresResponse getInquiries() {
         List<Inquiry> inquiries = inquiryRepository.findAll();
 
         return InquiresResponse.fromEntity(inquiries);
