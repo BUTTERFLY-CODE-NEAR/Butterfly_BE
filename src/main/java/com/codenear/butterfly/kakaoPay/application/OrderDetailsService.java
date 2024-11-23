@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -22,8 +23,8 @@ public class OrderDetailsService {
     public List<OrderDetailsDTO> getAllOrderDetails(Long memberId) {
         List<OrderDetails> orderDetailsList = orderDetailsRepository.findAllByMemberId(memberId);
 
-
         return orderDetailsList.stream()
+                .sorted(Comparator.comparing(OrderDetails::getCreatedAt).reversed())
                 .map(this::convertToOrderDetailsDTO)
                 .toList();
     }
