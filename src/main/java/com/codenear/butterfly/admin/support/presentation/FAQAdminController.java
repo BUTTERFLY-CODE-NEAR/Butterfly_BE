@@ -33,7 +33,7 @@ public class FAQAdminController {
     public String viewFAQ(@PathVariable Long id, Model model) {
         FAQ faq = faqService.getFAQ(id);
         model.addAttribute("faq", faq);
-        return "admin/support/view";
+        return "admin/support/faq-details";
     }
 
     @PostMapping("/create")
