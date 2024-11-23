@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>QnA 관리</title>
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">QnA 목록</h1>
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>내용</th>
+                                    <th>생성일</th>
+                                    <th>상태</th>
+                                    <th>작업</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="inquiry : ${inquiresResponse.inquiries}">
+                                    <td th:text="${inquiry.id}"></td>
+                                    <td>
+                                        <span th:if="${#strings.length(inquiry.content) > 10}"
+                                              th:text="${#strings.substring(inquiry.content, 0, 10) + '...'}"></span>
+                                        <span th:unless="${#strings.length(inquiry.content) > 10}"
+                                              th:text="${inquiry.content}"></span>
+                                    </td>
+                                    <td th:text="${#temporals.format(inquiry.createAt, 'yyyy-MM-dd HH:mm')}"></td>
+                                    <td>
+                                        <span th:if="${inquiry.inquiryStatus == T(com.codenear.butterfly.support.domain.InquiryStatus).PENDING}"
+                                              class="badge badge-warning">대기중</span>
+                                        <span th:if="${inquiry.inquiryStatus == T(com.codenear.butterfly.support.domain.InquiryStatus).ANSWERED}"
+                                              class="badge badge-success">답변 완료</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/support/inquiry/{id}(id=${inquiry.id})}"
+                                           class="btn btn-info btn-sm">상세 보기</a>
+                                        <button class="btn btn-primary btn-sm change-status"
+                                                th:data-id="${inquiry.id}"
+                                                th:data-status="${inquiry.inquiryStatus}">상태 변경
+                                        </button>
+                                        <button class="btn btn-danger btn-sm delete-inquiry"
+                                                th:data-id="${inquiry.id}">삭제
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<th:block th:replace="~{fragments/scripts}"></th:block>
+<script th:src="@{/sb-admin/js/inquiry.js}"></script>
+</body>
+</html>
