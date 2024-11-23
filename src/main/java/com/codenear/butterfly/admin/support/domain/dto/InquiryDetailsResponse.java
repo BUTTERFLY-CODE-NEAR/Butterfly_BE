@@ -36,7 +36,7 @@ public record InquiryDetailsResponse(
         );
     }
 
-    private static InquiryDetails crateInquiryDetails(Inquiry inquiry) {
+    private static InquiryDetails createInquiryDetails(Inquiry inquiry) {
         return new InquiryDetails(
                 inquiry.getInquiryContent(),
                 inquiry.getResponseContent(),
