@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CODE NEAR - 상품 관리</title>
+
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">상품 관리</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">상품 목록</h6>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">
+                            상품 추가
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>상품명</th>
+                                    <th>회사명</th>
+                                    <th>카테고리</th>
+                                    <th>원가</th>
+                                    <th>할인율</th>
+                                    <th>재고</th>
+                                    <th>참여인원/최대인원</th>
+                                    <th>관리</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="product : ${products}">
+                                    <td th:text="${product.id}">1</td>
+                                    <td th:text="${product.productName}">상품명</td>
+                                    <td th:text="${product.companyName}">회사명</td>
+                                    <td th:text="${product.category}">카테고리</td>
+                                    <td th:text="${product.originalPrice}">10000</td>
+                                    <td th:text="${product.saleRate}">10.0</td>
+                                    <td th:text="${product.stockQuantity}">100</td>
+                                    <td>
+                                        <span th:text="${product.purchaseParticipantCount}">0</span>
+                                        /
+                                        <span th:text="${product.maxPurchaseCount}">100</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm"
+                                                th:onclick="'editProduct(' + ${product.id} + ')'"
+                                                data-toggle="modal"
+                                                data-target="#editProductModal">수정</button>
+                                        <button class="btn btn-danger btn-sm"
+                                                th:onclick="'deleteProduct(' + ${product.id} + ')'">삭제</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">상품 수정</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <input type="hidden" id="productId" name="id">
+                    <div class="form-group">
+                        <label>상품명</label>
+                        <input type="text" class="form-control" id="productName" name="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>회사명</label>
+                        <input type="text" class="form-control" id="companyName" name="companyName">
+                    </div>
+                    <div class="form-group">
+                        <label>상품 설명</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>원가</label>
+                            <input type="number" class="form-control" id="originalPrice" name="originalPrice" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>할인율</label>
+                            <input type="number" step="0.1" class="form-control" id="saleRate" name="saleRate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>카테고리</label>
+                            <select class="form-control" id="category" name="category" required>
+                                <option value="">선택하세요</option>
+                                <option th:each="category : ${categories}"
+                                        th:value="${category}"
+                                        th:text="${category}">카테고리</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>재고 수량</label>
+                            <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>현재 참여 인원</label>
+                            <input type="number" class="form-control" id="purchaseParticipantCount" name="purchaseParticipantCount" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>최대 구매 인원</label>
+                            <input type="number" class="form-control" id="maxPurchaseCount" name="maxPurchaseCount" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>키워드</label>
+                        <input type="text" class="form-control" id="keywords" name="keywords" placeholder="쉼표로 구분하여 입력">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" onclick="updateProduct()">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: body}"></th:block>
+<script>
+    function editProduct(id) {
+        fetch(`/admin/products/${id}`)
+            .then(response => response.json())
+            .then(product => {
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.productName;
+                document.getElementById('companyName').value = product.companyName;
+                document.getElementById('description').value = product.description;
+                document.getElementById('originalPrice').value = product.originalPrice;
+                document.getElementById('saleRate').value = product.saleRate;
+                document.getElementById('category').value = product.category;
+                document.getElementById('stockQuantity').value = product.stockQuantity;
+                document.getElementById('purchaseParticipantCount').value = product.purchaseParticipantCount;
+                document.getElementById('maxPurchaseCount').value = product.maxPurchaseCount;
+                document.getElementById('keywords').value = product.keywords.map(k => k.keyword).join(',');
+            });
+    }
+
+    function updateProduct() {
+        const form = document.getElementById('editProductForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        data.keywords = data.keywords.split(',').map(keyword => ({keyword: keyword.trim()}));
+
+        fetch(`/admin/products/${data.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('상품이 성공적으로 수정되었습니다.');
+                    location.reload();
+                } else {
+                    alert('상품 수정에 실패했습니다.');
+                }
+            });
+    }
+
+    function deleteProduct(id) {
+        if (confirm('정말로 이 상품을 삭제하시겠습니까?')) {
+            fetch(`/admin/products/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('상품이 삭제되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('상품 삭제에 실패했습니다.');
+                    }
+                });
+        }
+    }
+</script>
+</body>
+</html>
