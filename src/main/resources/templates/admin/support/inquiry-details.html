@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>QnA 상세 정보</title>
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">QnA 상세 정보</h1>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">문의 정보</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>ID:</strong> <span th:text="${inquiryDetails.id}"></span></p>
+                                <p><strong>내용:</strong> <span th:text="${inquiryDetails.details.content}"></span></p>
+                                <p><strong>생성일:</strong> <span th:text="${#temporals.format(inquiryDetails.details.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                                <p><strong>수정일:</strong> <span th:text="${#temporals.format(inquiryDetails.details.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                                <p><strong>상태:</strong>
+                                    <span th:if="${inquiryDetails.details.status == T(com.codenear.butterfly.support.domain.InquiryStatus).PENDING}" class="badge badge-warning">대기중</span>
+                                    <span th:if="${inquiryDetails.details.status == T(com.codenear.butterfly.support.domain.InquiryStatus).ANSWERED}" class="badge badge-success">답변 완료</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">회원 정보</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>이름:</strong> <span th:text="${inquiryDetails.member.name}"></span></p>
+                                <p><strong>닉네임:</strong> <span th:text="${inquiryDetails.member.nickname}"></span></p>
+                                <p><strong>이메일:</strong> <span th:text="${inquiryDetails.member.email}"></span></p>
+                                <p><strong>전화번호:</strong> <span th:text="${inquiryDetails.member.phoneNumber}"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">답변</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="answerForm">
+                            <input type="hidden" id="inquiryId" th:value="${inquiryDetails.id}">
+                            <div class="form-group">
+                                <label for="answer"></label>
+                                <textarea class="form-control" id="answer" rows="5" th:text="${inquiryDetails.details.answer}"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">답변 저장</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<th:block th:replace="~{fragments/scripts}"></th:block>
+<script th:src="@{/sb-admin/js/inquiry-details.js}"></script>
+</body>
+</html>
