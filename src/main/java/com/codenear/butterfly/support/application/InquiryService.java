@@ -1,18 +1,21 @@
 package com.codenear.butterfly.support.application;
 
+import static com.codenear.butterfly.global.exception.ErrorCode.SERVER_ERROR;
+import static com.codenear.butterfly.global.exception.ErrorMessage.INVALID_ID;
+
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.domain.Inquiry;
-import com.codenear.butterfly.support.domain.repositroy.InquiryRepository;
 import com.codenear.butterfly.support.domain.InquiryStatus;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
+import com.codenear.butterfly.support.domain.repositroy.InquiryRepository;
+import com.codenear.butterfly.support.exception.SupportException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +43,16 @@ public class InquiryService {
     public List<InquiryListDTO> getInquiryList(MemberDTO memberDTO) {
         return inquiryRepository.findByMemberIdOrderByCreatedAtDesc(memberDTO.getId()).stream()
                 .map(inquiry -> new InquiryListDTO(
-                    inquiry.getId(),
-                    inquiry.getInquiryContent(),
-                    inquiry.getResponseContent(),
-                    inquiry.getStatus(),
-                    inquiry.getCreatedAt().toLocalDate()))
+                        inquiry.getId(),
+                        inquiry.getInquiryContent(),
+                        inquiry.getResponseContent(),
+                        inquiry.getStatus(),
+                        inquiry.getCreatedAt().toLocalDate()))
                 .toList();
+    }
+
+    public Inquiry loadInquiry(Long id) {
+        return inquiryRepository.findById(id)
+                .orElseThrow(() -> new SupportException(SERVER_ERROR, INVALID_ID.get(id)));
     }
 }
