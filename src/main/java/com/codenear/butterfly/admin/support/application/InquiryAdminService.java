@@ -1,6 +1,7 @@
 package com.codenear.butterfly.admin.support.application;
 
 import com.codenear.butterfly.admin.support.domain.dto.InquiresResponse;
+import com.codenear.butterfly.admin.support.domain.dto.InquiryAnswerRequest;
 import com.codenear.butterfly.admin.support.domain.dto.InquiryDetailsResponse;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.support.application.InquiryFacade;
@@ -9,6 +10,7 @@ import com.codenear.butterfly.support.domain.repositroy.InquiryRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,19 @@ public class InquiryAdminService {
         return InquiryDetailsResponse.fromEntity(inquiry, member);
     }
 
+    @Transactional
+    public void updateAnswer(InquiryAnswerRequest request) {
+        Inquiry inquiry = inquiryFacade.getInquiry(request.id());
+        inquiry.updateResponseContent(request.answer());
+    }
+
+    @Transactional
+    public void updateStatus(Long id) {
+        Inquiry inquiry = inquiryFacade.getInquiry(id);
+        inquiry.toggleStatus();
+    }
+
+    @Transactional
     public void deleteInquiry(Long id) {
         inquiryRepository.deleteById(id);
     }
