@@ -21,12 +21,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class Inquiry extends BaseEntity {
+
+    private static final String BASIE_ANSWER = "아직 답변이 오지 않았습니다. 잠시만 기다려 주세요.";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +47,13 @@ public class Inquiry extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public String getAnswerByStatus() {
+        if (this.status.equals(PENDING)) {
+            return BASIE_ANSWER;
+        }
+        return responseContent;
+    }
 
     public void toggleStatus() {
         if (this.status.equals(PENDING)) {
