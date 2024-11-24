@@ -63,6 +63,57 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscountRate> discountRates = new ArrayList<>();
 
+    public void updateProductInfo(
+            String productName,
+            String companyName,
+            String description,
+            String productImage,
+            Integer originalPrice,
+            BigDecimal saleRate,
+            Category category,
+            Integer quantity
+    ) {
+        this.productName = productName;
+        this.companyName = companyName;
+        this.description = description;
+        this.productImage = productImage;
+        this.originalPrice = originalPrice;
+        this.saleRate = saleRate;
+        this.category = category;
+        this.quantity = quantity;
+    }
+
+    public void updatePurchaseInfo(
+            Integer purchaseParticipantCount,
+            Integer maxPurchaseCount,
+            Integer stockQuantity
+    ) {
+        this.purchaseParticipantCount = purchaseParticipantCount;
+        this.maxPurchaseCount = maxPurchaseCount;
+        this.stockQuantity = stockQuantity;
+    }
+
+    public void updateOptions(List<Option> newOptions) {
+        this.options.clear();
+        if (newOptions != null) {
+            this.options.addAll(newOptions);
+        }
+    }
+
+    public void updateKeywords(List<Keyword> newKeywords) {
+        this.keywords.clear();
+        if (newKeywords != null) {
+            this.keywords.addAll(newKeywords);
+        }
+    }
+
+    public void updateDiscountRates(List<DiscountRate> newDiscountRates) {
+        this.discountRates.clear();
+        if (newDiscountRates != null) {
+            this.discountRates.addAll(newDiscountRates);
+        }
+    }
+
     public BigDecimal getCurrentDiscountRate() {
         double participationRate = calculateParticipationRate();
         return discountRates.stream()

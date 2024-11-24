@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CODE NEAR - 상품 관리</title>
+
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'" role="alert">
+                    <span th:text="${message}">메시지</span>
+                </div>
+
+                <h1 class="h3 mb-4 text-gray-800">상품 관리</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">상품 목록</h6>
+                        <a th:href="@{/admin/products/new}" class="btn btn-primary">상품 추가</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>상품명</th>
+                                    <th>회사명</th>
+                                    <th>카테고리</th>
+                                    <th>원가</th>
+                                    <th>할인율</th>
+                                    <th>재고</th>
+                                    <th>참여인원/최대인원</th>
+                                    <th>관리</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="product : ${products}">
+                                    <td th:text="${product.id}">1</td>
+                                    <td th:text="${product.productName}">상품명</td>
+                                    <td th:text="${product.companyName}">회사명</td>
+                                    <td th:text="${product.category}">카테고리</td>
+                                    <td th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')}">10000</td>
+                                    <td th:text="${#numbers.formatDecimal(product.saleRate, 1, 'COMMA', 1, 'POINT')} + '%'">10.0</td>
+                                    <td th:text="${product.stockQuantity}">100</td>
+                                    <td>
+                                        <span th:text="${product.purchaseParticipantCount}">0</span>
+                                        /
+                                        <span th:text="${product.maxPurchaseCount}">100</span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{/admin/products/{id}/edit(id=${product.id})}" method="get" style="display: inline;">
+                                            <button type="submit" class="btn btn-info btn-sm">수정</button>
+                                        </form>
+                                        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post" style="display: inline;"
+                                              onsubmit="return confirm('정말로 이 상품을 삭제하시겠습니까?');">
+                                            <input type="hidden" name="_method" value="DELETE" />
+                                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: body}"></th:block>
+</body>
+</html>
