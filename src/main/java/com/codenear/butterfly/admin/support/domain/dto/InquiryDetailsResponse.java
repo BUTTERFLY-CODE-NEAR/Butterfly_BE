@@ -32,7 +32,7 @@ public record InquiryDetailsResponse(
         return new InquiryDetailsResponse(
                 inquiry.getId(),
                 createInquiryMember(member),
-                crateInquiryDetails(inquiry)
+                createInquiryDetails(inquiry)
         );
     }
 

@@ -46,11 +46,12 @@ public class Inquiry extends BaseEntity {
     private Member member;
 
     public void toggleStatus() {
-        if (this.status.equals(PENDING))
+        if (this.status.equals(PENDING)) {
             this.status = ANSWERED;
+            return;
+        }
 
-        if (this.status.equals(ANSWERED))
-            this.status = PENDING;
+        this.status = PENDING;
     }
 
     public void updateResponseContent(String answer) {
