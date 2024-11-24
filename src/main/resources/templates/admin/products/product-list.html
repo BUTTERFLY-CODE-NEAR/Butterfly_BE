@@ -154,18 +154,27 @@
     function editProduct(id) {
         fetch(`/admin/products/${id}`)
             .then(response => response.json())
-            .then(product => {
-                document.getElementById('productId').value = product.id;
-                document.getElementById('productName').value = product.productName;
-                document.getElementById('companyName').value = product.companyName;
-                document.getElementById('description').value = product.description;
-                document.getElementById('originalPrice').value = product.originalPrice;
-                document.getElementById('saleRate').value = product.saleRate;
-                document.getElementById('category').value = product.category;
-                document.getElementById('stockQuantity').value = product.stockQuantity;
-                document.getElementById('purchaseParticipantCount').value = product.purchaseParticipantCount;
-                document.getElementById('maxPurchaseCount').value = product.maxPurchaseCount;
-                document.getElementById('keywords').value = product.keywords.map(k => k.keyword).join(',');
+            .then(data => {
+                if (data.code === 200) {
+                    const product = data.body;
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.productName;
+                    document.getElementById('companyName').value = product.companyName;
+                    document.getElementById('description').value = product.description;
+                    document.getElementById('originalPrice').value = product.originalPrice;
+                    document.getElementById('saleRate').value = product.saleRate;
+                    document.getElementById('category').value = product.category;
+                    document.getElementById('stockQuantity').value = product.stockQuantity;
+                    document.getElementById('purchaseParticipantCount').value = product.purchaseParticipantCount;
+                    document.getElementById('maxPurchaseCount').value = product.maxPurchaseCount;
+                    document.getElementById('keywords').value = product.keywords.map(k => k.keyword).join(',');
+                } else {
+                    alert(data.message || '상품 정보를 불러오는데 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('상품 정보를 불러오는데 실패했습니다.');
             });
     }
 
@@ -183,13 +192,18 @@
             },
             body: JSON.stringify(data)
         })
-            .then(response => {
-                if (response.ok) {
-                    alert('상품이 성공적으로 수정되었습니다.');
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    alert(data.message || '상품이 성공적으로 수정되었습니다.');
                     location.reload();
                 } else {
-                    alert('상품 수정에 실패했습니다.');
+                    alert(data.message || '상품 수정에 실패했습니다.');
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('상품 수정에 실패했습니다.');
             });
     }
 
@@ -198,13 +212,18 @@
             fetch(`/admin/products/${id}`, {
                 method: 'DELETE'
             })
-                .then(response => {
-                    if (response.ok) {
-                        alert('상품이 삭제되었습니다.');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        alert(data.message || '상품이 삭제되었습니다.');
                         location.reload();
                     } else {
-                        alert('상품 삭제에 실패했습니다.');
+                        alert(data.message || '상품 삭제에 실패했습니다.');
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('상품 삭제에 실패했습니다.');
                 });
         }
     }

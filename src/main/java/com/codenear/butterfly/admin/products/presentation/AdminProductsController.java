@@ -31,18 +31,18 @@ public class AdminProductsController {
 
     @GetMapping("/products/{id}")
     @ResponseBody
-    public ResponseEntity<Product> getProduct(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> getProduct(@PathVariable Long id) {
         Product product = adminProductService.findById(id);
-        return ResponseEntity.ok(product);
+        return ResponseUtil.createSuccessResponse(product);
     }
 
     @PutMapping("/products/{id}")
     @ResponseBody
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ResponseDTO> updateProduct(
             @PathVariable Long id,
             @RequestBody Product updateRequest) {
         Product updatedProduct = adminProductService.updateProduct(id, updateRequest);
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseUtil.createSuccessResponse(updatedProduct);
     }
 
     @DeleteMapping("/products/{id}")
