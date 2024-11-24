@@ -4,7 +4,7 @@ import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.application.InquiryService;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
-import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
+import com.codenear.butterfly.support.domain.dto.InquiryRegisterRequest;
 import com.codenear.butterfly.support.presentation.swagger.InquiryControllerSwagger;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class InquiryController implements InquiryControllerSwagger {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO inquiryRegisterDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
+    public ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterRequest inquiryRegisterDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
         inquiryService.registerInquiry(inquiryRegisterDTO, memberDTO);
         return createSuccessResponse(null);
     }
