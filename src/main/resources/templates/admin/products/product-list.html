@@ -18,14 +18,16 @@
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content">
             <div class="container-fluid">
+                <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : 'alert-danger'" role="alert">
+                    <span th:text="${message}">메시지</span>
+                </div>
+
                 <h1 class="h3 mb-4 text-gray-800">상품 관리</h1>
 
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">상품 목록</h6>
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">
-                            상품 추가
-                        </button>
+                        <a th:href="@{/admin/products/new}" class="btn btn-primary">상품 추가</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -49,8 +51,8 @@
                                     <td th:text="${product.productName}">상품명</td>
                                     <td th:text="${product.companyName}">회사명</td>
                                     <td th:text="${product.category}">카테고리</td>
-                                    <td th:text="${product.originalPrice}">10000</td>
-                                    <td th:text="${product.saleRate}">10.0</td>
+                                    <td th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')}">10000</td>
+                                    <td th:text="${#numbers.formatDecimal(product.saleRate, 1, 'COMMA', 1, 'POINT')} + '%'">10.0</td>
                                     <td th:text="${product.stockQuantity}">100</td>
                                     <td>
                                         <span th:text="${product.purchaseParticipantCount}">0</span>
@@ -58,12 +60,14 @@
                                         <span th:text="${product.maxPurchaseCount}">100</span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-info btn-sm"
-                                                th:onclick="'editProduct(' + ${product.id} + ')'"
-                                                data-toggle="modal"
-                                                data-target="#editProductModal">수정</button>
-                                        <button class="btn btn-danger btn-sm"
-                                                th:onclick="'deleteProduct(' + ${product.id} + ')'">삭제</button>
+                                        <form th:action="@{/admin/products/{id}/edit(id=${product.id})}" method="get" style="display: inline;">
+                                            <button type="submit" class="btn btn-info btn-sm">수정</button>
+                                        </form>
+                                        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}" method="post" style="display: inline;"
+                                              onsubmit="return confirm('정말로 이 상품을 삭제하시겠습니까?');">
+                                            <input type="hidden" name="_method" value="DELETE" />
+                                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                                        </form>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -76,157 +80,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">상품 수정</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editProductForm">
-                    <input type="hidden" id="productId" name="id">
-                    <div class="form-group">
-                        <label>상품명</label>
-                        <input type="text" class="form-control" id="productName" name="productName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>회사명</label>
-                        <input type="text" class="form-control" id="companyName" name="companyName">
-                    </div>
-                    <div class="form-group">
-                        <label>상품 설명</label>
-                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>원가</label>
-                            <input type="number" class="form-control" id="originalPrice" name="originalPrice" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>할인율</label>
-                            <input type="number" step="0.1" class="form-control" id="saleRate" name="saleRate" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>카테고리</label>
-                            <select class="form-control" id="category" name="category" required>
-                                <option value="">선택하세요</option>
-                                <option th:each="category : ${categories}"
-                                        th:value="${category}"
-                                        th:text="${category}">카테고리</option>
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>재고 수량</label>
-                            <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>현재 참여 인원</label>
-                            <input type="number" class="form-control" id="purchaseParticipantCount" name="purchaseParticipantCount" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>최대 구매 인원</label>
-                            <input type="number" class="form-control" id="maxPurchaseCount" name="maxPurchaseCount" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>키워드</label>
-                        <input type="text" class="form-control" id="keywords" name="keywords" placeholder="쉼표로 구분하여 입력">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
-                <button type="button" class="btn btn-primary" onclick="updateProduct()">저장</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
-<script>
-    function editProduct(id) {
-        fetch(`/admin/products/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    const product = data.body;
-                    document.getElementById('productId').value = product.id;
-                    document.getElementById('productName').value = product.productName;
-                    document.getElementById('companyName').value = product.companyName;
-                    document.getElementById('description').value = product.description;
-                    document.getElementById('originalPrice').value = product.originalPrice;
-                    document.getElementById('saleRate').value = product.saleRate;
-                    document.getElementById('category').value = product.category;
-                    document.getElementById('stockQuantity').value = product.stockQuantity;
-                    document.getElementById('purchaseParticipantCount').value = product.purchaseParticipantCount;
-                    document.getElementById('maxPurchaseCount').value = product.maxPurchaseCount;
-                    document.getElementById('keywords').value = product.keywords.map(k => k.keyword).join(',');
-                } else {
-                    alert(data.message || '상품 정보를 불러오는데 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('상품 정보를 불러오는데 실패했습니다.');
-            });
-    }
-
-    function updateProduct() {
-        const form = document.getElementById('editProductForm');
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
-
-        data.keywords = data.keywords.split(',').map(keyword => ({keyword: keyword.trim()}));
-
-        fetch(`/admin/products/${data.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.code === 200) {
-                    alert(data.message || '상품이 성공적으로 수정되었습니다.');
-                    location.reload();
-                } else {
-                    alert(data.message || '상품 수정에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('상품 수정에 실패했습니다.');
-            });
-    }
-
-    function deleteProduct(id) {
-        if (confirm('정말로 이 상품을 삭제하시겠습니까?')) {
-            fetch(`/admin/products/${id}`, {
-                method: 'DELETE'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.code === 200) {
-                        alert(data.message || '상품이 삭제되었습니다.');
-                        location.reload();
-                    } else {
-                        alert(data.message || '상품 삭제에 실패했습니다.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('상품 삭제에 실패했습니다.');
-                });
-        }
-    }
-</script>
 </body>
 </html>
