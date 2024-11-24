@@ -3,7 +3,7 @@ package com.codenear.butterfly.support.presentation.swagger;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.support.domain.dto.InquiryListDTO;
-import com.codenear.butterfly.support.domain.dto.InquiryRegisterDTO;
+import com.codenear.butterfly.support.domain.dto.InquiryRegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,5 +27,5 @@ public interface InquiryControllerSwagger {
     ResponseEntity<ResponseDTO> getInquiryList(@AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "고객 문의 등록", description = "고객 문의 등록 API")
-    ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterDTO dto, @AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> registerInquiry(@Valid @RequestBody InquiryRegisterRequest dto, @AuthenticationPrincipal MemberDTO memberDTO);
 }
