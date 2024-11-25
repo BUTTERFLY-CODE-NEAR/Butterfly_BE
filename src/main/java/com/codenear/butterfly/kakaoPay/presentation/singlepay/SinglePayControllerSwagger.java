@@ -33,18 +33,15 @@ public interface SinglePayControllerSwagger {
 
     @Operation(summary = "결제 성공", description = "결제 성공 API", hidden = true)
     void successPaymentRequest(@RequestParam("pg_token") String pgToken,
-                               @RequestParam("memberId") Long memberId,
-                               HttpServletResponse response) throws IOException;
+                               @RequestParam("memberId") Long memberId);
 
     @Operation(summary = "결제 취소", description = "결제 취소 API", hidden = true)
     @ApiResponse(responseCode = "200", description = "결제 취소")
-    void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
-                              HttpServletResponse response) throws IOException;
+    void cancelPaymentRequest(@RequestParam("memberId") Long memberId);
 
     @Operation(summary = "결제 실패", description = "결제 실패 API", hidden = true)
     @ApiResponse(responseCode = "402", description = "결제 실패")
-    void failPaymentRequest(@RequestParam("memberId") Long memberId,
-                            HttpServletResponse response) throws IOException;
+    void failPaymentRequest(@RequestParam("memberId") Long memberId);
 
     @Operation(summary = "결제 상태 조회", description = "결제 상태 조회 API")
     @ApiResponse(responseCode = "200", description = "결제 상태 조회 성공")

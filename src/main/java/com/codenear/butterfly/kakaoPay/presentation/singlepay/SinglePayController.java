@@ -40,24 +40,19 @@ public class SinglePayController implements SinglePayControllerSwagger {
     @GetMapping("/success")
     public void successPaymentRequest(
             @RequestParam("pg_token") String pgToken,
-            @RequestParam("memberId") Long memberId,
-            HttpServletResponse response) throws IOException {
+            @RequestParam("memberId") Long memberId) {
         singlePaymentService.approveResponse(pgToken, memberId);
-        response.sendRedirect("butterfly://payment/success");
     }
 
     @GetMapping("/cancel")
     public void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
-                                     HttpServletResponse response) throws IOException {
+                                     HttpServletResponse response) {
         singlePaymentService.cancelPayment(memberId);
-        response.sendRedirect("butterfly://payment/cancel");
     }
 
     @GetMapping("/fail")
-    public void failPaymentRequest(@RequestParam("memberId") Long memberId,
-                                   HttpServletResponse response) throws IOException {
+    public void failPaymentRequest(@RequestParam("memberId") Long memberId) {
         singlePaymentService.failPayment(memberId);
-        response.sendRedirect("butterfly://payment/fail");
     }
 
     @GetMapping("/status")
