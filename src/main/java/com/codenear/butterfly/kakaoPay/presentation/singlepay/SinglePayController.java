@@ -7,11 +7,15 @@ import com.codenear.butterfly.kakaoPay.application.SinglePaymentService;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/payment")
@@ -34,19 +38,26 @@ public class SinglePayController implements SinglePayControllerSwagger {
     }
 
     @GetMapping("/success")
-    public void successPaymentRequest(@RequestParam("pg_token") String pgToken,
-                                      @RequestParam("memberId") Long memberId) {
+    public void successPaymentRequest(
+            @RequestParam("pg_token") String pgToken,
+            @RequestParam("memberId") Long memberId,
+            HttpServletResponse response) throws IOException {
         singlePaymentService.approveResponse(pgToken, memberId);
+        response.sendRedirect("butterfly://payment/success");
     }
 
     @GetMapping("/cancel")
-    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId) {
+    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
+                                     HttpServletResponse response) throws IOException {
         singlePaymentService.cancelPayment(memberId);
+        response.sendRedirect("butterfly://payment/cancel");
     }
 
     @GetMapping("/fail")
-    public void failPaymentRequest(@RequestParam("memberId") Long memberId) {
+    public void failPaymentRequest(@RequestParam("memberId") Long memberId,
+                                   HttpServletResponse response) throws IOException {
         singlePaymentService.failPayment(memberId);
+        response.sendRedirect("butterfly://payment/fail");
     }
 
     @GetMapping("/status")
