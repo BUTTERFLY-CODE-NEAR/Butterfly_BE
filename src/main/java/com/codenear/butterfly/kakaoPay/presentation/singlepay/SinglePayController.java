@@ -45,8 +45,7 @@ public class SinglePayController implements SinglePayControllerSwagger {
     }
 
     @GetMapping("/cancel")
-    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
-                                     HttpServletResponse response) {
+    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId) {
         singlePaymentService.cancelPayment(memberId);
     }
 
