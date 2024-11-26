@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/FCM")
-public class FCMController {
+@RequestMapping("/fcm")
+public class FCMController implements FCMControllerSwagger {
 
     private final FCMFacade fcmFacade;
 
     @PostMapping("/{token}")
-    public ResponseEntity<ResponseDTO> registerFcm(@PathVariable String token,
+    public ResponseEntity<ResponseDTO> registerFCM(@PathVariable String token,
                                                    @AuthenticationPrincipal MemberDTO memberDTO) {
         fcmFacade.saveFCM(token, memberDTO);
         return ResponseUtil.createSuccessResponse(null);
