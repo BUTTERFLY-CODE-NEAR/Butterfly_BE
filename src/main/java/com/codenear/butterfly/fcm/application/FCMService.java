@@ -4,7 +4,9 @@ import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.fcm.domain.FCM;
 import com.codenear.butterfly.fcm.domain.FCMRepository;
+import com.codenear.butterfly.member.application.MemberFacade;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import java.time.LocalDateTime;
@@ -18,13 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class FCMService {
 
     private final ConsentFacade consentFacade;
+    private final MemberFacade memberFacade;
     private final FCMRepository fcmRepository;
     private final FirebaseMessaging firebaseMessaging;
 
     @Transactional
-    protected void saveFCM(String token, Member member) {
-        createAndSaveFCM(token, member);
+    protected void saveFCM(String token, MemberDTO loginMember) {
+        Member member = memberFacade.getMember(loginMember.getId());
         List<Consent> consents = consentFacade.getConsentByMemberId(member.getId());
+
+        createAndSaveFCM(token, member);
         subscribeToConsentedTopics(token, consents);
     }
 
