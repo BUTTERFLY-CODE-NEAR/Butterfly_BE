@@ -47,11 +47,11 @@ public class ConsentService {
                 .orElse(false);
     }
 
-    private  ConsentSingleResponseDTO createConsentSingleResponseDTO(ConsentType value, boolean agreed) {
+    private ConsentSingleResponseDTO createConsentSingleResponseDTO(ConsentType value, boolean agreed) {
         return new ConsentSingleResponseDTO(value, agreed);
     }
 
-    public List<Consent> loadConsentsByMemberId(Long id) {
+    protected List<Consent> loadConsentsByMemberId(Long id) {
         return consentRepository.findByMemberId(id);
     }
 
