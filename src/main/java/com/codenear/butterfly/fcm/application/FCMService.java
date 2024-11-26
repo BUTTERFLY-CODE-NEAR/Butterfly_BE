@@ -34,8 +34,8 @@ public class FCMService {
     }
 
     @Transactional
-    protected void sendFCMByMemberId(String title, String body, Long id) {
-        List<FCM> fcms = fcmRepository.findByMemberId(id);
+    protected void sendFCM(String title, String body, Long memberId) {
+        List<FCM> fcms = fcmRepository.findByMemberId(memberId);
 
         fcms.forEach(fcm -> {
                     Message message = createMessage(title, body, fcm);
