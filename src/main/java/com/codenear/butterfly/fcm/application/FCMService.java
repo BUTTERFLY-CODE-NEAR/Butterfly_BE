@@ -7,8 +7,8 @@ import com.codenear.butterfly.fcm.domain.FCMRepository;
 import com.codenear.butterfly.member.application.MemberFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class FCMService {
     private final ConsentFacade consentFacade;
     private final MemberFacade memberFacade;
     private final FCMRepository fcmRepository;
-    private final FirebaseMessaging firebaseMessaging;
+    private final FirebaseMessagingClient firebaseMessagingClient;
 
     @Transactional
     protected void saveFCM(String token, MemberDTO loginMember) {
@@ -31,6 +31,16 @@ public class FCMService {
 
         createAndSaveFCM(token, member);
         subscribeToConsentedTopics(token, consents);
+    }
+
+    @Transactional
+    protected void sendFCMByMemberId(String title, String body, Long id) {
+        List<FCM> fcms = fcmRepository.findByMemberId(id);
+
+        fcms.forEach(fcm -> {
+                    Message message = createMessage(title, body, fcm);
+                    firebaseMessagingClient.sendMessage(message);
+                });
     }
 
     private void createAndSaveFCM(String token, Member member) {
@@ -48,23 +58,17 @@ public class FCMService {
                 .filter(Consent::isAgreed)
                 .forEach(consent -> {
                     String topic = consent.getConsentType().getTopic();
-                    subscribeToTopic(tokens, topic);
+                    firebaseMessagingClient.subscribeToTopic(tokens, topic);
                 });
     }
 
-    private void subscribeToTopic(List<String> tokens, String topic) {
-        try {
-            firebaseMessaging.subscribeToTopic(tokens, topic);
-        } catch (FirebaseMessagingException e) {
-            // 에러 처리 해야함
-        }
-    }
-
-    private void unsubscribeFromTopic(List<String> tokens, String topic) {
-        try {
-            firebaseMessaging.unsubscribeFromTopic(tokens, topic);
-        } catch (FirebaseMessagingException e) {
-            // 에러 처리 해야함
-        }
+    private Message createMessage(String title, String body, FCM fcm) {
+        return Message.builder()
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build())
+                .setToken(fcm.getToken())
+                .build();
     }
 }
