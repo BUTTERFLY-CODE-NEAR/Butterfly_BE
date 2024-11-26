@@ -24,7 +24,7 @@ public class ConsentService {
     private final MemberService memberService;
 
     public ConsentInfoResponseDTO getConsentsInfo(MemberDTO memberDTO) {
-        List<Consent> consents = loadConsentsByMemberId(memberDTO);
+        List<Consent> consents = loadConsentsByMemberId(memberDTO.getId());
         List<ConsentSingleResponseDTO> consentSingleDTOS = getConsentSingleResponseDTOS(consents);
         return new ConsentInfoResponseDTO(consentSingleDTOS);
     }
@@ -51,12 +51,12 @@ public class ConsentService {
         return new ConsentSingleResponseDTO(value, agreed);
     }
 
-    private List<Consent> loadConsentsByMemberId(MemberDTO memberDTO) {
-        return consentRepository.findByMemberId(memberDTO.getId());
+    public List<Consent> loadConsentsByMemberId(Long id) {
+        return consentRepository.findByMemberId(id);
     }
 
     public void updateConsent(ConsentUpdateRequestDTO updateRequestDTO, MemberDTO memberDTO) {
-        List<Consent> consents = loadConsentsByMemberId(memberDTO);
+        List<Consent> consents = loadConsentsByMemberId(memberDTO.getId());
         ConsentType type = updateRequestDTO.getConsentType();
 
         Consent consent = consents.stream()
