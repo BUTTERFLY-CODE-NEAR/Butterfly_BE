@@ -13,4 +13,8 @@ public class FCMFacade {
     public void saveFCM(String token, MemberDTO loginMember) {
         fcmService.saveFCM(token, loginMember);
     }
+
+    public void sendFCM(String title, String body, Long memberId) {
+        fcmService.sendFCM(title, body, memberId);
+    }
 }
