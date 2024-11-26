@@ -1,23 +1,26 @@
 package com.codenear.butterfly.address.application;
 
+import static com.codenear.butterfly.global.exception.ErrorCode.SERVER_ERROR;
+
 import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.address.domain.AddressRepository;
 import com.codenear.butterfly.address.domain.dto.AddressAddResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
-import com.codenear.butterfly.address.domain.dto.AddressResponseDTO;
+import com.codenear.butterfly.address.domain.dto.AddressResponse;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
 import com.codenear.butterfly.address.exception.AddressException;
 import com.codenear.butterfly.geocoding.application.GeocodingService;
-import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,33 +30,32 @@ public class AddressService {
     private final AddressRepository addressRepository;
     private final GeocodingService geocodingService;
 
-    public List<AddressResponseDTO> getAddresses(MemberDTO memberDTO) {
+    public List<AddressResponse> getAddresses(MemberDTO memberDTO) {
         LinkedList<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
 
         moveMainAddress(addresses); // 메인 주소 가장 상단 배치
 
         return addresses.stream()
-                .map(this::convertToAddressResponseDTO)
+                .map(AddressResponse::fromEntity)
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
-    public AddressResponseDTO getAddress(Long addressId) {
-        Optional<Address> optAddress = addressRepository.findById(addressId);
-
-        return optAddress
-                .map(this::convertToAddressResponseDTO)
-                .orElse(null);
+    public AddressResponse getAddress(Long addressId) {
+        Address address = loadAddress(addressId);
+        return AddressResponse.fromEntity(address);
     }
 
     public AddressAddResponseDTO createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
         Member member = memberService.loadMemberByMemberId(memberDTO.getId());
+        int distance = geocodingService.fetchDistance(addressCreateDTO.getAddress());
 
         Address address = Address.builder()
                 .addressName(addressCreateDTO.getAddressName())
                 .address(addressCreateDTO.getAddress())
                 .detailedAddress(addressCreateDTO.getDetailedAddress())
                 .entrancePassword(addressCreateDTO.getEntrancePassword())
-                .distance(geocodingService.fetchDistance(addressCreateDTO.getAddress()))
+                .distance(distance)
+                .deliveryFee(calculateDeliveryFee(distance))
                 .isMainAddress(member.getAddresses().isEmpty()) // 첫 주소 등록 시, 메인 주소로 설정
                 .member(member)
                 .build();
@@ -64,13 +66,20 @@ public class AddressService {
     }
 
     public void updateAddress(AddressUpdateDTO addressUpdateDTO, MemberDTO memberDTO) {
-        Address address = addressRepository.findById(addressUpdateDTO.getId())
-                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+        Address address = loadAddress(addressUpdateDTO.getId());
 
-        if (!address.getMember().getId().equals(memberDTO.getId()))
-            throw new AddressException(ErrorCode.SERVER_ERROR, null);
+        if (!address.getMember().getId().equals(memberDTO.getId())) {
+            throw new AddressException(SERVER_ERROR, null);
+        }
 
-        address.updateAddress(addressUpdateDTO);
+        int distance = geocodingService.fetchDistance(addressUpdateDTO.getAddress());
+        Integer deliveryFee = calculateDeliveryFee(distance);
+        address.updateAddress(addressUpdateDTO, deliveryFee);
+    }
+
+    private Address loadAddress(Long addressId) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> new AddressException(SERVER_ERROR, null));
     }
 
     public void updateMainAddress(Long addressId, MemberDTO memberDTO) {
@@ -84,14 +93,14 @@ public class AddressService {
         Address newAddress = addresses.stream()
                 .filter(address -> address.getId().equals(addressId))
                 .findFirst()
-                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+                .orElseThrow(() -> new AddressException(SERVER_ERROR, null));
 
         newAddress.setMainAddress(true);
     }
 
     public void deleteAddress(Long addressId, MemberDTO memberDTO) {
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new AddressException(ErrorCode.SERVER_ERROR, null));
+                .orElseThrow(() -> new AddressException(SERVER_ERROR, null));
 
         if (address.isMainAddress()) {
             List<Address> addresses = addressRepository.findAllByMemberId(memberDTO.getId());
@@ -115,5 +124,20 @@ public class AddressService {
                     addresses.remove(mainAddress);
                     addresses.addFirst(mainAddress);
                 });
+    }
+
+    private Integer calculateDeliveryFee(int distance) {
+        if (distance <= 300) {
+            return 1000;
+        }
+
+        if (distance <= 600) {
+            return 1500;
+        }
+
+        if (distance <= 1000) {
+            return 2000;
+        }
+        return null;
     }
 }
