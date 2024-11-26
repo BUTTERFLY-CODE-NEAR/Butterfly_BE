@@ -40,6 +40,7 @@ dependencies {
 	implementation 'software.amazon.awssdk:s3'
 	implementation 'net.nurigo:sdk:4.3.0'
 	implementation 'net.coobird:thumbnailator:0.4.20'
+	implementation 'com.google.firebase:firebase-admin:9.4.1'
 
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
