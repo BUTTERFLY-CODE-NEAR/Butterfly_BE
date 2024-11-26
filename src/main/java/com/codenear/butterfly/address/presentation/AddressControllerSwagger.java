@@ -2,7 +2,7 @@ package com.codenear.butterfly.address.presentation;
 
 import com.codenear.butterfly.address.domain.dto.AddressAddResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
-import com.codenear.butterfly.address.domain.dto.AddressResponseDTO;
+import com.codenear.butterfly.address.domain.dto.AddressResponse;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -24,7 +24,7 @@ public interface AddressControllerSwagger {
     @Operation(summary = "주소 목록", description = "주소 목록 API")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
-                    content = @Content(schema = @Schema(implementation = AddressResponseDTO.class))),
+                    content = @Content(schema = @Schema(implementation = AddressResponse.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
     ResponseEntity<ResponseDTO> getAddresses(@AuthenticationPrincipal MemberDTO memberDTO);
@@ -32,7 +32,7 @@ public interface AddressControllerSwagger {
     @Operation(summary = "주소 상세", description = "주소 상세 API")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
-                    content = @Content(schema = @Schema(implementation = AddressResponseDTO.class))),
+                    content = @Content(schema = @Schema(implementation = AddressResponse.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
     ResponseEntity<ResponseDTO> getAddress(@PathVariable Long addressId);
