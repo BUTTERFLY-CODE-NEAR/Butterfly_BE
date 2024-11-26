@@ -107,17 +107,6 @@ public class AddressService {
         addressRepository.delete(address);
     }
 
-    private AddressResponseDTO convertToAddressResponseDTO(Address address) {
-        return new AddressResponseDTO(
-                address.getId(),
-                address.getAddressName(),
-                address.getAddress(),
-                address.getDetailedAddress(),
-                address.getEntrancePassword(),
-                address.isMainAddress()
-        );
-    }
-
     private void moveMainAddress(LinkedList<Address> addresses) {
         addresses.stream()
                 .filter(Address::isMainAddress)
