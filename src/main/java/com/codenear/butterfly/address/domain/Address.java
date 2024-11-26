@@ -25,6 +25,8 @@ public class Address {
 
     private int distance;
 
+    private Integer deliveryFee;
+
     @Setter
     private boolean isMainAddress;
 
