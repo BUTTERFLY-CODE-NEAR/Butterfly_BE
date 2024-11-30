@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CODE NEAR - 상품 추가</title>
+
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <h1 class="h3 mb-4 text-gray-800">상품 추가</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <form th:action="@{/admin/products/new}" method="post">
+                            <div class="form-group">
+                                <label>상품명</label>
+                                <input type="text" class="form-control" name="productName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>회사명</label>
+                                <input type="text" class="form-control" name="companyName">
+                            </div>
+
+                            <div class="form-group">
+                                <label>상품 설명</label>
+                                <textarea class="form-control" name="description" rows="3"></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>원가</label>
+                                    <input type="number" class="form-control" name="originalPrice" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>할인율</label>
+                                    <input type="number" step="0.1" class="form-control" name="saleRate" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>카테고리</label>
+                                    <select class="form-control" name="category" required>
+                                        <option value="">선택하세요</option>
+                                        <option th:each="categoryOpt : ${categories}"
+                                                th:value="${categoryOpt.value}"
+                                                th:text="${categoryOpt.value}">카테고리</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>재고 수량</label>
+                                    <input type="number" class="form-control" name="stockQuantity" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>현재 참여 인원</label>
+                                    <input type="number" class="form-control" name="purchaseParticipantCount" value="0" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>최대 구매 인원</label>
+                                    <input type="number" class="form-control" name="maxPurchaseCount" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>키워드</label>
+                                <input type="text" class="form-control" name="keywords" placeholder="쉼표로 구분하여 입력">
+                            </div>
+
+                            <div class="form-group text-right">
+                                <a th:href="@{/admin/products}" class="btn btn-secondary">취소</a>
+                                <button type="submit" class="btn btn-primary">저장</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts :: body}"></th:block>
+</body>
+</html>
