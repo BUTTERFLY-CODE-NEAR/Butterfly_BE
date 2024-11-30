@@ -235,6 +235,7 @@ public class SinglePaymentService {
         parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
         parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
         parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
+        parameters.put("return_custom_url", "butterfly://");
         return parameters;
     }
 
