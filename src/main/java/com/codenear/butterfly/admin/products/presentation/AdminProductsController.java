@@ -1,6 +1,9 @@
 package com.codenear.butterfly.admin.products.presentation;
 
 import com.codenear.butterfly.admin.products.application.AdminProductService;
+import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
+import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
+import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,27 @@ public class AdminProductsController {
 
     private final AdminProductService adminProductService;
 
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        List<Category> categories = adminProductService.getCategories();
+        model.addAttribute("categories", categories);
+        return "admin/products/product-create";
+    }
+
+    @PostMapping("/new")
+    public String createProduct(@ModelAttribute ProductCreateRequest request,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            adminProductService.createProduct(request);
+            redirectAttributes.addFlashAttribute("message", "상품이 성공적으로 생성되었습니다.");
+            redirectAttributes.addFlashAttribute("messageType", "success");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("message", "상품 생성에 실패했습니다: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("messageType", "error");
+        }
+        return "redirect:/admin/products";
+    }
+
     @GetMapping
     public String showProductList(Model model) {
         List<Product> products = adminProductService.loadAllProducts();
@@ -29,18 +53,17 @@ public class AdminProductsController {
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Product product = adminProductService.findById(id);
-        List<Category> categories = adminProductService.getCategories();
-
-        model.addAttribute("product", product);
-        model.addAttribute("categories", categories);
+        ProductEditResponse response = adminProductService.getProductEditInfo(id);
+        model.addAttribute("product", response.product());
+        model.addAttribute("keywordString", response.keywordString());
+        model.addAttribute("categories", adminProductService.getCategories());
         return "admin/products/product-edit";
     }
 
-    @PutMapping("/{id}/edit")
+    @PostMapping("/{id}/edit")
     public String updateProduct(
             @PathVariable Long id,
-            @ModelAttribute Product updateRequest,
+            @ModelAttribute ProductUpdateRequest updateRequest,
             RedirectAttributes redirectAttributes) {
         try {
             adminProductService.updateProduct(id, updateRequest);
@@ -53,7 +76,7 @@ public class AdminProductsController {
         return "redirect:/admin/products";
     }
 
-    @DeleteMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public String deleteProduct(
             @PathVariable Long id,
             RedirectAttributes redirectAttributes) {

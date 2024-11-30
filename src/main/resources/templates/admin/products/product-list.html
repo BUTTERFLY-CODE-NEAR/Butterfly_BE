@@ -50,7 +50,7 @@
                                     <td th:text="${product.id}">1</td>
                                     <td th:text="${product.productName}">상품명</td>
                                     <td th:text="${product.companyName}">회사명</td>
-                                    <td th:text="${product.category}">카테고리</td>
+                                    <td th:text="${product.category.value}">카테고리</td>
                                     <td th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')}">10000</td>
                                     <td th:text="${#numbers.formatDecimal(product.saleRate, 1, 'COMMA', 1, 'POINT')} + '%'">10.0</td>
                                     <td th:text="${product.stockQuantity}">100</td>

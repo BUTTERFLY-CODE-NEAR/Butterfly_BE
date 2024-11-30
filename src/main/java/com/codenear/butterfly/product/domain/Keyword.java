@@ -1,10 +1,13 @@
 package com.codenear.butterfly.product.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Keyword {
 
     @Id
@@ -13,4 +16,8 @@ public class Keyword {
 
     @Column(nullable = false, unique = true)
     private String keyword;
+
+    public Keyword(String keyword) {
+        this.keyword = keyword;
+    }
 }

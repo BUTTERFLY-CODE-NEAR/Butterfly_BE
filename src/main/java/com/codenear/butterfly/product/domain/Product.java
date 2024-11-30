@@ -1,12 +1,17 @@
 package com.codenear.butterfly.product.domain;
 
+import com.codenear.butterfly.admin.products.dto.DiscountRateRequest;
+import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Builder
@@ -63,7 +68,29 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscountRate> discountRates = new ArrayList<>();
 
-    public void updateProductInfo(
+    public void update(ProductUpdateRequest request) {
+        updateBasicInfo(
+                request.getProductName(),
+                request.getCompanyName(),
+                request.getDescription(),
+                request.getProductImage(),
+                request.getOriginalPrice(),
+                request.getSaleRate(),
+                request.getCategory(),
+                request.getQuantity()
+        );
+
+        updatePurchaseInfo(
+                request.getPurchaseParticipantCount(),
+                request.getMaxPurchaseCount(),
+                request.getStockQuantity()
+        );
+
+        updateKeywordsIfPresent(request.getKeywords());
+        updateDiscountRatesIfPresent(request.getDiscountRates());
+    }
+
+    private void updateBasicInfo(
             String productName,
             String companyName,
             String description,
@@ -83,7 +110,7 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public void updatePurchaseInfo(
+    private void updatePurchaseInfo(
             Integer purchaseParticipantCount,
             Integer maxPurchaseCount,
             Integer stockQuantity
@@ -93,25 +120,43 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 
-    public void updateOptions(List<Option> newOptions) {
-        this.options.clear();
-        if (newOptions != null) {
-            this.options.addAll(newOptions);
+    private void updateKeywordsIfPresent(List<String> newKeywordValues) {
+        if (newKeywordValues == null || newKeywordValues.isEmpty()) {
+            return;
         }
+
+        Set<String> newKeywordSet = new HashSet<>(newKeywordValues);
+
+        keywords.removeIf(keyword -> !newKeywordSet.contains(keyword.getKeyword()));
+
+        Set<String> existingKeywordValues = keywords.stream()
+                .map(Keyword::getKeyword)
+                .collect(Collectors.toSet());
+
+        List<Keyword> keywordsToAdd = newKeywordSet.stream()
+                .filter(value -> !existingKeywordValues.contains(value))
+                .map(Keyword::new)
+                .toList();
+
+        keywords.addAll(keywordsToAdd);
     }
 
-    public void updateKeywords(List<Keyword> newKeywords) {
-        this.keywords.clear();
-        if (newKeywords != null) {
-            this.keywords.addAll(newKeywords);
+    private void updateDiscountRatesIfPresent(List<DiscountRateRequest> newRates) {
+        if (newRates == null) {
+            return;
         }
-    }
 
-    public void updateDiscountRates(List<DiscountRate> newDiscountRates) {
-        this.discountRates.clear();
-        if (newDiscountRates != null) {
-            this.discountRates.addAll(newDiscountRates);
-        }
+        discountRates.clear();
+        List<DiscountRate> rates = newRates.stream()
+                .map(request -> new DiscountRate(
+                        this,
+                        request.getMinParticipationRate(),
+                        request.getMaxParticipationRate(),
+                        request.getDiscountRate()
+                ))
+                .toList();
+
+        discountRates.addAll(rates);
     }
 
     public BigDecimal getCurrentDiscountRate() {
