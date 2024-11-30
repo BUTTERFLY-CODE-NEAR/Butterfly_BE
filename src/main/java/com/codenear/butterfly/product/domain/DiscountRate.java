@@ -28,4 +28,11 @@ public class DiscountRate {
 
     @Column(nullable = false)
     private BigDecimal discountRate;
+
+    public DiscountRate(Product product, Double minParticipationRate, Double maxParticipationRate, BigDecimal discountRate) {
+        this.product = product;
+        this.minParticipationRate = minParticipationRate;
+        this.maxParticipationRate = maxParticipationRate;
+        this.discountRate = discountRate;
+    }
 }
