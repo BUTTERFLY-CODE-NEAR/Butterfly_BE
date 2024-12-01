@@ -29,27 +29,32 @@ public class FCMService {
         Member member = memberFacade.getMember(loginMember.getId());
         List<Consent> consents = consentFacade.getConsentByMemberId(member.getId());
 
-        createAndSaveFCM(token, member);
+        FCM fcm = createFCM(token, member);
         subscribeToConsentedTopics(token, consents);
+
+        fcmRepository.save(fcm);
     }
 
     @Transactional
     protected void sendFCM(String title, String body, Long memberId) {
-        List<FCM> fcms = fcmRepository.findByMemberId(memberId);
-
-        fcms.forEach(fcm -> {
-                    Message message = createMessage(title, body, fcm);
-                    firebaseMessagingClient.sendMessage(message);
-                });
+        fcmRepository.findByMemberId(memberId)
+                .stream()
+                .map(fcm -> createMessage(title, body, fcm.getToken()))
+                .forEach(firebaseMessagingClient::sendMessage);
     }
 
-    private void createAndSaveFCM(String token, Member member) {
-        FCM fcm = FCM.builder()
+    @Transactional
+    protected void sendTopicFCM(String title, String body, String topic) {
+        Message topicMessage = createTopicMessage(title, body, topic);
+        firebaseMessagingClient.sendMessage(topicMessage);
+    }
+
+    private FCM createFCM(String token, Member member) {
+        return FCM.builder()
                 .member(member)
                 .token(token)
                 .lastUsedDate(LocalDateTime.now())
                 .build();
-        fcmRepository.save(fcm);
     }
 
     private void subscribeToConsentedTopics(String token, List<Consent> consents) {
@@ -62,13 +67,23 @@ public class FCMService {
                 });
     }
 
-    private Message createMessage(String title, String body, FCM fcm) {
+    private Message createMessage(String title, String body, String token) {
         return Message.builder()
                 .setNotification(Notification.builder()
                         .setTitle(title)
                         .setBody(body)
                         .build())
-                .setToken(fcm.getToken())
+                .setToken(token)
+                .build();
+    }
+
+    private Message createTopicMessage(String title, String body, String topic) {
+        return Message.builder()
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build())
+                .setTopic(topic)
                 .build();
     }
 }
