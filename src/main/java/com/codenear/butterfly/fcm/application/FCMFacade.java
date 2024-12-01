@@ -14,7 +14,11 @@ public class FCMFacade {
         fcmService.saveFCM(token, loginMember);
     }
 
-    public void sendFCM(String title, String body, Long memberId) {
+    public void send(String title, String body, Long memberId) {
         fcmService.sendFCM(title, body, memberId);
+    }
+
+    public void sendTopic(String title, String body, String topic) {
+        fcmService.sendTopicFCM(title, body, topic);
     }
 }
