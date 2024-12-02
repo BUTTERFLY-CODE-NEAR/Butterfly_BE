@@ -1,5 +1,6 @@
 package com.codenear.butterfly.fcm.application;
 
+import com.codenear.butterfly.fcm.domain.FCMMessageConstant;
 import com.codenear.butterfly.fcm.domain.FCMRepository;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
@@ -11,39 +12,43 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FCMMessageService {
 
+    private static final String PAYLOAD_KEY = "key";
+
     private final FCMRepository fcmRepository;
     private final FirebaseMessagingClient firebaseMessagingClient;
 
     @Transactional
-    protected void send(String title, String body, Long memberId) {
+    protected void send(FCMMessageConstant fcmMessageConstant, Long memberId) {
         fcmRepository.findByMemberId(memberId)
                 .stream()
-                .map(fcm -> createMessage(title, body, fcm.getToken()))
+                .map(fcm -> createMessage(fcmMessageConstant, fcm.getToken()))
                 .forEach(firebaseMessagingClient::sendMessage);
     }
 
     @Transactional
-    protected void sendTopic(String title, String body, String topic) {
-        Message topicMessage = createTopicMessage(title, body, topic);
+    protected void sendTopic(FCMMessageConstant fcmMessageConstant, String topic) {
+        Message topicMessage = createTopicMessage(fcmMessageConstant, topic);
         firebaseMessagingClient.sendMessage(topicMessage);
     }
 
-    private Message createMessage(String title, String body, String token) {
+    private Message createMessage(FCMMessageConstant message, String token) {
         return Message.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
+                        .setTitle(message.getTitle())
+                        .setBody(message.getBody())
                         .build())
+                .putData(PAYLOAD_KEY, message.getKey())
                 .setToken(token)
                 .build();
     }
 
-    private Message createTopicMessage(String title, String body, String topic) {
+    private Message createTopicMessage(FCMMessageConstant message, String topic) {
         return Message.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
+                        .setTitle(message.getTitle())
+                        .setBody(message.getBody())
                         .build())
+                .putData(PAYLOAD_KEY, message.getKey())
                 .setTopic(topic)
                 .build();
     }

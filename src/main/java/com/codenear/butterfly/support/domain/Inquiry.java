@@ -56,12 +56,15 @@ public class Inquiry extends BaseEntity {
     }
 
     public void toggleStatus() {
-        if (this.status.equals(PENDING)) {
-            this.status = ANSWERED;
+        if (isAnswerStatus()) {
+            this.status = PENDING;
             return;
         }
+        this.status = ANSWERED;
+    }
 
-        this.status = PENDING;
+    public boolean isAnswerStatus() {
+        return this.status.equals(ANSWERED);
     }
 
     public void updateResponseContent(String answer) {
