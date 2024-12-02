@@ -27,7 +27,14 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">상품 목록</h6>
-                        <a th:href="@{/admin/products/new}" class="btn btn-primary">상품 추가</a>
+                        <div class="d-flex">
+                            <a th:href="@{/admin/products/new}" class="btn btn-primary">상품 추가</a>
+
+                            <form th:action="@{/admin/products/push}" method="post" style="display: inline;"
+                                  onsubmit="return confirm('정말로 신상품 알림을 보내시겠습니까?');">
+                                <button type="submit" class="btn btn-success ml-2">신상품 알림</button>
+                            </form>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
