@@ -22,7 +22,7 @@ public class FCMController implements FCMControllerSwagger {
     @PostMapping("/{token}")
     public ResponseEntity<ResponseDTO> registerFCM(@PathVariable String token,
                                                    @AuthenticationPrincipal MemberDTO memberDTO) {
-        fcmFacade.saveFCM(token, memberDTO);
+        fcmFacade.save(token, memberDTO);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
