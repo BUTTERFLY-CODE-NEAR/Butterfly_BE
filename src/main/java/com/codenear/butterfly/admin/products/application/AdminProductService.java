@@ -1,26 +1,30 @@
 package com.codenear.butterfly.admin.products.application;
 
+import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.NEW_PRODUCT;
+
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
+import com.codenear.butterfly.fcm.application.FCMFacade;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import com.codenear.butterfly.product.exception.ProductException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AdminProductService {
 
+    private final FCMFacade fcmFacade;
     private final ProductRepository productRepository;
 
     @Transactional
@@ -71,6 +75,11 @@ public class AdminProductService {
         return Arrays.stream(Category.values())
                 .filter(category -> !category.getValue().equals("전체"))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public void sendNewProductNotification() {
+        fcmFacade.sendTopicMessage(NEW_PRODUCT, MARKETING.getTopic());
     }
 
     @Transactional
