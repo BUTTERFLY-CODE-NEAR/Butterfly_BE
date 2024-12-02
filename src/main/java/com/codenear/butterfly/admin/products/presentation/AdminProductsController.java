@@ -90,4 +90,10 @@ public class AdminProductsController {
         }
         return "redirect:/admin/products";
     }
+
+    @PostMapping("/push")
+    public String sendNewProductNotification() {
+        adminProductService.sendNewProductNotification();
+        return "redirect:/admin/products";
+    }
 }
