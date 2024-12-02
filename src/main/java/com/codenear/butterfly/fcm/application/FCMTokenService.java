@@ -7,8 +7,6 @@ import com.codenear.butterfly.fcm.domain.FCMRepository;
 import com.codenear.butterfly.member.application.MemberFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class FCMService {
+public class FCMTokenService {
 
     private final ConsentFacade consentFacade;
     private final MemberFacade memberFacade;
@@ -33,20 +31,6 @@ public class FCMService {
         subscribeToConsentedTopics(token, consents);
 
         fcmRepository.save(fcm);
-    }
-
-    @Transactional
-    protected void sendFCM(String title, String body, Long memberId) {
-        fcmRepository.findByMemberId(memberId)
-                .stream()
-                .map(fcm -> createMessage(title, body, fcm.getToken()))
-                .forEach(firebaseMessagingClient::sendMessage);
-    }
-
-    @Transactional
-    protected void sendTopicFCM(String title, String body, String topic) {
-        Message topicMessage = createTopicMessage(title, body, topic);
-        firebaseMessagingClient.sendMessage(topicMessage);
     }
 
     private FCM createFCM(String token, Member member) {
@@ -65,25 +49,5 @@ public class FCMService {
                     String topic = consent.getConsentType().getTopic();
                     firebaseMessagingClient.subscribeToTopic(tokens, topic);
                 });
-    }
-
-    private Message createMessage(String title, String body, String token) {
-        return Message.builder()
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
-                .setToken(token)
-                .build();
-    }
-
-    private Message createTopicMessage(String title, String body, String topic) {
-        return Message.builder()
-                .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build())
-                .setTopic(topic)
-                .build();
     }
 }
