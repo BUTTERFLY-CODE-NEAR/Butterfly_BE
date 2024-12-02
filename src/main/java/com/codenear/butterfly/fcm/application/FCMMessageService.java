@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FCMMessageService {
 
+    private static final String PAYLOAD_KEY = "key";
+
     private final FCMRepository fcmRepository;
     private final FirebaseMessagingClient firebaseMessagingClient;
 
@@ -35,7 +37,7 @@ public class FCMMessageService {
                         .setTitle(message.getTitle())
                         .setBody(message.getBody())
                         .build())
-                .putData("key", message.getKey())
+                .putData(PAYLOAD_KEY, message.getKey())
                 .setToken(token)
                 .build();
     }
@@ -46,7 +48,7 @@ public class FCMMessageService {
                         .setTitle(message.getTitle())
                         .setBody(message.getBody())
                         .build())
-                .putData("key", message.getKey())
+                .putData(PAYLOAD_KEY, message.getKey())
                 .setTopic(topic)
                 .build();
     }
