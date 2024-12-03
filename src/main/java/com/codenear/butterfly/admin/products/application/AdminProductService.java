@@ -40,10 +40,9 @@ public class AdminProductService {
                 .originalPrice(request.originalPrice())
                 .saleRate(request.saleRate())
                 .category(Category.fromValue(request.category()))
-                .quantity(request.quantity())
+                .stockQuantity(request.stockQuantity())
                 .purchaseParticipantCount(request.purchaseParticipantCount())
                 .maxPurchaseCount(request.maxPurchaseCount())
-                .stockQuantity(request.stockQuantity())
                 .keywords(keywords)
                 .build();
 

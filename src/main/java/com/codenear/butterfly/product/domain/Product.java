@@ -44,8 +44,6 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    private Integer quantity;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Option> options;
