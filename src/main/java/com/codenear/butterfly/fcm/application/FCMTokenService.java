@@ -44,7 +44,7 @@ public class FCMTokenService {
     private void subscribeToConsentedTopics(String token, List<Consent> consents) {
         List<String> tokens = List.of(token);
         consents.stream()
-                .filter(Consent::isAgreed)
+                .filter(Consent::isTopicConsented)
                 .forEach(consent -> {
                     String topic = consent.getConsentType().getTopic();
                     firebaseMessagingClient.subscribeToTopic(tokens, topic);

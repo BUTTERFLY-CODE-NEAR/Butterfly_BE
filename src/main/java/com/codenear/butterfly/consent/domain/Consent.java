@@ -27,4 +27,8 @@ public class Consent extends BaseEntity {
     public void toggleAgreement() {
         this.isAgreed = !this.isAgreed;
     }
+
+    public boolean isTopicConsented() {
+        return isAgreed && consentType.hasTopic();
+    }
 }
