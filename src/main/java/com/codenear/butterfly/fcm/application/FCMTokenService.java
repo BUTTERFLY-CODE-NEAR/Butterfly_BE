@@ -33,6 +33,16 @@ public class FCMTokenService {
         fcmRepository.save(fcm);
     }
 
+    protected void subscribeToTopic(Long memberId, String topic) {
+        List<String> tokens = getTokensByMemberId(memberId);
+        firebaseMessagingClient.subscribeToTopic(tokens, topic);
+    }
+
+    protected void unsubscribeFromTopic(Long memberId, String topic) {
+        List<String> tokens = getTokensByMemberId(memberId);
+        firebaseMessagingClient.unsubscribeFromTopic(tokens, topic);
+    }
+
     private FCM createFCM(String token, Member member) {
         return FCM.builder()
                 .member(member)
@@ -49,5 +59,12 @@ public class FCMTokenService {
                     String topic = consent.getConsentType().getTopic();
                     firebaseMessagingClient.subscribeToTopic(tokens, topic);
                 });
+    }
+
+    private List<String> getTokensByMemberId(Long memberId) {
+        List<FCM> fcms = fcmRepository.findByMemberId(memberId);
+        return fcms.stream()
+                .map(FCM::getToken)
+                .toList();
     }
 }

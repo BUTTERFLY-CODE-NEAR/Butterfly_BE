@@ -23,4 +23,12 @@ public class FCMFacade {
     public void sendTopicMessage(FCMMessageConstant fcmMessageConstant, String topic) {
         fcmMessageService.sendTopic(fcmMessageConstant, topic);
     }
+
+    public void subscribeToTopic(Long memberId, String topic) {
+        fcmTokenService.subscribeToTopic(memberId, topic);
+    }
+
+    public void unsubscribeFromTopic(Long memberId, String topic) {
+        fcmTokenService.unsubscribeFromTopic(memberId, topic);
+    }
 }
