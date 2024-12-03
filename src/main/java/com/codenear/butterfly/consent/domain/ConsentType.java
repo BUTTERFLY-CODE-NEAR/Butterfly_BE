@@ -8,7 +8,11 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ConsentType {
     MARKETING("marketing"),
-    DELIVERY_NOTIFICATION("deliveryNotification");
+    DELIVERY_NOTIFICATION("none");
 
     private final String topic;
+
+    public boolean hasTopic() {
+        return !topic.equals("none");
+    }
 }

@@ -6,6 +6,7 @@ import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.consent.dto.ConsentInfoResponseDTO;
 import com.codenear.butterfly.consent.dto.ConsentSingleResponseDTO;
 import com.codenear.butterfly.consent.dto.ConsentUpdateRequestDTO;
+import com.codenear.butterfly.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -20,8 +21,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class ConsentService {
+
     private final ConsentRepository consentRepository;
     private final MemberService memberService;
+    private final FCMFacade fcmFacade;
 
     public ConsentInfoResponseDTO getConsentsInfo(MemberDTO memberDTO) {
         List<Consent> consents = loadConsentsByMemberId(memberDTO.getId());
@@ -51,10 +54,6 @@ public class ConsentService {
         return new ConsentSingleResponseDTO(value, agreed);
     }
 
-    protected List<Consent> loadConsentsByMemberId(Long id) {
-        return consentRepository.findByMemberId(id);
-    }
-
     public void updateConsent(ConsentUpdateRequestDTO updateRequestDTO, MemberDTO memberDTO) {
         List<Consent> consents = loadConsentsByMemberId(memberDTO.getId());
         ConsentType type = updateRequestDTO.getConsentType();
@@ -65,12 +64,28 @@ public class ConsentService {
                 .orElseGet(() -> createConsent(type, false, memberService.loadMemberByMemberId(memberDTO.getId())));
 
         consent.toggleAgreement();
+
+        if (consent.getConsentType().hasTopic()) {
+            updateFCMSubscription(memberDTO, consent);
+        }
         consentRepository.save(consent);
+    }
+
+    private void updateFCMSubscription(MemberDTO memberDTO, Consent consent) {
+        if (consent.isAgreed()) {
+            fcmFacade.subscribeToTopic(memberDTO.getId(), consent.getConsentType().getTopic());
+            return;
+        }
+        fcmFacade.unsubscribeFromTopic(memberDTO.getId(), consent.getConsentType().getTopic());
     }
 
     public void saveConsent(ConsentType type, boolean agreed, Member member) {
         Consent consent = createConsent(type, agreed, member);
         consentRepository.save(consent);
+    }
+
+    protected List<Consent> loadConsentsByMemberId(Long id) {
+        return consentRepository.findByMemberId(id);
     }
 
     private Consent createConsent(ConsentType type, boolean agreed, Member member) {
