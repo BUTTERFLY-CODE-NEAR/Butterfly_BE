@@ -94,6 +94,15 @@ public class SinglePaymentService {
                 requestEntity,
                 ApproveResponseDTO.class);
 
+        Product product = productRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
+        int quantity = approveResponseDTO.getQuantity();
+
+        if (product.getStockQuantity() < quantity) {
+            throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
+        }
+        product.decreaseQuantity(quantity);
+        product.increasePurchaseParticipantCount();
+
         SinglePayment singlePayment = createSinglePayment(approveResponseDTO);
         Amount amount = createAmount(approveResponseDTO);
         singlePayment.setAmount(amount);

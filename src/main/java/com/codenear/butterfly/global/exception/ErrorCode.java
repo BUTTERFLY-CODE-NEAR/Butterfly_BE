@@ -17,6 +17,7 @@ public enum ErrorCode {
     FORBIDDEN_NICKNAME(40003, "사용할 수 없는 닉네임입니다.", BAD_REQUEST),
     VALIDATION_FAILED_CODE_MISMATCH(40004, "인증번호가 일치하지 않습니다.", BAD_REQUEST),
     FILE_SIZE_LIMIT_EXCEEDED(40005, "업로드 파일 크기가 초과되었습니다.", BAD_REQUEST),
+    INSUFFICIENT_STOCK(40006, "해당 상품의 재고가 부족합니다.", BAD_REQUEST),
 
     // 401 (UNAUTHORIZED)
     NULL_JWT_ACCESS_TOKEN(40100, "(Access) 토큰이 존재하지 않습니다.", UNAUTHORIZED),

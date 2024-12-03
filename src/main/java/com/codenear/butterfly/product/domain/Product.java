@@ -44,8 +44,6 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    private Integer quantity;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Option> options;
@@ -98,7 +96,7 @@ public class Product {
             Integer originalPrice,
             BigDecimal saleRate,
             Category category,
-            Integer quantity
+            Integer stockQuantity
     ) {
         this.productName = productName;
         this.companyName = companyName;
@@ -107,7 +105,7 @@ public class Product {
         this.originalPrice = originalPrice;
         this.saleRate = saleRate;
         this.category = category;
-        this.quantity = quantity;
+        this.stockQuantity = stockQuantity;
     }
 
     private void updatePurchaseInfo(
@@ -175,6 +173,17 @@ public class Product {
     }
 
     public boolean isSoldOut() {
-        return stockQuantity == 0;
+        return stockQuantity.equals(0);
+    }
+
+    public void decreaseQuantity(int stockQuantity) {
+        this.stockQuantity -= stockQuantity;
+    }
+
+    public void increasePurchaseParticipantCount() {
+        this.purchaseParticipantCount += 1;
+        if (this.purchaseParticipantCount.equals(this.maxPurchaseCount)) {
+            this.purchaseParticipantCount = 0;
+        }
     }
 }
