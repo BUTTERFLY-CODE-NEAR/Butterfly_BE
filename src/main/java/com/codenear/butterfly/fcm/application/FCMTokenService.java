@@ -25,7 +25,7 @@ public class FCMTokenService {
     @Transactional
     protected void saveFCM(String token, MemberDTO loginMember) {
         Member member = memberFacade.getMember(loginMember.getId());
-        List<Consent> consents = consentFacade.getConsentByMemberId(member.getId());
+        List<Consent> consents = consentFacade.getConsents(member.getId());
 
         FCM fcm = createFCM(token, member);
         subscribeToConsentedTopics(token, consents);
