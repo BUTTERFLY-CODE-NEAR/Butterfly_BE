@@ -1,6 +1,7 @@
 package com.codenear.butterfly.consent.presentation;
 
 import com.codenear.butterfly.consent.application.ConsentService;
+import com.codenear.butterfly.consent.application.ConsentUpdateService;
 import com.codenear.butterfly.consent.dto.ConsentUpdateRequest;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/consent")
 @RequiredArgsConstructor
 public class ConsentController implements ConsentControllerSwagger {
+
     private final ConsentService consentService;
+    private final ConsentUpdateService consentUpdateService;
 
     @GetMapping
     public ResponseEntity<ResponseDTO> getConsents(@AuthenticationPrincipal MemberDTO memberDTO) {
@@ -24,7 +27,7 @@ public class ConsentController implements ConsentControllerSwagger {
 
     @PatchMapping
     public ResponseEntity<ResponseDTO> updateConsent(@Valid @RequestBody ConsentUpdateRequest updateRequestDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
-        consentService.updateConsent(updateRequestDTO, memberDTO);
+        consentUpdateService.updateConsent(updateRequestDTO, memberDTO);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
