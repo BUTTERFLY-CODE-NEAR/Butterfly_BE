@@ -2,6 +2,7 @@ package com.codenear.butterfly.auth.application.email;
 
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.exception.AuthException;
+import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.application.ConsentService;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.global.exception.ErrorCode;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmailRegisterService {
     private final MemberRepository memberRepository;
-    private final ConsentService consentService;
+    private final ConsentFacade consentFacade;
     private final PasswordEncoder passwordEncoder;
     private final ForbiddenWordFilter forbiddenWordFilter;
 
@@ -34,7 +35,7 @@ public class EmailRegisterService {
 
         Member newMember = register(authRegisterDTO);
 
-        consentService.saveConsent(ConsentType.MARKETING, authRegisterDTO.isMarketingAgreed(), newMember);
+        consentFacade.saveConsent(ConsentType.MARKETING, authRegisterDTO.isMarketingAgreed(), newMember);
         return memberRepository.save(newMember);
     }
 
