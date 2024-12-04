@@ -5,7 +5,6 @@ import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.consent.dto.ConsentUpdateRequest;
 import com.codenear.butterfly.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.application.MemberService;
-import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,27 +17,35 @@ public class ConsentUpdateService {
     private final MemberService memberService;
     private final FCMFacade fcmFacade;
 
-    public void updateConsent(ConsentUpdateRequest request, MemberDTO memberDTO) {
-        List<Consent> consents = consentDataAccess.findConsents(memberDTO.getId());
+    public void updateConsent(ConsentUpdateRequest request, Long memberId) {
+        List<Consent> consents = consentDataAccess.findConsents(memberId);
 
         ConsentType consentType = request.getConsentType();
-        Consent findConsent = consents.stream()
-                .filter(consent -> consent.getConsentType().equals(consentType))
-                .findFirst()
-                .orElseGet(() -> Consent.create(consentType, memberService.loadMemberByMemberId(memberDTO.getId())));
+        Consent consent = getOrCreateConsent(consents, consentType, memberId);
 
-        findConsent.toggleAgreement();
-        if (findConsent.getConsentType().hasTopic()) {
-            updateFCMSubscription(memberDTO, findConsent);
+        consent.toggleAgreement();
+        if (consent.getConsentType().hasTopic()) {
+            updateFCMSubscription(memberId, consent);
         }
-        consentDataAccess.save(findConsent);
+        consentDataAccess.save(consent);
     }
 
-    private void updateFCMSubscription(MemberDTO memberDTO, Consent consent) {
+    private Consent getOrCreateConsent(List<Consent> consents, ConsentType consentType, Long memberId) {
+        return consents.stream()
+                .filter(consent -> consent.isSameConsentType(consentType))
+                .findFirst()
+                .orElseGet(() ->
+                        Consent.create(consentType, memberService.loadMemberByMemberId(memberId))
+                );
+    }
+
+    private void updateFCMSubscription(Long memberId, Consent consent) {
+        String topic = consent.getConsentType().getTopic();
+
         if (consent.isAgreed()) {
-            fcmFacade.subscribeToTopic(memberDTO.getId(), consent.getConsentType().getTopic());
+            fcmFacade.subscribeToTopic(memberId, topic);
             return;
         }
-        fcmFacade.unsubscribeFromTopic(memberDTO.getId(), consent.getConsentType().getTopic());
+        fcmFacade.unsubscribeFromTopic(memberId, topic);
     }
 }

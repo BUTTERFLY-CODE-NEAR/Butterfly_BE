@@ -27,7 +27,7 @@ public class ConsentController implements ConsentControllerSwagger {
 
     @PatchMapping
     public ResponseEntity<ResponseDTO> updateConsent(@Valid @RequestBody ConsentUpdateRequest updateRequestDTO, @AuthenticationPrincipal MemberDTO memberDTO) {
-        consentUpdateService.updateConsent(updateRequestDTO, memberDTO);
+        consentUpdateService.updateConsent(updateRequestDTO, memberDTO.getId());
         return ResponseUtil.createSuccessResponse(null);
     }
 }

@@ -55,4 +55,8 @@ public class Consent extends BaseEntity {
     public boolean isTopicConsented() {
         return isAgreed && consentType.hasTopic();
     }
+
+    public boolean isSameConsentType(ConsentType consentType) {
+        return this.getConsentType() == consentType;
+    }
 }
