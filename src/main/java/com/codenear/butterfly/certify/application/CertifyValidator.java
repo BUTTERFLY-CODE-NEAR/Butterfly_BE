@@ -1,17 +1,17 @@
 package com.codenear.butterfly.certify.application;
 
-import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.exception.MemberException;
-import org.springframework.stereotype.Component;
+import static com.codenear.butterfly.global.exception.ErrorCode.SERVER_ERROR;
+import static com.codenear.butterfly.global.exception.ErrorCode.VALIDATION_FAILED_CODE_MISMATCH;
 
-@Component
+import com.codenear.butterfly.certify.exception.CertifyException;
+
 public class CertifyValidator {
 
-    public void validateCertifyCode(String storedCode, String inputCode) {
+    public static void validateCertifyCode(String storedCode, String inputCode) {
         if (storedCode == null)
-            throw new MemberException(ErrorCode.SERVER_ERROR, null);
+            throw new CertifyException(SERVER_ERROR, null);
 
         if (!storedCode.equals(inputCode))
-            throw new MemberException(ErrorCode.VALIDATION_FAILED_CODE_MISMATCH, null);
+            throw new CertifyException(VALIDATION_FAILED_CODE_MISMATCH, null);
     }
 }
