@@ -5,7 +5,7 @@ import com.codenear.butterfly.consent.domain.ConsentRepository;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.consent.dto.ConsentInfoResponseDTO;
 import com.codenear.butterfly.consent.dto.ConsentSingleResponseDTO;
-import com.codenear.butterfly.consent.dto.ConsentUpdateRequestDTO;
+import com.codenear.butterfly.consent.dto.ConsentUpdateRequest;
 import com.codenear.butterfly.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.application.MemberService;
 import com.codenear.butterfly.member.domain.Member;
@@ -54,7 +54,7 @@ public class ConsentService {
         return new ConsentSingleResponseDTO(value, agreed);
     }
 
-    public void updateConsent(ConsentUpdateRequestDTO updateRequestDTO, MemberDTO memberDTO) {
+    public void updateConsent(ConsentUpdateRequest updateRequestDTO, MemberDTO memberDTO) {
         List<Consent> consents = loadConsentsByMemberId(memberDTO.getId());
         ConsentType type = updateRequestDTO.getConsentType();
 
