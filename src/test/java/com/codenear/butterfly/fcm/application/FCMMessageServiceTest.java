@@ -80,7 +80,7 @@ class FCMMessageServiceTest {
                 .isAgreed(isAgreed)
                 .build();
 
-        when(consentFacade.getConsentByMemberId(memberId))
+        when(consentFacade.getConsents(memberId))
                 .thenReturn(List.of(consent));
     }
 }

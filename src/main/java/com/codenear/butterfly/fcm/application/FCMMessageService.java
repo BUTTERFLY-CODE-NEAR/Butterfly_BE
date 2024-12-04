@@ -38,7 +38,7 @@ public class FCMMessageService {
     }
 
     private boolean checkConsent(FCMMessageConstant fcmMessageConstant, Long memberId) {
-        List<Consent> consents = consentFacade.getConsentByMemberId(memberId);
+        List<Consent> consents = consentFacade.getConsents(memberId);
 
         Consent first = consents.stream()
                 .filter(consent -> consent.getConsentType().equals(fcmMessageConstant.getConsentType()))
