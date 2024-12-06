@@ -40,9 +40,8 @@ public class OrderDetails {
     private LocalTime pickupTime;
 
     // 배달 시
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id")
-    private Address address;
+    private String address;
+    private String detailedAddress;
     private LocalDate deliverDate;
 
     private String productName;

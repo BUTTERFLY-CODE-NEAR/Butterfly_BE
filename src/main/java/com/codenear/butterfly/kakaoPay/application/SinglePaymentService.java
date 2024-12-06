@@ -133,7 +133,8 @@ public class SinglePaymentService {
         } else if (OrderType.DELIVER.getType().equals(orderType.getType())) {
             Address address = addressRepository.findById(addressId)
                     .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
-            orderDetails.setAddress(address);
+            orderDetails.setAddress(address.getAddress());
+            orderDetails.setDetailedAddress(address.getDetailedAddress());
         }
 
         orderDetails.setTotal(approveResponseDTO.getAmount().getTotal());
