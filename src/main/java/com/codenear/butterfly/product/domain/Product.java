@@ -67,58 +67,32 @@ public class Product {
     private List<DiscountRate> discountRates = new ArrayList<>();
 
     public void update(ProductUpdateRequest request) {
-        updateBasicInfo(
-                request.getProductName(),
-                request.getCompanyName(),
-                request.getDescription(),
-                request.getProductImage(),
-                request.getOriginalPrice(),
-                request.getSaleRate(),
-                request.getCategory(),
-                request.getQuantity()
-        );
-
-        updatePurchaseInfo(
-                request.getPurchaseParticipantCount(),
-                request.getMaxPurchaseCount(),
-                request.getStockQuantity()
-        );
-
-        updateKeywordsIfPresent(request.getKeywords());
-        updateDiscountRatesIfPresent(request.getDiscountRates());
+        updateBasicProductInfo(request);
+        updatePurchaseDetails(request);
+        updateProductKeywords(request);
+        updateProductDiscountRates(request);
     }
 
-    private void updateBasicInfo(
-            String productName,
-            String companyName,
-            String description,
-            String productImage,
-            Integer originalPrice,
-            BigDecimal saleRate,
-            Category category,
-            Integer stockQuantity
-    ) {
-        this.productName = productName;
-        this.companyName = companyName;
-        this.description = description;
-        this.productImage = productImage;
-        this.originalPrice = originalPrice;
-        this.saleRate = saleRate;
-        this.category = category;
-        this.stockQuantity = stockQuantity;
+    private void updateBasicProductInfo(ProductUpdateRequest request) {
+        this.productName = request.getProductName();
+        this.companyName = request.getCompanyName();
+        this.description = request.getDescription();
+        this.productImage = request.getProductImage();
+        this.originalPrice = request.getOriginalPrice();
+        this.saleRate = request.getSaleRate();
+        this.category = request.getCategory();
+        this.stockQuantity = request.getQuantity();
     }
 
-    private void updatePurchaseInfo(
-            Integer purchaseParticipantCount,
-            Integer maxPurchaseCount,
-            Integer stockQuantity
-    ) {
-        this.purchaseParticipantCount = purchaseParticipantCount;
-        this.maxPurchaseCount = maxPurchaseCount;
-        this.stockQuantity = stockQuantity;
+    private void updatePurchaseDetails(ProductUpdateRequest request) {
+        this.purchaseParticipantCount = request.getPurchaseParticipantCount();
+        this.maxPurchaseCount = request.getMaxPurchaseCount();
+        this.stockQuantity = request.getStockQuantity();
     }
 
-    private void updateKeywordsIfPresent(List<String> newKeywordValues) {
+    private void updateProductKeywords(ProductUpdateRequest request) {
+        List<String> newKeywordValues = request.getKeywords();
+
         if (newKeywordValues == null || newKeywordValues.isEmpty()) {
             return;
         }
@@ -139,18 +113,20 @@ public class Product {
         keywords.addAll(keywordsToAdd);
     }
 
-    private void updateDiscountRatesIfPresent(List<DiscountRateRequest> newRates) {
+    private void updateProductDiscountRates(ProductUpdateRequest request) {
+        List<DiscountRateRequest> newRates = request.getDiscountRates();
+
         if (newRates == null) {
             return;
         }
 
         discountRates.clear();
         List<DiscountRate> rates = newRates.stream()
-                .map(request -> new DiscountRate(
+                .map(rateRequest -> new DiscountRate(
                         this,
-                        request.getMinParticipationRate(),
-                        request.getMaxParticipationRate(),
-                        request.getDiscountRate()
+                        rateRequest.getMinParticipationRate(),
+                        rateRequest.getMaxParticipationRate(),
+                        rateRequest.getDiscountRate()
                 ))
                 .toList();
 
