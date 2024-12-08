@@ -29,6 +29,7 @@ public class Product {
     @Column(nullable = false)
     private String productName;
 
+    @Setter
     private String productImage;
 
     @Lob
