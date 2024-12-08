@@ -2,7 +2,6 @@ package com.codenear.butterfly.promotion.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -15,7 +14,7 @@ class PointPromotionTest {
         "100, 450, 500, false",
         "100, 500, 500, false"
     })
-    void 포인트_프로모션의_가능_여부를_테스트한다(BigDecimal reward, int used, int total, boolean expected) {
+    void 포인트_프로모션의_가능_여부를_테스트한다(int reward, int used, int total, boolean expected) {
         // given
         PointPromotion pointPromotion = createPointPromotion(reward, used, total);
 
@@ -27,7 +26,7 @@ class PointPromotionTest {
                 .isEqualTo(expected);
     }
 
-    private PointPromotion createPointPromotion(BigDecimal reward, int used, int total) {
+    private PointPromotion createPointPromotion(int reward, int used, int total) {
         return PointPromotion.builder()
                 .self()
                 .rewardAmount(reward)
