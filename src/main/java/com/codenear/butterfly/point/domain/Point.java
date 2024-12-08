@@ -21,4 +21,8 @@ public class Point {
     @MapsId
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void increasePoint(int point) {
+        this.point += point;
+    }
 }
