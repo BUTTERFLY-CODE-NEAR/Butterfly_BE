@@ -2,6 +2,7 @@ package com.codenear.butterfly.admin.products.application;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
 import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.NEW_PRODUCT;
+import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
@@ -16,6 +17,8 @@ import com.codenear.butterfly.product.exception.ProductException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminProductService {
 
+    private final S3Service s3Service;
     private final FCMFacade fcmFacade;
     private final ProductRepository productRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
+        String imageUrl = null;
+        if (request.productImage() != null && !request.productImage().isEmpty()) {
+            String fileName = s3Service.uploadFile(request.productImage(), PRODUCT_IMAGE);
+            imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
+        }
+
         List<Keyword> keywords = request.keywords().stream()
                 .map(Keyword::new)
                 .toList();
@@ -44,6 +54,7 @@ public class AdminProductService {
                 .purchaseParticipantCount(request.purchaseParticipantCount())
                 .maxPurchaseCount(request.maxPurchaseCount())
                 .keywords(keywords)
+                .productImage(imageUrl)
                 .build();
 
         productRepository.save(product);
@@ -56,6 +67,18 @@ public class AdminProductService {
     @Transactional
     public void updateProduct(Long id, ProductUpdateRequest request) {
         Product product = findById(id);
+
+        if (request.getProductImage() != null && !request.getProductImage().isEmpty()) {
+            if (product.getProductImage() != null) {
+                String existingFileName = extractFileNameFromUrl(product.getProductImage());
+                s3Service.deleteFile(existingFileName, PRODUCT_IMAGE);
+            }
+
+            String fileName = s3Service.uploadFile(request.getProductImage(), PRODUCT_IMAGE);
+            String imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
+            product.setProductImage(imageUrl);
+        }
+
         product.update(request);
     }
 
@@ -90,5 +113,9 @@ public class AdminProductService {
     public Product findById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductException(ErrorCode.PRODUCT_NOT_FOUND, null));
+    }
+
+    private String extractFileNameFromUrl(String url) {
+        return url.substring(url.lastIndexOf('/') + 1);
     }
 }
