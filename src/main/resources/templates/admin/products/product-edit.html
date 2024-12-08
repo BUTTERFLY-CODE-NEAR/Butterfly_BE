@@ -22,9 +22,16 @@
 
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <form th:action="@{/admin/products/{id}/edit(id=${product.id})}" method="post">
+                        <form th:action="@{/admin/products/{id}/edit(id=${product.id})}" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_method" value="PUT" />
                             <input type="hidden" name="id" th:value="${product.id}" />
+
+                            <div class="form-group">
+                                <label>현재 상품 이미지</label>
+                                <img th:if="${product.productImage}" th:src="${product.productImage}" alt="현재 상품 이미지" class="img-thumbnail mb-2" style="max-width: 200px;">
+                                <input type="file" class="form-control-file" name="productImage" accept="image/*">
+                                <input type="hidden" name="existingProductImageUrl" th:value="${product.productImage}">
+                            </div>
 
                             <div class="form-group">
                                 <label>상품명</label>

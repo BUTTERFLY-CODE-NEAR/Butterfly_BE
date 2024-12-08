@@ -29,6 +29,7 @@ public class Product {
     @Column(nullable = false)
     private String productName;
 
+    @Setter
     private String productImage;
 
     @Lob
@@ -66,33 +67,57 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscountRate> discountRates = new ArrayList<>();
 
-    public void update(ProductUpdateRequest request) {
-        updateBasicProductInfo(request);
-        updatePurchaseDetails(request);
-        updateProductKeywords(request);
-        updateProductDiscountRates(request);
+    @Builder
+    public Product(
+            String productName,
+            String companyName,
+            String description,
+            String productImage,
+            Integer originalPrice,
+            BigDecimal saleRate,
+            Category category,
+            Integer stockQuantity,
+            Integer purchaseParticipantCount,
+            Integer maxPurchaseCount,
+            List<Keyword> keywords,
+            List<DiscountRate> discountRates
+    ) {
+        this.productName = productName;
+        this.companyName = companyName;
+        this.description = description;
+        this.productImage = productImage;
+        this.originalPrice = originalPrice;
+        this.saleRate = saleRate;
+        this.category = category;
+        this.stockQuantity = stockQuantity;
+        this.purchaseParticipantCount = purchaseParticipantCount;
+        this.maxPurchaseCount = maxPurchaseCount;
+
+        this.keywords = keywords != null
+                ? new ArrayList<>(keywords)
+                : new ArrayList<>();
+
+        this.discountRates = discountRates != null
+                ? new ArrayList<>(discountRates)
+                : new ArrayList<>();
     }
 
-    private void updateBasicProductInfo(ProductUpdateRequest request) {
+    public void update(ProductUpdateRequest request) {
         this.productName = request.getProductName();
         this.companyName = request.getCompanyName();
         this.description = request.getDescription();
-        this.productImage = request.getProductImage();
         this.originalPrice = request.getOriginalPrice();
         this.saleRate = request.getSaleRate();
         this.category = request.getCategory();
-        this.stockQuantity = request.getQuantity();
-    }
-
-    private void updatePurchaseDetails(ProductUpdateRequest request) {
+        this.stockQuantity = request.getStockQuantity();
         this.purchaseParticipantCount = request.getPurchaseParticipantCount();
         this.maxPurchaseCount = request.getMaxPurchaseCount();
-        this.stockQuantity = request.getStockQuantity();
+
+        updateKeywordsIfPresent(request.getKeywords());
+        updateDiscountRatesIfPresent(request.getDiscountRates());
     }
 
-    private void updateProductKeywords(ProductUpdateRequest request) {
-        List<String> newKeywordValues = request.getKeywords();
-
+    private void updateKeywordsIfPresent(List<String> newKeywordValues) {
         if (newKeywordValues == null || newKeywordValues.isEmpty()) {
             return;
         }
@@ -113,20 +138,18 @@ public class Product {
         keywords.addAll(keywordsToAdd);
     }
 
-    private void updateProductDiscountRates(ProductUpdateRequest request) {
-        List<DiscountRateRequest> newRates = request.getDiscountRates();
-
+    private void updateDiscountRatesIfPresent(List<DiscountRateRequest> newRates) {
         if (newRates == null) {
             return;
         }
 
         discountRates.clear();
         List<DiscountRate> rates = newRates.stream()
-                .map(rateRequest -> new DiscountRate(
+                .map(request -> new DiscountRate(
                         this,
-                        rateRequest.getMinParticipationRate(),
-                        rateRequest.getMaxParticipationRate(),
-                        rateRequest.getDiscountRate()
+                        request.getMinParticipationRate(),
+                        request.getMaxParticipationRate(),
+                        request.getDiscountRate()
                 ))
                 .toList();
 
