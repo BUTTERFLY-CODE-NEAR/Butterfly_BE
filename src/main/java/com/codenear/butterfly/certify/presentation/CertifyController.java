@@ -1,7 +1,7 @@
 package com.codenear.butterfly.certify.presentation;
 
 import com.codenear.butterfly.certify.application.CertifyService;
-import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -28,9 +28,9 @@ public class CertifyController implements CertifyControllerSwagger {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> checkCertifyCode(@Valid @RequestBody CertifyRequestDTO certifyValidRequestDTO,
+    public ResponseEntity<ResponseDTO> checkCertifyCode(@Valid @RequestBody CertifyRequest certifyValidRequestDTO,
                                                         @AuthenticationPrincipal MemberDTO memberDTO) {
-        certifyService.checkCertifyCode(certifyValidRequestDTO, memberDTO);
+        certifyService.checkCertifyCode(certifyValidRequestDTO);
         return ResponseUtil.createSuccessResponse(null);
     }
 }

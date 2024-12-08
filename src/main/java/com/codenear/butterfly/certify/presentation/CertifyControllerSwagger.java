@@ -1,6 +1,6 @@
 package com.codenear.butterfly.certify.presentation;
 
-import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,5 +17,5 @@ public interface CertifyControllerSwagger {
     ResponseEntity<ResponseDTO> sendCertifyCode(@PathVariable String phoneNumber);
 
     @Operation(summary = "휴대폰 인증 번호 검증", description = "휴대폰 인증 번호 검증 API")
-    ResponseEntity<ResponseDTO> checkCertifyCode(@RequestBody CertifyRequestDTO certifyValidRequestDTO, @AuthenticationPrincipal MemberDTO memberDTO);
+    ResponseEntity<ResponseDTO> checkCertifyCode(@RequestBody CertifyRequest certifyValidRequestDTO, @AuthenticationPrincipal MemberDTO memberDTO);
 }
