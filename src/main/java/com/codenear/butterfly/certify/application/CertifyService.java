@@ -3,6 +3,7 @@ package com.codenear.butterfly.certify.application;
 import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_EXPIRED;
 import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_MISMATCH;
 
+import com.codenear.butterfly.certify.domain.CertifyType;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.certify.exception.CertifyException;
 import com.codenear.butterfly.global.util.RandomUtil;
@@ -23,21 +24,41 @@ public class CertifyService {
     private final SmsService smsService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void sendCertifyCode(String phoneNumber) {
+    public void sendCertifyCode(String phoneNumber, CertifyType certifyType) {
         String code = generateCertifyCode();
         String message = String.format(MESSAGE, code);
 
         smsService.sendSMS(phoneNumber, message);
-        storeCertifyCode(phoneNumber, code);
+
+        String key = createRedisKey(phoneNumber, certifyType);
+        storeCertifyCode(key, code);
     }
 
-    public void checkCertifyCode(CertifyRequest request) {
-        String storedCode = getStoredCode(request.phoneNumber());
+    public void checkCertifyCode(CertifyRequest request, CertifyType certifyType) {
+        String key = createRedisKey(request.phoneNumber(), certifyType);
+        String storedCode = getStoredCode(key);
+
         validateCertifyCode(storedCode, request.certifyCode());
+
+        deleteStoredCode(key);
     }
 
     private String generateCertifyCode() {
         return String.valueOf(RandomUtil.generateRandomNum(CERTIFY_CODE_LENGTH));
+    }
+
+    private String createRedisKey(String phoneNumber, CertifyType certifyType) {
+        return certifyType.getRedisKey(phoneNumber);
+    }
+
+    private void storeCertifyCode(String key, String code) {
+        redisTemplate.opsForValue()
+                .set(key, code, CERTIFY_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+    }
+
+    private String getStoredCode(String key) {
+        return redisTemplate.opsForValue()
+                .get(key);
     }
 
     private void validateCertifyCode(String storedCode, String inputCode) {
@@ -48,11 +69,7 @@ public class CertifyService {
             throw new CertifyException(CERTIFY_CODE_MISMATCH, null);
     }
 
-    private void storeCertifyCode(String phoneNumber, String code) {
-        redisTemplate.opsForValue().set(phoneNumber, code, CERTIFY_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
-    }
-
-    private String getStoredCode(String phoneNumber) {
-        return redisTemplate.opsForValue().get(phoneNumber);
+    private void deleteStoredCode(String key) {
+        redisTemplate.delete(key);
     }
 }
