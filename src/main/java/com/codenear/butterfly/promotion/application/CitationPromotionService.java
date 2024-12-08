@@ -17,24 +17,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CitationPromotionService {
 
+    private static final long PROMOTION_ID = 1L;
+
     private final PromotionDataAccess promotionDataAccess;
     private final RecipientRepository recipientRepository;
     private final FCMFacade fcmFacade;
 
     public void processPromotion(Member member) {
-        PointPromotion promotion = promotionDataAccess.findPointPromotion(1L);
+        PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
 
-        if (isPromotionApplicable(member.getPhoneNumber(), promotion)) { // 프로모션 사용 가능한지
-            return;
+        if (isPromotionApplicable(member.getPhoneNumber(), promotion)) { // 프로모션 가능 여부
+            applyPromotion(member.getPoint(), promotion);
+            saveRecipient(member);
+            sendPromotionMessage(member.getId());
         }
-
-        applyPromotion(member.getPoint(), promotion);
-        saveRecipient(member);
-        sendPromotionMessage(member.getId());
     }
 
-    private void sendPromotionMessage(Long memberId) {
-        fcmFacade.sendMessage(CITATION_PROMOTION, memberId);
+    private boolean isPromotionApplicable(String phoneNumber, PointPromotion promotion) {
+        return promotion.isApplicable() && !isPhoneNumberExists(phoneNumber);
+    }
+
+    private boolean isPhoneNumberExists(String phoneNumber) {
+        return recipientRepository.existsByPhoneNumber(phoneNumber);
     }
 
     private void applyPromotion(Point point, PointPromotion promotion) {
@@ -51,11 +55,7 @@ public class CitationPromotionService {
         recipientRepository.save(recipient);
     }
 
-    private boolean isPromotionApplicable(String phoneNumber, PointPromotion promotion) {
-        return !promotion.isApplicable() || isPhoneNumberExists(phoneNumber);
-    }
-
-    private boolean isPhoneNumberExists(String phoneNumber) {
-        return recipientRepository.existsByPhoneNumber(phoneNumber);
+    private void sendPromotionMessage(Long memberId) {
+        fcmFacade.sendMessage(CITATION_PROMOTION, memberId);
     }
 }
