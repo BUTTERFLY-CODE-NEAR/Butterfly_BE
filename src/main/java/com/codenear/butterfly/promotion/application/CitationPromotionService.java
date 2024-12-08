@@ -10,9 +10,11 @@ import com.codenear.butterfly.promotion.domain.Recipient;
 import com.codenear.butterfly.promotion.domain.repository.RecipientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CitationPromotionService {
 
     private final PromotionDataAccess promotionDataAccess;
@@ -20,7 +22,7 @@ public class CitationPromotionService {
     private final FCMFacade fcmFacade;
 
     public void processPromotion(Member member) {
-        PointPromotion promotion = promotionDataAccess.findPointPromotion(member.getId());
+        PointPromotion promotion = promotionDataAccess.findPointPromotion(1L);
 
         if (isPromotionApplicable(member.getPhoneNumber(), promotion)) { // 프로모션 사용 가능한지
             return;
@@ -50,7 +52,7 @@ public class CitationPromotionService {
     }
 
     private boolean isPromotionApplicable(String phoneNumber, PointPromotion promotion) {
-        return promotion.isApplicable() || isPhoneNumberExists(phoneNumber);
+        return !promotion.isApplicable() || isPhoneNumberExists(phoneNumber);
     }
 
     private boolean isPhoneNumberExists(String phoneNumber) {
