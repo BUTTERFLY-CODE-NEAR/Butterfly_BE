@@ -6,6 +6,7 @@ import com.codenear.butterfly.promotion.domain.PointPromotion;
 import com.codenear.butterfly.promotion.domain.repository.PointPromotionRepository;
 import com.codenear.butterfly.promotion.exception.PromotionException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,8 +15,9 @@ public class PromotionDataAccess {
 
     private final PointPromotionRepository pointPromotionRepository;
 
-    public PointPromotion findPointPromotion(Long id) {
-        return pointPromotionRepository.findById(id)
+    @Cacheable(value = "pointPromotion", key = "#promotionId")
+    public PointPromotion findPointPromotion(Long promotionId) {
+        return pointPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new PromotionException(SERVER_ERROR, null));
     }
 }
