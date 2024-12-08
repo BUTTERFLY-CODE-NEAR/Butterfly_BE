@@ -4,9 +4,9 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -18,8 +18,9 @@ import lombok.experimental.SuperBuilder;
 public class PointPromotion extends Promotion {
 
     @NotNull
+    @Getter
     @DecimalMin("0.0")
-    private BigDecimal rewardAmount;
+    private int rewardAmount;
 
     @NotNull
     private int usedAmount; // 프로모션 지급한 금액
@@ -30,6 +31,10 @@ public class PointPromotion extends Promotion {
     @Override
     public boolean isApplicable() {
         int remainedAmount = totalAmount - usedAmount;
-        return remainedAmount >= rewardAmount.intValue();
+        return remainedAmount >= rewardAmount;
+    }
+
+    public void increaseUsedAmount() {
+        this.usedAmount += rewardAmount;
     }
 }
