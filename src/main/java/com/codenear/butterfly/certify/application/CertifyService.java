@@ -1,13 +1,11 @@
 package com.codenear.butterfly.certify.application;
 
-import static com.codenear.butterfly.global.exception.ErrorCode.PHONE_NUMBER_ALREADY_USE;
+import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_EXPIRED;
+import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_MISMATCH;
 
-import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.certify.exception.CertifyException;
 import com.codenear.butterfly.global.util.RandomUtil;
-import com.codenear.butterfly.member.application.MemberService;
-import com.codenear.butterfly.member.domain.dto.MemberDTO;
-import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
 import com.codenear.butterfly.sms.application.SmsService;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -24,33 +22,37 @@ public class CertifyService {
 
     private final SmsService smsService;
     private final RedisTemplate<String, String> redisTemplate;
-    private final MemberService memberService;
-    private final MemberDataAccess memberDataAccess;
 
     public void sendCertifyCode(String phoneNumber) {
-        validatePhoneNumberDuplicate(phoneNumber);
+        String code = generateCertifyCode();
+        String message = String.format(MESSAGE, code);
 
-        String certifyCode = generateCertifyCode();
-        String certifyMessage = String.format(MESSAGE, certifyCode);
-
-        smsService.sendSMS(phoneNumber, certifyMessage);
-        redisTemplate.opsForValue().set(phoneNumber, certifyCode, CERTIFY_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+        smsService.sendSMS(phoneNumber, message);
+        storeCertifyCode(phoneNumber, code);
     }
 
-    public void checkCertifyCode(CertifyRequestDTO requestDTO, MemberDTO memberDTO) {
-        String storedCode = redisTemplate.opsForValue().get(requestDTO.getPhoneNumber());
-        CertifyValidator.validateCertifyCode(storedCode, requestDTO.getCertifyCode());
-        memberService.updatePhoneNumber(memberDTO.getId(), requestDTO.getPhoneNumber());
-    }
-
-    private void validatePhoneNumberDuplicate(String phoneNumber) {
-        memberDataAccess.findByPhoneNumber(phoneNumber)
-                .ifPresent(member -> {
-                    throw new CertifyException(PHONE_NUMBER_ALREADY_USE, phoneNumber);
-                });
+    public void checkCertifyCode(CertifyRequest request) {
+        String storedCode = getStoredCode(request.phoneNumber());
+        validateCertifyCode(storedCode, request.certifyCode());
     }
 
     private String generateCertifyCode() {
         return String.valueOf(RandomUtil.generateRandomNum(CERTIFY_CODE_LENGTH));
+    }
+
+    private void validateCertifyCode(String storedCode, String inputCode) {
+        if (storedCode == null)
+            throw new CertifyException(CERTIFY_CODE_EXPIRED, null);
+
+        if (!storedCode.equals(inputCode))
+            throw new CertifyException(CERTIFY_CODE_MISMATCH, null);
+    }
+
+    private void storeCertifyCode(String phoneNumber, String code) {
+        redisTemplate.opsForValue().set(phoneNumber, code, CERTIFY_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+    }
+
+    private String getStoredCode(String phoneNumber) {
+        return redisTemplate.opsForValue().get(phoneNumber);
     }
 }
