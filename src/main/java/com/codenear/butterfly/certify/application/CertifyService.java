@@ -1,6 +1,5 @@
 package com.codenear.butterfly.certify.application;
 
-import static com.codenear.butterfly.certify.domain.CertifyMessage.SMS;
 import static com.codenear.butterfly.global.exception.ErrorCode.PHONE_NUMBER_ALREADY_USE;
 
 import com.codenear.butterfly.certify.domain.dto.CertifyRequestDTO;
@@ -18,8 +17,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CertifyService {
-    public static final int CERTIFY_CODE_EXPIRE_MINUTES = 5;
-    public static final int CERTIFY_CODE_LENGTH = 6;
+
+    private static final String MESSAGE = "나비 본인 확인 인증번호 [%s]을(를) 입력해 주세요.";
+    private static final int CERTIFY_CODE_EXPIRE_MINUTES = 5;
+    private static final int CERTIFY_CODE_LENGTH = 6;
 
     private final SmsService smsService;
     private final RedisTemplate<String, String> redisTemplate;
@@ -30,7 +31,7 @@ public class CertifyService {
         validatePhoneNumberDuplicate(phoneNumber);
 
         String certifyCode = generateCertifyCode();
-        String certifyMessage = SMS.getMessage(certifyCode);
+        String certifyMessage = String.format(MESSAGE, certifyCode);
 
         smsService.sendSMS(phoneNumber, certifyMessage);
         redisTemplate.opsForValue().set(phoneNumber, certifyCode, CERTIFY_CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
