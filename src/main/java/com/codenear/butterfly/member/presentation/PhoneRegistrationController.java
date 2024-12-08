@@ -1,10 +1,11 @@
-package com.codenear.butterfly.certify.presentation;
+package com.codenear.butterfly.member.presentation;
 
-import com.codenear.butterfly.certify.application.CertifyService;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
+import com.codenear.butterfly.member.application.PhoneRegistrationService;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import com.codenear.butterfly.member.presentation.swagger.PhoneRegistrationControllerSwagger;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,21 +17,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/member/phone-registration")
 @RequiredArgsConstructor
-@RequestMapping("/certify")
-public class CertifyController implements CertifyControllerSwagger {
-    private final CertifyService certifyService;
+public class PhoneRegistrationController implements PhoneRegistrationControllerSwagger {
+
+    private final PhoneRegistrationService phoneRegistrationService;
 
     @PostMapping("/{phoneNumber}")
-    public ResponseEntity<ResponseDTO> sendCertifyCode(@PathVariable String phoneNumber) {
-        certifyService.sendCertifyCode(phoneNumber);
+    public ResponseEntity<ResponseDTO> sendRegistrationCode(@PathVariable String phoneNumber) {
+        phoneRegistrationService.sendRegistrationCode(phoneNumber);
         return ResponseUtil.createSuccessResponse(null);
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDTO> checkCertifyCode(@Valid @RequestBody CertifyRequest certifyValidRequestDTO,
-                                                        @AuthenticationPrincipal MemberDTO memberDTO) {
-        certifyService.checkCertifyCode(certifyValidRequestDTO);
+    public ResponseEntity<ResponseDTO> checkCertifyCode(@Valid @RequestBody CertifyRequest request,
+                                                        @AuthenticationPrincipal MemberDTO loginMember) {
+        phoneRegistrationService.checkRegistrationCode(request, loginMember);
         return ResponseUtil.createSuccessResponse(null);
     }
 }
