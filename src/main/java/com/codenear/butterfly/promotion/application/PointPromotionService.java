@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CitationPromotionService {
+public class PointPromotionService {
 
     private static final long PROMOTION_ID = 1L;
 

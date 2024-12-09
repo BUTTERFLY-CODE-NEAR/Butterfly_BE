@@ -9,7 +9,7 @@ import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
-import com.codenear.butterfly.promotion.application.CitationPromotionService;
+import com.codenear.butterfly.promotion.application.PointPromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PhoneRegistrationService {
 
     private final CertifyService certifyService;
-    private final CitationPromotionService citationPromotionService;
+    private final PointPromotionService pointPromotionService;
     private final MemberDataAccess memberDataAccess;
 
     public void sendRegistrationCode(String phoneNumber) {
@@ -32,7 +32,8 @@ public class PhoneRegistrationService {
         certifyService.checkCertifyCode(request, REGISTER_PHONE);
         Member member = getMemberById(loginMember.getId());
         updatePhoneNumber(request.phoneNumber(), member);
-        citationPromotionService.processPromotion(member);
+
+        pointPromotionService.processPromotion(member);
     }
 
     private Member getMemberById(Long memberId) {

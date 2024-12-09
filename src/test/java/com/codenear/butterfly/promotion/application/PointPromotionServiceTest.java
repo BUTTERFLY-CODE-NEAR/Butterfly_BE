@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class CitationPromotionServiceTest {
+class PointPromotionServiceTest {
 
     @Mock
     private PromotionDataAccess promotionDataAccess;
@@ -32,7 +32,7 @@ class CitationPromotionServiceTest {
     private FCMFacade fcmFacade;
 
     @InjectMocks
-    private CitationPromotionService promotionService;
+    private PointPromotionService promotionService;
 
     private Member member;
     private Point point;
