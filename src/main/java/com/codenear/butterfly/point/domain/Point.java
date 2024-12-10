@@ -1,6 +1,7 @@
 package com.codenear.butterfly.point.domain;
 
 import com.codenear.butterfly.member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Point {
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "member_id")
+    @JsonIgnore
     private Member member;
 
     public void increasePoint(int point) {

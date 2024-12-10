@@ -2,6 +2,7 @@ package com.codenear.butterfly.consent.domain;
 
 import com.codenear.butterfly.global.domain.BaseEntity;
 import com.codenear.butterfly.member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,6 +35,7 @@ public class Consent extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonIgnore
     private Member member;
 
     public static Consent create(ConsentType consentType, boolean agreed, Member member) {
