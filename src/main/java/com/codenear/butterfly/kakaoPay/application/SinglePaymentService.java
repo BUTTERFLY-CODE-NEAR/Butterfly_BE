@@ -20,6 +20,8 @@ import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.point.domain.Point;
+import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +34,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,6 +59,7 @@ public class SinglePaymentService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
+    private final PointRepository pointRepository;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
@@ -100,8 +100,24 @@ public class SinglePaymentService {
         if (product.getStockQuantity() < quantity) {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
         }
+
+        int refundedPoints = product.calculatePointRefund(quantity);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+
+        Point point = pointRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Point newPoint = Point.builder()
+                            .point(0)
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
+
+        point.increasePoint(refundedPoints);
+
         product.decreaseQuantity(quantity);
-        product.increasePurchaseParticipantCount();
+        product.increasePurchaseParticipantCount(quantity);
 
         SinglePayment singlePayment = createSinglePayment(approveResponseDTO);
         Amount amount = createAmount(approveResponseDTO);
