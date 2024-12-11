@@ -198,11 +198,7 @@ public class Product {
         int currentDiscountAmount = totalAmount * getCurrentDiscountRate().intValue() / 100;
         int pointRefundAmount = nextDiscountAmount - currentDiscountAmount;
 
-        if (pointRefundAmount <= 0) {
-            return 0;
-        }
-
-        return pointRefundAmount;
+        return Math.max(pointRefundAmount, 0);
     }
 
     private int calculateSectionCount() {
