@@ -1,7 +1,5 @@
 package com.codenear.butterfly.product.domain;
 
-import lombok.Value;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 

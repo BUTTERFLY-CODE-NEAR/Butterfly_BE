@@ -168,7 +168,7 @@ public class Product {
 
     private double calculateParticipationRate() {
         return maxPurchaseCount == 0 ? 0 :
-                (double) purchaseParticipantCount / maxPurchaseCount;
+                ((double) purchaseParticipantCount / maxPurchaseCount) * 100;
     }
 
     public boolean isSoldOut() {
@@ -179,10 +179,41 @@ public class Product {
         this.stockQuantity -= stockQuantity;
     }
 
-    public void increasePurchaseParticipantCount() {
-        this.purchaseParticipantCount += 1;
-        if (this.purchaseParticipantCount.equals(this.maxPurchaseCount)) {
-            this.purchaseParticipantCount = 0;
+    public void increasePurchaseParticipantCount(int quantity) {
+        this.purchaseParticipantCount += quantity;
+        if (this.purchaseParticipantCount > this.maxPurchaseCount) {
+            this.purchaseParticipantCount %= this.maxPurchaseCount;
         }
+    }
+
+    public int calculatePointRefund(int quantity) {
+        int currentParticipantCount = (this.purchaseParticipantCount + quantity) % this.maxPurchaseCount;
+        double participationRate = ((double) currentParticipantCount / this.maxPurchaseCount) * 100;
+        BigDecimal nextDiscountRate = getDiscountRateForParticipationRate(participationRate);
+
+        int sectionCount = calculateSectionCount();
+        int discountQuantity = currentParticipantCount % sectionCount;
+        int totalAmount = this.originalPrice * discountQuantity;
+        int nextDiscountAmount = totalAmount * nextDiscountRate.intValue() / 100;
+        int currentDiscountAmount = totalAmount * getCurrentDiscountRate().intValue() / 100;
+        int pointRefundAmount = nextDiscountAmount - currentDiscountAmount;
+
+        return Math.max(pointRefundAmount, 0);
+    }
+
+    private int calculateSectionCount() {
+        return discountRates.stream()
+                .findFirst()
+                .map(rate -> (int) (this.maxPurchaseCount * (rate.getMaxParticipationRate() / 100)))
+                .orElse(0);
+    }
+
+    private BigDecimal getDiscountRateForParticipationRate(double participationRate) {
+        return discountRates.stream()
+                .filter(rate -> participationRate > rate.getMinParticipationRate()
+                        && participationRate <= rate.getMaxParticipationRate())
+                .findFirst()
+                .map(DiscountRate::getDiscountRate)
+                .orElse(BigDecimal.ZERO);
     }
 }
