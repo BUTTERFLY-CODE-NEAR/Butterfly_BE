@@ -30,6 +30,7 @@ public class ProductViewService {
         List<Product> products = productRepository.findAll();
         validateProducts(products);
         return products.stream()
+                .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
                 .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(memberId, product.getId())))
                 .toList();
     }
@@ -39,6 +40,7 @@ public class ProductViewService {
         List<Product> products = productRepository.findProductByCategory(category);
         validateProducts(products);
         return products.stream()
+                .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
                 .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(memberId, product.getId())))
                 .toList();
     }
