@@ -51,7 +51,9 @@ public class ProductMapper {
                 product.getMaxPurchaseCount(),
                 isFavorite,
                 optionDTOs,
-                product.getDescription()
+                product.getDescription(),
+                product.getProductVolume(),
+                product.getExpirationDate()
         );
     }
 

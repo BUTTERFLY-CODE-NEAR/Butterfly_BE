@@ -18,6 +18,8 @@ public class ProductUpdateRequest {
     private String productName;
     private String companyName;
     private String description;
+    private String productVolume;
+    private String expirationDate;
     private MultipartFile productImage;
     private String existingProductImageUrl;
     private Integer originalPrice;
