@@ -44,6 +44,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>개별 내용물의 용량(중량)</label>
+                                <input type="text" class="form-control" name="productVolume">
+                            </div>
+
+                            <div class="form-group">
+                                <label>소비기한</label>
+                                <input type="text" class="form-control" name="expirationDate">
+                            </div>
+
+                            <div class="form-group">
                                 <label>상품 설명</label>
                                 <textarea class="form-control" name="description" rows="3" th:text="${product.description}"></textarea>
                             </div>

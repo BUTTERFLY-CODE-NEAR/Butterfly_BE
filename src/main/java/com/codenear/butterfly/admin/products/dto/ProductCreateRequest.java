@@ -10,6 +10,8 @@ public record ProductCreateRequest(
         String productName,
         String companyName,
         String description,
+        String productVolume,
+        String expirationDate,
         Integer originalPrice,
         BigDecimal saleRate,
         String category,

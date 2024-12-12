@@ -35,6 +35,10 @@ public class Product {
     @Lob
     private String description;
 
+    private String productVolume;
+
+    private String expirationDate;
+
     @Column(nullable = false)
     private Integer originalPrice;
 
@@ -112,6 +116,8 @@ public class Product {
         this.stockQuantity = request.getStockQuantity();
         this.purchaseParticipantCount = request.getPurchaseParticipantCount();
         this.maxPurchaseCount = request.getMaxPurchaseCount();
+        this.productVolume = request.getProductVolume();
+        this.expirationDate = request.getExpirationDate();
 
         updateKeywordsIfPresent(request.getKeywords());
         updateDiscountRatesIfPresent(request.getDiscountRates());

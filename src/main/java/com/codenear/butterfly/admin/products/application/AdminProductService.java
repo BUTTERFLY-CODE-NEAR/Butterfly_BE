@@ -55,6 +55,8 @@ public class AdminProductService {
                 .maxPurchaseCount(request.maxPurchaseCount())
                 .keywords(keywords)
                 .productImage(imageUrl)
+                .productVolume(request.productVolume())
+                .expirationDate(request.expirationDate())
                 .build();
 
         productRepository.save(product);
