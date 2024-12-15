@@ -12,6 +12,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import com.codenear.butterfly.product.exception.ProductException;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class AdminProductService {
     private final S3Service s3Service;
     private final FCMFacade fcmFacade;
     private final ProductRepository productRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
@@ -109,6 +111,7 @@ public class AdminProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = findById(id);
+        favoriteRepository.deleteByProduct_Id(id);
         productRepository.delete(product);
     }
 

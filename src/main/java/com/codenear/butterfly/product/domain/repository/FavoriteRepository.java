@@ -12,4 +12,6 @@ import java.util.List;
 public interface FavoriteRepository extends JpaRepository<Favorite, Long>, QuerydslPredicateExecutor<Favorite> {
 
     boolean existsByMemberIdAndProductId(Long memberId, Long productId);
+
+    void deleteByProduct_Id(Long productId);
 }
