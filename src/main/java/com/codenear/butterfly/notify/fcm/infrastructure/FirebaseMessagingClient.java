@@ -2,7 +2,7 @@ package com.codenear.butterfly.notify.fcm.infrastructure;
 
 import static com.codenear.butterfly.global.exception.ErrorCode.SERVER_ERROR;
 
-import com.codenear.butterfly.notify.exception.FCMException;
+import com.codenear.butterfly.notify.exception.NotifyException;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -34,7 +34,7 @@ public class FirebaseMessagingClient {
         try {
             operation.execute(input);
         } catch (FirebaseMessagingException e) {
-            throw new FCMException(SERVER_ERROR, e.getMessagingErrorCode());
+            throw new NotifyException(SERVER_ERROR, e.getMessagingErrorCode());
         }
     }
 
