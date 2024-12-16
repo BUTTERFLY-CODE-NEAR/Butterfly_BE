@@ -1,6 +1,6 @@
-package com.codenear.butterfly.fcm.application;
+package com.codenear.butterfly.notify.application;
 
-import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.INQUIRY_ANSWERED;
+import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.INQUIRY_ANSWERED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -9,8 +9,10 @@ import static org.mockito.Mockito.when;
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
-import com.codenear.butterfly.fcm.domain.FCM;
-import com.codenear.butterfly.fcm.domain.FCMRepository;
+import com.codenear.butterfly.notify.fcm.application.FCMMessageService;
+import com.codenear.butterfly.notify.fcm.application.FirebaseMessagingClient;
+import com.codenear.butterfly.notify.fcm.domain.FCM;
+import com.codenear.butterfly.notify.fcm.domain.FCMRepository;
 import com.google.firebase.messaging.Message;
 import java.util.List;
 import org.junit.jupiter.api.Test;

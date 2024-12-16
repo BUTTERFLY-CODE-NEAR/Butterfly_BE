@@ -1,4 +1,4 @@
-package com.codenear.butterfly.fcm.config;
+package com.codenear.butterfly.notify.fcm.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

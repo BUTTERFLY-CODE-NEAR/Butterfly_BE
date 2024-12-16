@@ -1,4 +1,4 @@
-package com.codenear.butterfly.fcm.exception;
+package com.codenear.butterfly.notify.exception;
 
 import com.codenear.butterfly.global.exception.BusinessBaseException;
 import com.codenear.butterfly.global.exception.ErrorCode;

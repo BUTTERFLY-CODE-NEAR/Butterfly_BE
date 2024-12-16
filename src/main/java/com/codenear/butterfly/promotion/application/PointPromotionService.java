@@ -1,8 +1,8 @@
 package com.codenear.butterfly.promotion.application;
 
-import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.CITATION_PROMOTION;
+import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.CITATION_PROMOTION;
 
-import com.codenear.butterfly.fcm.application.FCMFacade;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.promotion.domain.PointPromotion;

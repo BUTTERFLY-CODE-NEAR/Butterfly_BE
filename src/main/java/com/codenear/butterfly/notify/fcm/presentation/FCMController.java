@@ -1,6 +1,6 @@
-package com.codenear.butterfly.fcm.presentation;
+package com.codenear.butterfly.notify.fcm.presentation;
 
-import com.codenear.butterfly.fcm.application.FCMFacade;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/fcm")
+@RequestMapping("/notify/fcm")
 public class FCMController implements FCMControllerSwagger {
 
     private final FCMFacade fcmFacade;

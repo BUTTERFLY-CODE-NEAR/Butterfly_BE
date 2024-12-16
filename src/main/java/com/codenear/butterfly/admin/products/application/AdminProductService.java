@@ -1,13 +1,13 @@
 package com.codenear.butterfly.admin.products.application;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
-import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.NEW_PRODUCT;
+import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.NEW_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
-import com.codenear.butterfly.fcm.application.FCMFacade;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
