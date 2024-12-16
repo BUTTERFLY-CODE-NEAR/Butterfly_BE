@@ -7,6 +7,7 @@ import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.member.application.MemberFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

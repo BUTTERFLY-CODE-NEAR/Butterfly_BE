@@ -10,7 +10,7 @@ import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.notify.fcm.application.FCMMessageService;
-import com.codenear.butterfly.notify.fcm.application.FirebaseMessagingClient;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.codenear.butterfly.notify.fcm.domain.FCM;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.google.firebase.messaging.Message;

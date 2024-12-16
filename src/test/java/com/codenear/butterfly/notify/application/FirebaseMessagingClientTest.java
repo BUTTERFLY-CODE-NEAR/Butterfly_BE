@@ -2,7 +2,7 @@ package com.codenear.butterfly.notify.application;
 
 import static org.mockito.Mockito.verify;
 
-import com.codenear.butterfly.notify.fcm.application.FirebaseMessagingClient;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;

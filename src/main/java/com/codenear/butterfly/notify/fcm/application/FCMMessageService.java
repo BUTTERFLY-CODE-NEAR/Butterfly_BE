@@ -4,6 +4,7 @@ import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import java.util.List;

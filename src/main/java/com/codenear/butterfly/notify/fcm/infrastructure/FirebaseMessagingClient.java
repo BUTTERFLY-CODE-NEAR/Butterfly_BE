@@ -1,4 +1,4 @@
-package com.codenear.butterfly.notify.fcm.application;
+package com.codenear.butterfly.notify.fcm.infrastructure;
 
 import static com.codenear.butterfly.global.exception.ErrorCode.SERVER_ERROR;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-class FirebaseMessagingClient {
+public class FirebaseMessagingClient {
 
     private final FirebaseMessaging firebaseMessaging;
 
