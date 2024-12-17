@@ -18,5 +18,5 @@ public class Alarm {
     @Convert(converter = NotifyConverter.class)
     private NotifyMessage notifyMessage;
 
-    private boolean displayed;
+    private boolean isNew;
 }
