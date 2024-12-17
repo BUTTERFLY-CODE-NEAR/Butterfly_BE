@@ -19,8 +19,8 @@ public class AdminOrderDetailsService {
 
     private final OrderDetailsRepository orderDetailsRepository;
 
-    public Page<OrderDetails> getAllOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    public Page<OrderDetails> getAllOrders(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         return orderDetailsRepository.findAll(pageable);
     }
 

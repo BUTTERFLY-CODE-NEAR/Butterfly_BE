@@ -24,8 +24,7 @@ public class AdminOrderDetailsController {
             @RequestParam(defaultValue = "0") int page,
             Model model
     ) {
-        int pageSize = 10;
-        Page<OrderDetails> orders = adminOrderDetailsService.getAllOrders(page, pageSize);
+        Page<OrderDetails> orders = adminOrderDetailsService.getAllOrders(page);
 
         model.addAttribute("orders", orders);
         model.addAttribute("currentPage", orders.getNumber());
