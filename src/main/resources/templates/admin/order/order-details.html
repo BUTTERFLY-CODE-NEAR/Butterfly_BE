@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>주문 관리</title>
+    <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+</head>
+
+<body id="page-top">
+<div id="wrapper">
+    <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid pt-3">
+                <h1 class="h3 mb-4 text-gray-800">주문 목록</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="orderTable">
+                                <thead>
+                                <tr>
+                                    <th>주문일</th>
+                                    <th>주문자</th>
+                                    <th>상품명</th>
+                                    <th>수량</th>
+                                    <th>총 금액</th>
+                                    <th>주문 상태</th>
+                                    <th>작업</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="order : ${orders}">
+                                    <td th:text="${#temporals.format(order.createdAt, 'yyyy년 MM월 dd일 HH:mm')}"></td>
+                                    <td th:text="${order.member.nickname}"></td>
+                                    <td th:text="${order.productName}"></td>
+                                    <td th:text="${order.quantity}"></td>
+                                    <td th:text="${order.total + '원'}"></td>
+                                    <td th:text="${order.orderStatus.getDescription()}"></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm edit-order-status"
+                                                th:data-id="${order.id}"
+                                                th:data-current-status="${order.orderStatus}"
+                                                data-toggle="modal"
+                                                data-target="#orderStatusModal">
+                                            상태 변경
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage - 1})}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" th:each="page : ${#numbers.sequence(0, totalPages - 1)}"
+                                        th:classappend="${page == currentPage} ? 'active'">
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${page})}" th:text="${page + 1}"></a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage + 1})}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <p class="mb-0">현재 페이지: <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="orderStatusModal" tabindex="-1" role="dialog" aria-labelledby="orderStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderStatusModalLabel">주문 상태 변경</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form th:action="@{/admin/delivery-status}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="orderId" id="orderId">
+                    <div class="form-group">
+                        <label for="orderStatus">새 상태 선택</label>
+                        <select class="form-control" id="orderStatus" name="orderStatus">
+                            <option th:each="status : ${T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).values()}"
+                                    th:value="${status}"
+                                    th:text="${status.description}">
+                                상태
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">상태 변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/scripts}"></th:block>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const editOrderStatusButtons = document.querySelectorAll('.edit-order-status');
+        const orderIdInput = document.getElementById('orderId');
+        const orderStatusSelect = document.getElementById('orderStatus');
+
+        editOrderStatusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-id');
+                const currentStatus = this.getAttribute('data-current-status');
+
+                orderIdInput.value = orderId;
+
+                Array.from(orderStatusSelect.options).forEach(option => {
+                    option.disabled = (option.value === currentStatus);
+                });
+            });
+        });
+    });
+</script>
+</body>
+</html>
