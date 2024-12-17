@@ -1,6 +1,6 @@
 package com.codenear.butterfly.notify.fcm.application;
 
-import com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant;
+import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,11 +16,11 @@ public class FCMFacade {
         fcmTokenService.saveFCM(token, loginMember);
     }
 
-    public void sendMessage(FCMMessageConstant fcmMessageConstant, Long memberId) {
+    public void sendMessage(NotifyMessage fcmMessageConstant, Long memberId) {
         fcmMessageService.send(fcmMessageConstant, memberId);
     }
 
-    public void sendTopicMessage(FCMMessageConstant fcmMessageConstant, String topic) {
+    public void sendTopicMessage(NotifyMessage fcmMessageConstant, String topic) {
         fcmMessageService.sendTopic(fcmMessageConstant, topic);
     }
 
