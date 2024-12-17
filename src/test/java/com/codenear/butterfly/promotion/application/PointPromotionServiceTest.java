@@ -1,6 +1,6 @@
 package com.codenear.butterfly.promotion.application;
 
-import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.CITATION_PROMOTION;
+import static com.codenear.butterfly.notify.NotifyMessage.CITATION_PROMOTION;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

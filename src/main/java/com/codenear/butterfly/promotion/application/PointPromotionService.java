@@ -1,6 +1,6 @@
 package com.codenear.butterfly.promotion.application;
 
-import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.CITATION_PROMOTION;
+import static com.codenear.butterfly.notify.NotifyMessage.CITATION_PROMOTION;
 
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.domain.Member;
