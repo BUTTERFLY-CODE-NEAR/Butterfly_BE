@@ -39,6 +39,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(40400, "등록된 상품이 없습니다.", NOT_FOUND),
     ADDRESS_NOT_FOUND(40401, "해당 주소가 없습니다.", NOT_FOUND),
     MEMBER_NOT_FOUND(40402, "등록되지 않은 회원입니다.", NOT_FOUND),
+    ORDER_NOT_FOUND(40403, "해당 주문이 없습니다.", NOT_FOUND),
     NOTIFY_MESSAGE_NOT_FOUND(40404, "찾을 수 없는 알림 메시지 입니다.", NOT_FOUND),
 
     // 409 (CONFLICT)
