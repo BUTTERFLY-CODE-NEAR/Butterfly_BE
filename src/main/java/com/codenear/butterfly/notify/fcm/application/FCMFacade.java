@@ -1,6 +1,6 @@
-package com.codenear.butterfly.fcm.application;
+package com.codenear.butterfly.notify.fcm.application;
 
-import com.codenear.butterfly.fcm.domain.FCMMessageConstant;
+import com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

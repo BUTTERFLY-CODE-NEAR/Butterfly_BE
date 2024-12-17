@@ -1,4 +1,4 @@
-package com.codenear.butterfly.fcm.domain;
+package com.codenear.butterfly.notify.fcm.domain;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
 

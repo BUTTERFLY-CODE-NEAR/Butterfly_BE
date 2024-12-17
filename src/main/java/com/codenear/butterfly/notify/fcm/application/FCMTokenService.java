@@ -1,12 +1,13 @@
-package com.codenear.butterfly.fcm.application;
+package com.codenear.butterfly.notify.fcm.application;
 
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
-import com.codenear.butterfly.fcm.domain.FCM;
-import com.codenear.butterfly.fcm.domain.FCMRepository;
+import com.codenear.butterfly.notify.fcm.domain.FCM;
+import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.member.application.MemberFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

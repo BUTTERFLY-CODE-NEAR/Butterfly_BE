@@ -1,4 +1,4 @@
-package com.codenear.butterfly.fcm.presentation;
+package com.codenear.butterfly.notify.fcm.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;

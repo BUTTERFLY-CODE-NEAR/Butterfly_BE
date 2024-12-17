@@ -1,5 +1,6 @@
-package com.codenear.butterfly.fcm.domain;
+package com.codenear.butterfly.notify.fcm.infrastructure;
 
+import com.codenear.butterfly.notify.fcm.domain.FCM;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

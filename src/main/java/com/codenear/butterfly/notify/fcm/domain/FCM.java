@@ -1,6 +1,5 @@
-package com.codenear.butterfly.fcm.domain;
+package com.codenear.butterfly.notify.fcm.domain;
 
-import com.codenear.butterfly.global.domain.BaseEntity;
 import com.codenear.butterfly.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

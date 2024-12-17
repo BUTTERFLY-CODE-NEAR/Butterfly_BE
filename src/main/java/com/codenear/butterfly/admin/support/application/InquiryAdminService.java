@@ -1,11 +1,11 @@
 package com.codenear.butterfly.admin.support.application;
 
-import static com.codenear.butterfly.fcm.domain.FCMMessageConstant.INQUIRY_ANSWERED;
+import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.INQUIRY_ANSWERED;
 
 import com.codenear.butterfly.admin.support.domain.dto.InquiresResponse;
 import com.codenear.butterfly.admin.support.domain.dto.InquiryAnswerRequest;
 import com.codenear.butterfly.admin.support.domain.dto.InquiryDetailsResponse;
-import com.codenear.butterfly.fcm.application.FCMFacade;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.support.application.InquiryFacade;
 import com.codenear.butterfly.support.domain.Inquiry;
