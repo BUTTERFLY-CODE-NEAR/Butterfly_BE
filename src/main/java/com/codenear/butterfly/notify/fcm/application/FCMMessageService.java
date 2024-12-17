@@ -2,7 +2,7 @@ package com.codenear.butterfly.notify.fcm.application;
 
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
-import com.codenear.butterfly.notify.domain.NotifyMessage;
+import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
@@ -21,7 +21,7 @@ public class FCMMessageService {
     private final ConsentFacade consentFacade;
 
     @Transactional
-    protected void send(NotifyMessage fcmMessageConstant, Long memberId) {
+    public void send(NotifyMessage fcmMessageConstant, Long memberId) {
         if (!checkConsent(fcmMessageConstant, memberId)) {
             return;
         }
@@ -33,7 +33,7 @@ public class FCMMessageService {
     }
 
     @Transactional
-    protected void sendTopic(NotifyMessage fcmMessageConstant, String topic) {
+    public void sendTopic(NotifyMessage fcmMessageConstant, String topic) {
         Message topicMessage = createTopicMessage(fcmMessageConstant, topic);
         firebaseMessagingClient.sendMessage(topicMessage);
     }

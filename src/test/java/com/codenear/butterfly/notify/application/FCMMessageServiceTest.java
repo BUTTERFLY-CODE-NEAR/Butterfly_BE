@@ -1,6 +1,6 @@
 package com.codenear.butterfly.notify.application;
 
-import static com.codenear.butterfly.notify.domain.NotifyMessage.INQUIRY_ANSWERED;
+import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

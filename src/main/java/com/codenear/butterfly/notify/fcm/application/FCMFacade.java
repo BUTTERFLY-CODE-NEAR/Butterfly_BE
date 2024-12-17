@@ -1,6 +1,6 @@
 package com.codenear.butterfly.notify.fcm.application;
 
-import com.codenear.butterfly.notify.domain.NotifyMessage;
+import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
