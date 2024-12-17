@@ -1,6 +1,6 @@
 package com.codenear.butterfly.admin.support.application;
 
-import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.INQUIRY_ANSWERED;
+import static com.codenear.butterfly.notify.domain.NotifyMessage.INQUIRY_ANSWERED;
 
 import com.codenear.butterfly.admin.support.domain.dto.InquiresResponse;
 import com.codenear.butterfly.admin.support.domain.dto.InquiryAnswerRequest;

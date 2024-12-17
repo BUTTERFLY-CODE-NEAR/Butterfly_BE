@@ -1,7 +1,7 @@
 package com.codenear.butterfly.admin.products.application;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
-import static com.codenear.butterfly.notify.fcm.domain.FCMMessageConstant.NEW_PRODUCT;
+import static com.codenear.butterfly.notify.domain.NotifyMessage.NEW_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
