@@ -8,7 +8,7 @@ public class NotifyConverter implements AttributeConverter<NotifyMessage, Intege
 
     @Override
     public Integer convertToDatabaseColumn(final NotifyMessage notifyMessage) {
-        return notifyMessage.getCode();
+        return notifyMessage.getId();
     }
 
     @Override

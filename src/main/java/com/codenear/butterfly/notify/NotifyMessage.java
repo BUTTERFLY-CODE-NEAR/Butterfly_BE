@@ -22,7 +22,7 @@ public enum NotifyMessage {
     CITATION_PROMOTION(6, "프로모션 적립", "\uD83C\uDF89 전화번호 인증 완료! ", "1,000 포인트가 지급되었어요! 지금 바로 사용해 보세요 \uD83E\uDD29", MARKETING)
     ;
 
-    private final int code;
+    private final int id;
     private final String title;
     private final String subtitle;
     private final String content;
@@ -30,7 +30,7 @@ public enum NotifyMessage {
 
     public static NotifyMessage findByCode(int code) {
         return Arrays.stream(values())
-                .filter(notify -> notify.getCode() == code)
+                .filter(notify -> notify.getId() == code)
                 .findFirst()
                 .orElseThrow(() -> new NotifyException(NOTIFY_MESSAGE_NOT_FOUND, code));
     }
