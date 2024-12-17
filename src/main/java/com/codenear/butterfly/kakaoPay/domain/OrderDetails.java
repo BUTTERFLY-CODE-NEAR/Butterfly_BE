@@ -1,6 +1,5 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
-import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.member.domain.Member;
