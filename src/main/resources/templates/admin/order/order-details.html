@@ -41,7 +41,7 @@
                                     <td th:text="${order.productName}"></td>
                                     <td th:text="${order.quantity}"></td>
                                     <td th:text="${order.total + '원'}"></td>
-                                    <td th:text="${order.orderStatus.getDescription()}"></td>
+                                    <td th:text="${order.orderStatus.getStatus()}"></td>
                                     <td>
                                         <button class="btn btn-primary btn-sm edit-order-status"
                                                 th:data-id="${order.id}"
@@ -100,7 +100,7 @@
                         <select class="form-control" id="orderStatus" name="orderStatus">
                             <option th:each="status : ${T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).values()}"
                                     th:value="${status}"
-                                    th:text="${status.description}">
+                                    th:text="${status.getStatus()}">
                                 상태
                             </option>
                         </select>

@@ -12,9 +12,9 @@ public enum OrderStatus {
     COMPLETED("배송 완료"),
     CANCELED("주문 취소");
 
-    private final String description;
+    private final String status;
 
-    OrderStatus(String description) {
-        this.description = description;
+    OrderStatus(String status) {
+        this.status = status;
     }
 }
