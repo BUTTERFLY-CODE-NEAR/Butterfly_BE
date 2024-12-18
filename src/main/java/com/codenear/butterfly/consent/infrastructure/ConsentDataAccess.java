@@ -1,7 +1,6 @@
 package com.codenear.butterfly.consent.infrastructure;
 
 import com.codenear.butterfly.consent.domain.Consent;
-import com.codenear.butterfly.consent.domain.ConsentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
