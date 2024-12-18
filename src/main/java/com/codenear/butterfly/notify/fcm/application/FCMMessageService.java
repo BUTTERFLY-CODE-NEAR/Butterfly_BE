@@ -31,11 +31,13 @@ public class FCMMessageService {
         
         List<FCM> fcms = fcmRepository.findByMemberId(memberId);
         sendPushNotifications(message, fcms);
-        saveAlarm(message, fcms);
+        alarmService.addAlarm(message, fcms.get(0).getMember());
     }
 
-    private void saveAlarm(final NotifyMessage message, final List<FCM> fcms) {
-        alarmService.addAlarm(message, fcms.get(0).getMember());
+    @Transactional
+    public void sendTopic(NotifyMessage message, String topic) {
+        Message topicMessage = createTopicMessage(message, topic);
+        firebaseMessagingClient.sendMessage(topicMessage);
     }
 
     private void sendPushNotifications(final NotifyMessage message, final List<FCM> fcms) {
@@ -43,12 +45,6 @@ public class FCMMessageService {
                 .map(fcm -> createFCMMessage(message, fcm.getToken()))
                 .toList();
         messages.forEach(firebaseMessagingClient::sendMessage);
-    }
-
-    @Transactional
-    public void sendTopic(NotifyMessage message, String topic) {
-        Message topicMessage = createTopicMessage(message, topic);
-        firebaseMessagingClient.sendMessage(topicMessage);
     }
 
     private boolean isConsentGiven(NotifyMessage message, Long memberId) {
