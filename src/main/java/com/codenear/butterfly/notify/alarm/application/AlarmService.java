@@ -6,15 +6,18 @@ import com.codenear.butterfly.notify.alarm.infrastructure.AlarmRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
 
     public AlarmsResponse getAlarmsByMemberId(Long memberId) {
         List<Alarm> alarms = alarmRepository.findByMemberId(memberId);
+        alarmRepository.markAllAsReadByMemberId(memberId); // 전체 읽음 처리
         return AlarmsResponse.of(alarms);
     }
 }
