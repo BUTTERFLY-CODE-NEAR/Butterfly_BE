@@ -1,6 +1,9 @@
 package com.codenear.butterfly.notify.alarm.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.notify.NotifyMessage;
@@ -9,12 +12,10 @@ import com.codenear.butterfly.notify.alarm.domain.dto.AlarmResponse;
 import com.codenear.butterfly.notify.alarm.domain.dto.AlarmsResponse;
 import com.codenear.butterfly.notify.alarm.infrastructure.AlarmRepository;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,15 +43,15 @@ class AlarmServiceTest {
 
         List<Alarm> alarms = List.of(alarm);
 
-        Mockito.when(alarmRepository.findByMemberId(memberId))
+        when(alarmRepository.findByMemberId(memberId))
                 .thenReturn(alarms);
 
         // when
         AlarmsResponse result = alarmService.getAlarmsByMemberId(memberId);
 
         // then
-        Mockito.verify(alarmRepository).findByMemberId(memberId);
-        Assertions.assertThat(result.alarmResponses())
+        verify(alarmRepository).findByMemberId(memberId);
+        assertThat(result.alarmResponses())
                 .hasSize(alarms.size())
                 .extracting(AlarmResponse::id)
                 .containsExactly(memberId);
