@@ -38,6 +38,7 @@ public class FCMMessageService {
     public void sendTopic(NotifyMessage message, String topic) {
         Message topicMessage = createTopicMessage(message, topic);
         firebaseMessagingClient.sendMessage(topicMessage);
+        alarmService.addAlarms(message);
     }
 
     private void sendPushNotifications(final NotifyMessage message, final List<FCM> fcms) {
