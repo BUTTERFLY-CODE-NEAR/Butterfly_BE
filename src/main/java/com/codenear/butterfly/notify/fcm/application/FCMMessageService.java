@@ -3,6 +3,7 @@ package com.codenear.butterfly.notify.fcm.application;
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.notify.NotifyMessage;
+import com.codenear.butterfly.notify.alarm.application.AlarmService;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
@@ -21,8 +22,8 @@ public class FCMMessageService {
     private final ConsentFacade consentFacade;
 
     @Transactional
-    public void send(NotifyMessage fcmMessageConstant, Long memberId) {
-        if (!checkConsent(fcmMessageConstant, memberId)) {
+    public void send(NotifyMessage message, Long memberId) {
+        if (!checkConsent(message, memberId)) {
             return;
         }
 
@@ -33,16 +34,16 @@ public class FCMMessageService {
     }
 
     @Transactional
-    public void sendTopic(NotifyMessage fcmMessageConstant, String topic) {
-        Message topicMessage = createTopicMessage(fcmMessageConstant, topic);
+    public void sendTopic(NotifyMessage message, String topic) {
+        Message topicMessage = createTopicMessage(message, topic);
         firebaseMessagingClient.sendMessage(topicMessage);
     }
 
-    private boolean checkConsent(NotifyMessage fcmMessageConstant, Long memberId) {
+    private boolean checkConsent(NotifyMessage message, Long memberId) {
         List<Consent> consents = consentFacade.getConsents(memberId);
 
         Consent first = consents.stream()
-                .filter(consent -> consent.getConsentType().equals(fcmMessageConstant.getConsentType()))
+                .filter(consent -> consent.getConsentType().equals(message.getConsentType()))
                 .findFirst()
                 .orElse(null);
 
@@ -52,7 +53,7 @@ public class FCMMessageService {
     private Message createMessage(NotifyMessage message, String token) {
         return Message.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(message.getTitle())
+                        .setTitle(message.getSubtitle())
                         .setBody(message.getContent())
                         .build())
                 .setToken(token)
@@ -62,7 +63,7 @@ public class FCMMessageService {
     private Message createTopicMessage(NotifyMessage message, String topic) {
         return Message.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(message.getTitle())
+                        .setTitle(message.getSubtitle())
                         .setBody(message.getContent())
                         .build())
                 .setTopic(topic)
