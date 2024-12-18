@@ -23,12 +23,12 @@ public class AlarmService {
         return AlarmsResponse.of(alarms);
     }
 
-    public void addAlarm(Member member, NotifyMessage message) {
-        Alarm newAlarm = createAlarm(member, message);
+    public void addAlarm(NotifyMessage message, Member member) {
+        Alarm newAlarm = createAlarm(message, member);
         alarmRepository.save(newAlarm);
     }
 
-    private static Alarm createAlarm(final Member member, final NotifyMessage message) {
+    private static Alarm createAlarm(final NotifyMessage message, final Member member) {
         return Alarm.builder()
                 .notifyMessage(message)
                 .member(member)

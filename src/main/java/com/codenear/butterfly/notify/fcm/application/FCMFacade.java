@@ -17,7 +17,7 @@ public class FCMFacade {
     }
 
     public void sendMessage(NotifyMessage fcmMessageConstant, Long memberId) {
-        fcmMessageService.send(fcmMessageConstant, memberId);
+        fcmMessageService.sendNotificationMessage(fcmMessageConstant, memberId);
     }
 
     public void sendTopicMessage(NotifyMessage fcmMessageConstant, String topic) {

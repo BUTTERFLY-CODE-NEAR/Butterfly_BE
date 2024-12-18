@@ -4,6 +4,7 @@ import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.notify.alarm.application.AlarmService;
+import com.codenear.butterfly.notify.fcm.domain.FCM;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
@@ -20,17 +21,28 @@ public class FCMMessageService {
     private final FCMRepository fcmRepository;
     private final FirebaseMessagingClient firebaseMessagingClient;
     private final ConsentFacade consentFacade;
+    private final AlarmService alarmService;
 
     @Transactional
-    public void send(NotifyMessage message, Long memberId) {
-        if (!checkConsent(message, memberId)) {
+    public void sendNotificationMessage(NotifyMessage message, Long memberId) {
+        if (!isConsentGiven(message, memberId)) {
             return;
         }
+        
+        List<FCM> fcms = fcmRepository.findByMemberId(memberId);
+        sendPushNotifications(message, fcms);
+        saveAlarm(message, fcms);
+    }
 
-        fcmRepository.findByMemberId(memberId)
-                .stream()
-                .map(fcm -> createMessage(fcmMessageConstant, fcm.getToken()))
-                .forEach(firebaseMessagingClient::sendMessage);
+    private void saveAlarm(final NotifyMessage message, final List<FCM> fcms) {
+        alarmService.addAlarm(message, fcms.get(0).getMember());
+    }
+
+    private void sendPushNotifications(final NotifyMessage message, final List<FCM> fcms) {
+        List<Message> messages = fcms.stream()
+                .map(fcm -> createFCMMessage(message, fcm.getToken()))
+                .toList();
+        messages.forEach(firebaseMessagingClient::sendMessage);
     }
 
     @Transactional
@@ -39,7 +51,7 @@ public class FCMMessageService {
         firebaseMessagingClient.sendMessage(topicMessage);
     }
 
-    private boolean checkConsent(NotifyMessage message, Long memberId) {
+    private boolean isConsentGiven(NotifyMessage message, Long memberId) {
         List<Consent> consents = consentFacade.getConsents(memberId);
 
         Consent first = consents.stream()
@@ -50,7 +62,7 @@ public class FCMMessageService {
         return first != null && first.isAgreed();
     }
 
-    private Message createMessage(NotifyMessage message, String token) {
+    private Message createFCMMessage(NotifyMessage message, String token) {
         return Message.builder()
                 .setNotification(Notification.builder()
                         .setTitle(message.getSubtitle())

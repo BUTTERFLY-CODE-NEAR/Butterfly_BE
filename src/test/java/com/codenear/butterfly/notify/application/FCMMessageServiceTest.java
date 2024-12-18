@@ -45,7 +45,7 @@ class FCMMessageServiceTest {
         mockFCMRepository(memberId);
 
         // when
-        fcmMessageService.send(INQUIRY_ANSWERED, memberId);
+        fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
 
         // then
         verify(fcmRepository).findByMemberId(memberId);
@@ -60,7 +60,7 @@ class FCMMessageServiceTest {
         mockConsent(false, memberId);
 
         // when
-        fcmMessageService.send(INQUIRY_ANSWERED, memberId);
+        fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
 
         // then
         verify(fcmRepository, never()).findByMemberId(memberId);
