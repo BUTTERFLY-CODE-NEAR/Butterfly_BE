@@ -3,6 +3,7 @@ package com.codenear.butterfly.member.domain;
 import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.global.domain.BaseEntity;
+import com.codenear.butterfly.notify.alarm.domain.Alarm;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
 import com.codenear.butterfly.product.domain.Product;
@@ -58,6 +59,9 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorite> favorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Alarm> alarms = new ArrayList<>();
 
     public void setPoint(Point point) {
         this.point = point;
