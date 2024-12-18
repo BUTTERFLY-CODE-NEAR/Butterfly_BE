@@ -4,6 +4,7 @@ import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.consent.dto.ConsentInfoResponseDTO;
 import com.codenear.butterfly.consent.dto.ConsentSingleResponseDTO;
+import com.codenear.butterfly.consent.infrastructure.ConsentDataAccess;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import java.util.ArrayList;
 import java.util.List;

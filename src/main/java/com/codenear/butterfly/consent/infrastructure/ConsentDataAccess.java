@@ -1,4 +1,4 @@
-package com.codenear.butterfly.consent.application;
+package com.codenear.butterfly.consent.infrastructure;
 
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentRepository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-class ConsentDataAccess {
+public class ConsentDataAccess {
 
     private final ConsentRepository consentRepository;
 

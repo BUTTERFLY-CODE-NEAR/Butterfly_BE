@@ -3,6 +3,7 @@ package com.codenear.butterfly.consent.application;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.consent.dto.ConsentUpdateRequest;
+import com.codenear.butterfly.consent.infrastructure.ConsentDataAccess;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.application.MemberService;
 import java.util.List;
