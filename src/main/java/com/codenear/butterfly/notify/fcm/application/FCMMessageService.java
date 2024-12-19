@@ -31,14 +31,14 @@ public class FCMMessageService {
         
         List<FCM> fcms = fcmRepository.findByMemberId(memberId);
         sendPushNotifications(message, fcms);
-        alarmService.addAlarm(message, fcms.get(0).getMember());
+        alarmService.addSingleAlarm(message, fcms.get(0).getMember());
     }
 
     @Transactional
     public void sendTopic(NotifyMessage message, String topic) {
         Message topicMessage = createTopicMessage(message, topic);
         firebaseMessagingClient.sendMessage(topicMessage);
-        alarmService.addAlarms(message);
+        alarmService.addConsentBasedAlarms(message);
     }
 
     private void sendPushNotifications(final NotifyMessage message, final List<FCM> fcms) {

@@ -1,6 +1,5 @@
 package com.codenear.butterfly.notify.alarm.application;
 
-import com.codenear.butterfly.consent.application.ConsentService;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.infrastructure.ConsentDataAccess;
 import com.codenear.butterfly.member.domain.Member;
@@ -27,14 +26,13 @@ public class AlarmService {
         return AlarmsResponse.of(alarms);
     }
 
-    public void addAlarm(NotifyMessage message, Member member) {
-        Alarm newAlarm = createAlarm(message, member);
-        alarmRepository.save(newAlarm);
+    public void addSingleAlarm(NotifyMessage message, Member member) {
+        alarmRepository.save(createAlarm(message, member));
     }
 
-    public void addAlarms(NotifyMessage message) {
+    public void addConsentBasedAlarms(NotifyMessage message) {
         List<Consent> consents = consentDataAccess.findConsentsByConsentType(message.getConsentType());
-        consents.forEach(consent -> addAlarm(message, consent.getMember()));
+        consents.forEach(consent -> addSingleAlarm(message, consent.getMember()));
     }
 
     private static Alarm createAlarm(final NotifyMessage message, final Member member) {
