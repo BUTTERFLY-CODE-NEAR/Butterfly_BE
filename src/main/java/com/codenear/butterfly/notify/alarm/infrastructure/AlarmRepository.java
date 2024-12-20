@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     List<Alarm> findByMemberId(Long memberId);
+    boolean existsByMemberIdAndIsNewTrue(Long memberId);
 
     @Modifying
     @Query("UPDATE Alarm alarm SET alarm.isNew = false WHERE alarm.member.id = :memberId AND alarm.isNew = true")
