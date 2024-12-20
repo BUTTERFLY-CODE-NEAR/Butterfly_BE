@@ -8,6 +8,7 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.dto.MemberInfoDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.notify.alarm.infrastructure.AlarmRepository;
 import com.codenear.butterfly.point.application.PointService;
 import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class MemberService {
+
     private final MemberRepository memberRepository;
     private final PointService pointService;
     private final S3Service s3Service;
+    private final AlarmRepository alarmRepository;
 
     public MemberInfoDTO getMemberInfo(MemberDTO memberDTO) {
         Integer pointValue = pointService.loadPointByMemberId(memberDTO.getId()).getPoint();
+        boolean isNewAlarm = alarmRepository.existsByMemberIdAndIsNewTrue(memberDTO.getId());
 
         return new MemberInfoDTO(
                 memberDTO.getEmail(),
@@ -34,7 +38,8 @@ public class MemberService {
                 s3Service.generateFileUrl(memberDTO.getProfileImage(), PROFILE_IMAGE),
                 0, // TODO : 추후 쿠폰 시스템 도입 후 수정
                 memberDTO.getGrade().getGrade(),
-                pointValue
+                pointValue,
+                isNewAlarm
         );
     }
 
