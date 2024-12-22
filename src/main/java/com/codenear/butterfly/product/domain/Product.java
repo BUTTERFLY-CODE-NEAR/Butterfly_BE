@@ -5,6 +5,7 @@ import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,15 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Builder
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class Product {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Product extends ProductInventory {
 
     private String companyName;
 
@@ -53,17 +50,6 @@ public class Product {
     @JoinColumn(name = "product_id")
     private List<Option> options;
 
-    //공동구매 신청현황(인원)
-    @Column(nullable = false)
-    private Integer purchaseParticipantCount;
-
-    @Column(nullable = false)
-    private Integer maxPurchaseCount;
-
-    //재고수량
-    @Column(nullable = false)
-    private Integer stockQuantity;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private List<Keyword> keywords;
@@ -71,7 +57,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiscountRate> discountRates = new ArrayList<>();
 
-    @Builder
     public Product(
             String productName,
             String companyName,
