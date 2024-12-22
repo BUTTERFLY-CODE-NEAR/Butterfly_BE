@@ -1,6 +1,5 @@
 package com.codenear.butterfly.product.domain;
 
-import com.codenear.butterfly.admin.products.dto.DiscountRateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.*;
@@ -15,11 +14,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@SuperBuilder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "product_type")
 @Getter
-public class Product extends ProductInventory {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String companyName;
 
@@ -36,9 +39,6 @@ public class Product extends ProductInventory {
 
     private String expirationDate;
 
-    @Column(nullable = false)
-    private Integer originalPrice;
-
     @Column(nullable = false, precision = 4, scale = 1)
     private BigDecimal saleRate;
 
@@ -48,67 +48,44 @@ public class Product extends ProductInventory {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Option> options;
+    private List<Option> options = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Keyword> keywords;
+    private List<Keyword> keywords = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DiscountRate> discountRates = new ArrayList<>();
-
-    public Product(
+    protected Product(
             String productName,
             String companyName,
             String description,
             String productImage,
-            Integer originalPrice,
             BigDecimal saleRate,
             Category category,
-            Integer stockQuantity,
-            Integer purchaseParticipantCount,
-            Integer maxPurchaseCount,
-            List<Keyword> keywords,
-            List<DiscountRate> discountRates
+            List<Keyword> keywords
     ) {
         this.productName = productName;
         this.companyName = companyName;
         this.description = description;
         this.productImage = productImage;
-        this.originalPrice = originalPrice;
         this.saleRate = saleRate;
         this.category = category;
-        this.stockQuantity = stockQuantity;
-        this.purchaseParticipantCount = purchaseParticipantCount;
-        this.maxPurchaseCount = maxPurchaseCount;
-
-        this.keywords = keywords != null
-                ? new ArrayList<>(keywords)
-                : new ArrayList<>();
-
-        this.discountRates = discountRates != null
-                ? new ArrayList<>(discountRates)
-                : new ArrayList<>();
+        if (keywords != null) {
+            this.keywords.addAll(keywords);
+        }
     }
 
-    public void update(ProductUpdateRequest request) {
+    protected void updateBasicInfo(ProductUpdateRequest request) {
         this.productName = request.getProductName();
         this.companyName = request.getCompanyName();
         this.description = request.getDescription();
-        this.originalPrice = request.getOriginalPrice();
         this.saleRate = request.getSaleRate();
         this.category = request.getCategory();
-        this.stockQuantity = request.getStockQuantity();
-        this.purchaseParticipantCount = request.getPurchaseParticipantCount();
-        this.maxPurchaseCount = request.getMaxPurchaseCount();
         this.productVolume = request.getProductVolume();
         this.expirationDate = request.getExpirationDate();
-
         updateKeywordsIfPresent(request.getKeywords());
-        updateDiscountRatesIfPresent(request.getDiscountRates());
     }
 
-    private void updateKeywordsIfPresent(List<String> newKeywordValues) {
+    protected void updateKeywordsIfPresent(List<String> newKeywordValues) {
         if (newKeywordValues == null || newKeywordValues.isEmpty()) {
             return;
         }
@@ -129,82 +106,5 @@ public class Product extends ProductInventory {
         keywords.addAll(keywordsToAdd);
     }
 
-    private void updateDiscountRatesIfPresent(List<DiscountRateRequest> newRates) {
-        if (newRates == null) {
-            return;
-        }
-
-        discountRates.clear();
-        List<DiscountRate> rates = newRates.stream()
-                .map(request -> new DiscountRate(
-                        this,
-                        request.getMinParticipationRate(),
-                        request.getMaxParticipationRate(),
-                        request.getDiscountRate()
-                ))
-                .toList();
-
-        discountRates.addAll(rates);
-    }
-
-    public BigDecimal getCurrentDiscountRate() {
-        double participationRate = calculateParticipationRate();
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
-    }
-
-    private double calculateParticipationRate() {
-        return maxPurchaseCount == 0 ? 0 :
-                ((double) purchaseParticipantCount / maxPurchaseCount) * 100;
-    }
-
-    public boolean isSoldOut() {
-        return stockQuantity.equals(0);
-    }
-
-    public void decreaseQuantity(int stockQuantity) {
-        this.stockQuantity -= stockQuantity;
-    }
-
-    public void increasePurchaseParticipantCount(int quantity) {
-        this.purchaseParticipantCount += quantity;
-        if (this.purchaseParticipantCount > this.maxPurchaseCount) {
-            this.purchaseParticipantCount %= this.maxPurchaseCount;
-        }
-    }
-
-    public int calculatePointRefund(int quantity) {
-        int currentParticipantCount = (this.purchaseParticipantCount + quantity) % this.maxPurchaseCount;
-        double participationRate = ((double) currentParticipantCount / this.maxPurchaseCount) * 100;
-        BigDecimal nextDiscountRate = getDiscountRateForParticipationRate(participationRate);
-
-        int sectionCount = calculateSectionCount();
-        int discountQuantity = currentParticipantCount % sectionCount;
-        int totalAmount = this.originalPrice * discountQuantity;
-        int nextDiscountAmount = totalAmount * nextDiscountRate.intValue() / 100;
-        int currentDiscountAmount = totalAmount * getCurrentDiscountRate().intValue() / 100;
-        int pointRefundAmount = nextDiscountAmount - currentDiscountAmount;
-
-        return Math.max(pointRefundAmount, 0);
-    }
-
-    private int calculateSectionCount() {
-        return discountRates.stream()
-                .findFirst()
-                .map(rate -> (int) (this.maxPurchaseCount * (rate.getMaxParticipationRate() / 100)))
-                .orElse(0);
-    }
-
-    private BigDecimal getDiscountRateForParticipationRate(double participationRate) {
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
-    }
+    public abstract void update(ProductUpdateRequest request);
 }
