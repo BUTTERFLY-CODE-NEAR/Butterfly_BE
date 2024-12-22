@@ -6,8 +6,9 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
-import com.codenear.butterfly.product.domain.repository.ProductRepository;
+import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.exception.ProductException;
 import com.codenear.butterfly.product.util.ProductMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,13 +25,13 @@ import static com.codenear.butterfly.product.domain.QFavorite.favorite;
 @RequiredArgsConstructor
 public class FavoriteService {
 
-    private final ProductRepository productRepository;
+    private final ProductInventoryRepository productInventoryRepository;
     private final MemberRepository memberRepository;
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
     public List<ProductViewDTO> getFavoriteAll(Long memberId) {
-        List<Product> favoriteProducts = queryFactory
+        List<ProductInventory> favoriteProducts = queryFactory
                 .select(favorite.product)
                 .from(favorite)
                 .where(favorite.member.id.eq(memberId))
@@ -45,7 +46,7 @@ public class FavoriteService {
     @Transactional
     public void addFavorite(MemberDTO memberDTO, Long productId) {
         Member member = getMember(memberDTO);
-        Product product = getProduct(productId);
+        ProductInventory product = getProduct(productId);
 
         if (member.hasFavorite(product)) {
             throw new ProductException(ErrorCode.DUPLICATE_FAVORITE, null);
@@ -71,8 +72,8 @@ public class FavoriteService {
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
     }
 
-    private Product getProduct(Long productId) {
-        return productRepository.findById(productId)
+    private ProductInventory getProduct(Long productId) {
+        return productInventoryRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
     }
 }

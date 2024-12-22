@@ -7,6 +7,7 @@ import com.codenear.butterfly.notify.alarm.domain.Alarm;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -68,7 +69,7 @@ public class Member extends BaseEntity {
         point.setMember(this);
     }
 
-    public void addFavorite(Product product) {
+    public void addFavorite(ProductInventory product) {
         Favorite favorite = Favorite.createFavorite(this, product);
         this.favorites.add(favorite);
     }

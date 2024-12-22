@@ -3,6 +3,7 @@ package com.codenear.butterfly.product.util;
 import com.codenear.butterfly.product.domain.Option;
 import com.codenear.butterfly.product.domain.Price;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.OptionDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
@@ -16,8 +17,13 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductMapper {
 
-    public static ProductViewDTO toProductViewDTO(Product product, boolean isFavorite) {
-        Price price = Price.of(product.getOriginalPrice(), product.getSaleRate(), product.getCurrentDiscountRate());
+    public static ProductViewDTO toProductViewDTO(ProductInventory product, boolean isFavorite) {
+        Price price = Price.of(
+                product.getOriginalPrice(),
+                product.getSaleRate(),
+                product.getCurrentDiscountRate()
+        );
+
         return new ProductViewDTO(
                 product.getId(),
                 product.getCompanyName(),
@@ -33,7 +39,7 @@ public class ProductMapper {
         );
     }
 
-    public static ProductDetailDTO toProductDetailDTO(Product product, boolean isFavorite) {
+    public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite) {
         Price price = Price.of(product.getOriginalPrice(), product.getSaleRate(), product.getCurrentDiscountRate());
         List<OptionDTO> optionDTOs = product.getOptions().stream()
                 .map(ProductMapper::toOptionDTO)
