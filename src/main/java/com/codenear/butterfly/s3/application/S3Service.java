@@ -19,9 +19,10 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 @RequiredArgsConstructor
 public class S3Service {
 
-    private static final String BUKKIT_NAME = "codenear";
-
     private final S3Client amazonS3Client;
+
+    @Value("${cloud.bukkit.name}")
+    private String bukkitName;
 
     @Value("${cloud.storage.url}")
     private String storageUrl;
@@ -33,7 +34,7 @@ public class S3Service {
             String contentType = file.getContentType();
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(BUKKIT_NAME)
+                    .bucket(bukkitName)
                     .key(fileKey)
                     .contentType(contentType)
                     .acl(PUBLIC_READ)
@@ -55,7 +56,7 @@ public class S3Service {
     public void deleteFile(String fileName, S3Directory directory) {
         String fileKey = generateFileKey(fileName, directory);
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(BUKKIT_NAME)
+                .bucket(bukkitName)
                 .key(fileKey)
                 .build();
 
