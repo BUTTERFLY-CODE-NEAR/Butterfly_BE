@@ -6,9 +6,11 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
+import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import com.codenear.butterfly.product.util.ProductMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +24,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductViewService {
 
-    private final ProductRepository productRepository;
+    private final ProductInventoryRepository ProductInventoryRepository;
     private final FavoriteRepository favoriteRepository;
     private final MemberRepository memberRepository;
 
     public List<ProductViewDTO> getAllProducts(Long memberId) {
-        List<Product> products = productRepository.findAll();
+        List<ProductInventory> products = ProductInventoryRepository.findAll();
         validateProducts(products);
         return products.stream()
                 .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
@@ -37,7 +39,7 @@ public class ProductViewService {
 
     public List<ProductViewDTO> getProductsByCategory(String categoryValue, Long memberId) {
         Category category = Category.fromValue(categoryValue);
-        List<Product> products = productRepository.findProductByCategory(category);
+        List<ProductInventory> products = ProductInventoryRepository.findProductByCategory(category);
         validateProducts(products);
         return products.stream()
                 .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
@@ -46,12 +48,12 @@ public class ProductViewService {
     }
 
     public ProductDetailDTO getProductDetail(Long productId, Long memberId) {
-        Product product = productRepository.findById(productId)
+        ProductInventory product = ProductInventoryRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
         return ProductMapper.toProductDetailDTO(product, isProductFavorite(memberId, productId));
     }
 
-    private void validateProducts(List<Product> products) {
+    private void validateProducts(List<ProductInventory> products) {
         if (products.isEmpty()) {
             throw new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null);
         }

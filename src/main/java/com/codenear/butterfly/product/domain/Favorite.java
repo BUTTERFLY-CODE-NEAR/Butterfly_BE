@@ -21,9 +21,9 @@ public class Favorite {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    private ProductInventory product;
 
-    public static Favorite createFavorite(Member member, Product product) {
+    public static Favorite createFavorite(Member member, ProductInventory product) {
         return Favorite.builder()
                 .member(member)
                 .product(product)

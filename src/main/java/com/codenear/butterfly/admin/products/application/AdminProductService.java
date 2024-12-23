@@ -12,6 +12,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.ProductRepository;
 import com.codenear.butterfly.product.exception.ProductException;
@@ -45,7 +46,7 @@ public class AdminProductService {
                 .map(Keyword::new)
                 .toList();
 
-        Product product = Product.builder()
+        ProductInventory product = ProductInventory.builder()
                 .productName(request.productName())
                 .companyName(request.companyName())
                 .description(request.description())
@@ -57,8 +58,6 @@ public class AdminProductService {
                 .maxPurchaseCount(request.maxPurchaseCount())
                 .keywords(keywords)
                 .productImage(imageUrl)
-                .productVolume(request.productVolume())
-                .expirationDate(request.expirationDate())
                 .build();
 
         productRepository.save(product);

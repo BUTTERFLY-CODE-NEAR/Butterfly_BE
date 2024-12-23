@@ -23,7 +23,8 @@ import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
-import com.codenear.butterfly.product.domain.repository.ProductRepository;
+import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -57,7 +58,7 @@ public class SinglePaymentService {
     private final AddressRepository addressRepository;
     private final OrderDetailsRepository orderDetailsRepository;
     private final MemberRepository memberRepository;
-    private final ProductRepository productRepository;
+    private final ProductInventoryRepository productInventoryRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final PointRepository pointRepository;
 
@@ -94,7 +95,7 @@ public class SinglePaymentService {
                 requestEntity,
                 ApproveResponseDTO.class);
 
-        Product product = productRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
+        ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
         int quantity = approveResponseDTO.getQuantity();
 
         if (product.getStockQuantity() < quantity) {
@@ -156,7 +157,7 @@ public class SinglePaymentService {
         orderDetails.setTotal(approveResponseDTO.getAmount().getTotal());
         orderDetails.setProductName(approveResponseDTO.getItem_name());
 
-        Product product = productRepository.findProductByProductName(approveResponseDTO.getItem_name());
+        Product product = productInventoryRepository.findProductByProductName(approveResponseDTO.getItem_name());
 
         orderDetails.setProductImage(product.getProductImage());
         orderDetails.setOptionName(optionName);
