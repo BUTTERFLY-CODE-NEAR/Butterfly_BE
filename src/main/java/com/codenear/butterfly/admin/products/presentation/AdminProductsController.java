@@ -4,9 +4,15 @@ import com.codenear.butterfly.admin.products.application.AdminProductService;
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
+import com.codenear.butterfly.global.dto.ResponseDTO;
+import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.exception.ProductException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +50,7 @@ public class AdminProductsController {
 
     @GetMapping
     public String showProductList(Model model) {
-        List<Product> products = adminProductService.loadAllProducts();
+        List<ProductInventory> products = adminProductService.loadAllProducts();
         List<Category> categories = adminProductService.getCategories();
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
@@ -89,6 +95,18 @@ public class AdminProductsController {
             redirectAttributes.addFlashAttribute("messageType", "error");
         }
         return "redirect:/admin/products";
+    }
+
+    @DeleteMapping("/{productId}/discount-rate/{index}/delete")
+    public ResponseEntity<ResponseDTO> deleteDiscountRate(
+            @PathVariable Long productId,
+            @PathVariable int index) {
+        try {
+            adminProductService.deleteDiscountRate(productId, index);
+            return ResponseUtil.createSuccessResponse("상품 삭제에 성공했습니다.", null);
+        } catch (Exception e) {
+            throw new ProductException(ErrorCode.SERVER_ERROR, ErrorCode.SERVER_ERROR.getMessage());
+        }
     }
 
     @PostMapping("/push")
