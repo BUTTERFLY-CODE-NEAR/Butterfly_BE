@@ -133,7 +133,7 @@
                                                            th:value="${rate.discountRate}" required>
                                                 </div>
                                                 <div class="form-group col-md-3 d-flex align-items-end">
-                                                    <button type="button" class="btn btn-danger btn-sm remove-rate">삭제</button>
+                                                    <button type="button" class="btn btn-danger btn-sm remove-rate" data-is-new="false">삭제</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -152,6 +152,12 @@
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
 </body>
 <script th:inline="javascript">
+    function getProductIdFromUrl() {
+        const pathSegments = window.location.pathname.split('/');
+        const productIdIndex = pathSegments.indexOf('products') + 1;
+        return pathSegments[productIdIndex];
+    }
+
     document.getElementById('addDiscountRate').addEventListener('click', function() {
         const container = document.getElementById('discountRateContainer');
         const index = container.children.length;
@@ -171,7 +177,7 @@
                     <input type="number" step="0.1" class="form-control" name="discountRates[${index}].discountRate" required>
                 </div>
                 <div class="form-group col-md-3 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger btn-sm remove-rate">삭제</button>
+                    <button type="button" class="btn btn-danger btn-sm remove-rate" data-is-new="true">삭제</button>
                 </div>
             </div>
         </div>
@@ -181,7 +187,34 @@
 
     document.getElementById('discountRateContainer').addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-rate')) {
-            e.target.closest('.discount-rate-row').remove();
+            const row = e.target.closest('.discount-rate-row');
+            const container = document.getElementById('discountRateContainer');
+            const isNew = e.target.getAttribute('data-is-new') === 'true';
+
+            if (isNew) {
+                row.remove();
+            } else {
+                const productId = getProductIdFromUrl();
+                const index = Array.from(container.children).indexOf(row);
+
+                if (confirm('이 할인율을 삭제하시겠습니까?')) {
+                    fetch(`/admin/products/${productId}/discount-rate/${index}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            row.remove();
+                        } else {
+                            alert('삭제에 실패했습니다.');
+                        }
+                    }).catch(error => {
+                        console.error('삭제 요청 중 오류 발생:', error);
+                        alert('삭제 요청에 오류가 발생했습니다.');
+                    });
+                }
+            }
         }
     });
 </script>
