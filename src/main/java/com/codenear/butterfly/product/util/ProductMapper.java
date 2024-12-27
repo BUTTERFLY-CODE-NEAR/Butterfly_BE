@@ -30,7 +30,7 @@ public class ProductMapper {
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
-                product.getSaleRate(),
+                calculateFinalSaleRate(product),
                 price.calculateSalePrice(),
                 product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(),
@@ -51,7 +51,7 @@ public class ProductMapper {
                 product.getProductName(),
                 product.getProductImage(),
                 product.getOriginalPrice(),
-                product.getSaleRate(),
+                calculateFinalSaleRate(product),
                 price.calculateSalePrice(),
                 product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(),
@@ -61,6 +61,10 @@ public class ProductMapper {
                 product.getProductVolume(),
                 product.getExpirationDate()
         );
+    }
+
+    private static BigDecimal calculateFinalSaleRate(ProductInventory product) {
+        return product.getSaleRate().add(product.getCurrentDiscountRate());
     }
 
     private static OptionDTO toOptionDTO(Option option) {
