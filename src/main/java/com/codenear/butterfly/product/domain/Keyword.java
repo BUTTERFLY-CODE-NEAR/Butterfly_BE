@@ -14,7 +14,7 @@ public class Keyword {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String keyword;
 
     public Keyword(String keyword) {
