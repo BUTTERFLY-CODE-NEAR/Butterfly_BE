@@ -132,8 +132,8 @@ public class SinglePaymentService {
         singlePayment.addAmount(amount);
 
         if (Objects.requireNonNull(approveResponseDTO).getPayment_method_type().equals("CARD")) {
-            CardInfo cardInfo = createCardInfo(approveResponseDTO);
-            singlePayment.setCardInfo(cardInfo);
+            CardInfo cardInfo = CardInfo.builder().approveResponseDTO(approveResponseDTO).build();
+            singlePayment.addCardInfo(cardInfo);
         }
 
         saveOrderDetails(orderType, addressId, approveResponseDTO, optionName, memberId);
@@ -211,22 +211,6 @@ public class SinglePaymentService {
         } else if (status.equals(PaymentStatus.SUCCESS.name())) {
             kakaoPaymentRedisRepository.removePaymentStatus(key);
         }
-    }
-
-    private CardInfo createCardInfo(ApproveResponseDTO approveResponseDTO) {
-        CardInfo cardInfo = new CardInfo();
-        cardInfo.setApprovedId(approveResponseDTO.getCard_info().getApproved_id());
-        cardInfo.setBin(approveResponseDTO.getCard_info().getBin());
-        cardInfo.setCardMid(approveResponseDTO.getCard_info().getCard_mid());
-        cardInfo.setCardType(approveResponseDTO.getCard_info().getCard_type());
-        cardInfo.setInstallMonth(approveResponseDTO.getCard_info().getInstall_month());
-        cardInfo.setCardItemCode(approveResponseDTO.getCard_info().getCard_item_code());
-        cardInfo.setInterestFreeInstall(approveResponseDTO.getCard_info().getInterest_free_install());
-        cardInfo.setKakaopayPurchaseCorp(approveResponseDTO.getCard_info().getKakaopay_purchase_corp());
-        cardInfo.setKakaopayPurchaseCorpCode(approveResponseDTO.getCard_info().getKakaopay_purchase_corp_code());
-        cardInfo.setKakaopayIssuerCorp(approveResponseDTO.getCard_info().getKakaopay_issuer_corp());
-        cardInfo.setKakaopayIssuerCorpCode(approveResponseDTO.getCard_info().getKakaopay_issuer_corp_code());
-        return cardInfo;
     }
 
     private Map<String,String> getKakaoPayReadyRedisFields(

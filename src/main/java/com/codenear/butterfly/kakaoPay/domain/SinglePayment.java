@@ -56,4 +56,8 @@ public class SinglePayment {
     public void addAmount(Amount amount) {
         this.amount = amount;
     }
+
+    public void addCardInfo(CardInfo cardInfo) {
+        this.cardInfo = cardInfo;
+    }
 }
