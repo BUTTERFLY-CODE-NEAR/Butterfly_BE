@@ -8,7 +8,6 @@ import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
-import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
@@ -37,10 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -143,47 +143,6 @@ public class SinglePaymentService {
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
     }
 
-    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
-        OrderDetails orderDetails = new OrderDetails();
-        orderDetails.setOrderType(orderType);
-        orderDetails.setOrderCode(generateOrderCode());
-        orderDetails.setCreatedAt(LocalDateTime.parse(approveResponseDTO.getCreated_at()));
-        orderDetails.setTid(approveResponseDTO.getTid());
-
-        if (OrderType.PICKUP.getType().equals(orderType.getType())) {
-            orderDetails.setPickupPlace(kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupPlace"));
-            orderDetails.setPickupDate(LocalDate.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupDate")));
-            orderDetails.setPickupTime(LocalTime.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupTime")));
-        } else if (OrderType.DELIVER.getType().equals(orderType.getType())) {
-            Address address = addressRepository.findById(addressId)
-                    .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
-            orderDetails.setAddress(address.getAddress());
-            orderDetails.setDetailedAddress(address.getDetailedAddress());
-        }
-
-        orderDetails.setTotal(approveResponseDTO.getAmount().getTotal());
-        orderDetails.setProductName(approveResponseDTO.getItem_name());
-
-        Product product = productInventoryRepository.findProductByProductName(approveResponseDTO.getItem_name());
-
-        orderDetails.setProductImage(product.getProductImage());
-        orderDetails.setOptionName(optionName);
-        orderDetails.setQuantity(approveResponseDTO.getQuantity());
-        orderDetails.setOrderStatus(OrderStatus.READY);
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
-        orderDetails.setMember(member);
-
-        orderDetailsRepository.save(orderDetails);
-    }
-
-    private String generateOrderCode() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmssSSSS");
-        return now.format(formatter);
-    }
-
 
     public String checkPaymentStatus(Long memberId) {
         String status = kakaoPaymentRedisRepository.getPaymentStatus(memberId);
@@ -211,6 +170,37 @@ public class SinglePaymentService {
         } else if (status.equals(PaymentStatus.SUCCESS.name())) {
             kakaoPaymentRedisRepository.removePaymentStatus(key);
         }
+    }
+
+    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+
+        Product product = productInventoryRepository.findProductByProductName(approveResponseDTO.getItem_name());
+
+        OrderDetails orderDetails = OrderDetails.builder()
+                .member(member)
+                .orderType(orderType)
+                .approveResponseDTO(approveResponseDTO)
+                .product(product)
+                .optionName(optionName)
+                .build();
+
+        switch(orderType) {
+            case PICKUP -> {
+                String pickupPlace = kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupPlace");
+                LocalDate pickupDate = LocalDate.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupDate"));
+                LocalTime pickupTime = LocalTime.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, "pickupTime"));
+                orderDetails.addOrderTypeByPickup(pickupPlace, pickupDate, pickupTime);
+            }
+            case DELIVER -> {
+                Address address = addressRepository.findById(addressId)
+                        .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
+                orderDetails.addOrderTypeByDeliver(address);
+            }
+        }
+
+        orderDetailsRepository.save(orderDetails);
     }
 
     /**

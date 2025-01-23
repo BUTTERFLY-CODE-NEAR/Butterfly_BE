@@ -60,7 +60,7 @@ public class CancelPaymentService {
         CanceledAmount canceledAmount = createApprovedCancelAmount(cancelResponseDTO);
         cancelPayment.setCanceledAmount(canceledAmount);
 
-        orderDetails.setOrderStatus(OrderStatus.CANCELED);
+        orderDetails.updateOrderStatus(OrderStatus.CANCELED);
         cancelPaymentRepository.save(cancelPayment);
     }
 
