@@ -213,6 +213,17 @@ public class SinglePaymentService {
         }
     }
 
+    /**
+     * 카카오페이 결제 준비 단계에서 Redis에 저장할 필드를 생성
+     *
+     * @param partnerOrderId 파트너사 주문 ID
+     * @param orderType 주문 타입
+     * @param tid 카카오페이 트랜잭션 ID
+     * @param paymentRequestDTO 결제 요청 정보를 담고 있는 객체 (BasePaymentRequestDTO 타입)
+     *
+     * @return Redis에 저장할 필드 값들을 키-값 쌍으로 담고 있는 Map 객체
+     */
+
     private Map<String,String> getKakaoPayReadyRedisFields(
             final String partnerOrderId,
             final String orderType,
