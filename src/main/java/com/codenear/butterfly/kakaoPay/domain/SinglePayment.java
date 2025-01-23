@@ -1,11 +1,13 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.util.Objects;
 
 @Entity
-@Setter
 @NoArgsConstructor
 public class SinglePayment {
     @Id
@@ -34,4 +36,20 @@ public class SinglePayment {
     private String approvedAt; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
 
+    @Builder
+    public SinglePayment (ApproveResponseDTO approveResponseDTO) {
+        this.aid = Objects.requireNonNull(approveResponseDTO).getAid();
+        this.tid = approveResponseDTO.getTid();
+        this.cid = approveResponseDTO.getCid();
+        this.sid = approveResponseDTO.getSid();
+        this.partnerOrderId = approveResponseDTO.getPartner_order_id();
+        this.partnerUserId = approveResponseDTO.getPartner_user_id();
+        this.paymentMethodType = approveResponseDTO.getPayment_method_type();
+        this.itemName = approveResponseDTO.getItem_name();
+        this.itemCode = approveResponseDTO.getItem_code();
+        this.quantity = approveResponseDTO.getQuantity();
+        this.createdAt = approveResponseDTO.getCreated_at();
+        this.approvedAt = approveResponseDTO.getApproved_at();
+        this.payload = approveResponseDTO.getPayload();
+    }
 }

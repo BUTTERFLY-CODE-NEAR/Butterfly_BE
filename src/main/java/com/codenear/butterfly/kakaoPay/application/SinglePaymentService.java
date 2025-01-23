@@ -127,7 +127,7 @@ public class SinglePaymentService {
         product.decreaseQuantity(quantity);
         product.increasePurchaseParticipantCount(quantity);
 
-        SinglePayment singlePayment = createSinglePayment(approveResponseDTO);
+        SinglePayment singlePayment = SinglePayment.builder().approveResponseDTO(approveResponseDTO).build();
         Amount amount = createAmount(approveResponseDTO);
         singlePayment.setAmount(amount);
 
@@ -184,23 +184,6 @@ public class SinglePaymentService {
         return now.format(formatter);
     }
 
-    private SinglePayment createSinglePayment(ApproveResponseDTO approveResponseDTO) {
-        SinglePayment singlePayment = new SinglePayment();
-        singlePayment.setAid(Objects.requireNonNull(approveResponseDTO).getAid());
-        singlePayment.setTid(approveResponseDTO.getTid());
-        singlePayment.setCid(approveResponseDTO.getCid());
-        singlePayment.setSid(approveResponseDTO.getSid());
-        singlePayment.setPartnerOrderId(approveResponseDTO.getPartner_order_id());
-        singlePayment.setPartnerUserId(approveResponseDTO.getPartner_user_id());
-        singlePayment.setPaymentMethodType(approveResponseDTO.getPayment_method_type());
-        singlePayment.setItemName(approveResponseDTO.getItem_name());
-        singlePayment.setItemCode(approveResponseDTO.getItem_code());
-        singlePayment.setQuantity(approveResponseDTO.getQuantity());
-        singlePayment.setCreatedAt(approveResponseDTO.getCreated_at());
-        singlePayment.setApprovedAt(approveResponseDTO.getApproved_at());
-        singlePayment.setPayload(approveResponseDTO.getPayload());
-        return singlePayment;
-    }
 
     public String checkPaymentStatus(Long memberId) {
         String status = kakaoPaymentRedisRepository.getPaymentStatus(memberId);
