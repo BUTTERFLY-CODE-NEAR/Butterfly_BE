@@ -19,7 +19,9 @@ public class SinglePayment {
     private String sid; // 정기 결제용 ID
     private String partnerOrderId; // 가맹점 주문번호
     private String partnerUserId; // 가맹점 회원 id
-    private String paymentMethodType; // 결제 수단(CARD 또는 MONEY)
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethodType; // 결제 수단(CARD 또는 MONEY)
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "amount_id")
@@ -44,7 +46,7 @@ public class SinglePayment {
         this.sid = approveResponseDTO.getSid();
         this.partnerOrderId = approveResponseDTO.getPartner_order_id();
         this.partnerUserId = approveResponseDTO.getPartner_user_id();
-        this.paymentMethodType = approveResponseDTO.getPayment_method_type();
+        this.paymentMethodType = PaymentMethod.fromString(approveResponseDTO.getPayment_method_type());
         this.itemName = approveResponseDTO.getItem_name();
         this.itemCode = approveResponseDTO.getItem_code();
         this.quantity = approveResponseDTO.getQuantity();

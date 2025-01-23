@@ -1,17 +1,13 @@
 package com.codenear.butterfly.kakaoPay.domain.repository;
 
-import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_STATUS;
 
 @Repository
 @RequiredArgsConstructor
@@ -65,12 +61,12 @@ public class KakaoPaymentRedisRepository {
     }
 
     public void savePaymentStatus(Long memberId, String status) {
-        String key = "paymentStatus:" + memberId;
+        String key = PAYMENT_STATUS.getFieldName() + memberId;
         redisTemplate.opsForValue().set(key, status, 30, TimeUnit.MINUTES);
     }
 
     public String getPaymentStatus(Long memberId) {
-        String key = "paymentStatus:" + memberId;
+        String key = PAYMENT_STATUS.getFieldName() + memberId;
         return redisTemplate.opsForValue().get(key);
     }
 
