@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Table(name = "product_option")
 public class Option {
 
     @Id
@@ -31,5 +30,4 @@ public class Option {
 
     @Column(nullable = false, precision = 4, scale = 1)
     private BigDecimal saleRate;
-
 }
