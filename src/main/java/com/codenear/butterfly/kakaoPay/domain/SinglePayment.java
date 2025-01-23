@@ -52,4 +52,8 @@ public class SinglePayment {
         this.approvedAt = approveResponseDTO.getApproved_at();
         this.payload = approveResponseDTO.getPayload();
     }
+
+    public void addAmount(Amount amount) {
+        this.amount = amount;
+    }
 }

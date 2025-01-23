@@ -128,8 +128,8 @@ public class SinglePaymentService {
         product.increasePurchaseParticipantCount(quantity);
 
         SinglePayment singlePayment = SinglePayment.builder().approveResponseDTO(approveResponseDTO).build();
-        Amount amount = createAmount(approveResponseDTO);
-        singlePayment.setAmount(amount);
+        Amount amount = Amount.builder().approveResponseDTO(approveResponseDTO).build();
+        singlePayment.addAmount(amount);
 
         if (Objects.requireNonNull(approveResponseDTO).getPayment_method_type().equals("CARD")) {
             CardInfo cardInfo = createCardInfo(approveResponseDTO);
@@ -211,16 +211,6 @@ public class SinglePaymentService {
         } else if (status.equals(PaymentStatus.SUCCESS.name())) {
             kakaoPaymentRedisRepository.removePaymentStatus(key);
         }
-    }
-
-    private Amount createAmount(ApproveResponseDTO approveResponseDTO) {
-        Amount amount = new Amount();
-        amount.setTotal(Objects.requireNonNull(approveResponseDTO).getAmount().getTotal());
-        amount.setTaxFree(approveResponseDTO.getAmount().getTax_free());
-        amount.setVat(approveResponseDTO.getAmount().getVat());
-        amount.setPoint(approveResponseDTO.getAmount().getPoint());
-        amount.setDiscount(approveResponseDTO.getAmount().getDiscount());
-        return amount;
     }
 
     private CardInfo createCardInfo(ApproveResponseDTO approveResponseDTO) {
