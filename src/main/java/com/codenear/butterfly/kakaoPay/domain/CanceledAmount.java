@@ -1,10 +1,12 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import jakarta.persistence.*;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Setter
+@NoArgsConstructor
 public class CanceledAmount {
 
     @Id
@@ -18,4 +20,13 @@ public class CanceledAmount {
 
     @OneToOne(mappedBy = "canceledAmount")
     private CancelPayment cancelPayment;
+
+    @Builder
+    public CanceledAmount(CancelResponseDTO cancelResponseDTO) {
+        this.total = cancelResponseDTO.getAmount().getTotal();
+        this.taxFree = cancelResponseDTO.getAmount().getTax_free();
+        this.vat = cancelResponseDTO.getAmount().getVat();
+        this.point = cancelResponseDTO.getAmount().getPoint();
+        this.discount = cancelResponseDTO.getAmount().getDiscount();
+    }
 }

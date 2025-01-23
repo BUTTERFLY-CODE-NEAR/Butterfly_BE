@@ -1,11 +1,11 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Setter
 @NoArgsConstructor
 public class CancelPayment {
 
@@ -30,4 +30,25 @@ public class CancelPayment {
     private String createdAt; // 결제 준비 요청 시간
     private String approvedAt; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
+
+    @Builder
+    public CancelPayment(CancelResponseDTO cancelResponseDTO) {
+        this.aid = cancelResponseDTO.getAid();
+        this.tid = cancelResponseDTO.getTid();
+        this.cid = cancelResponseDTO.getCid();
+        this.status = cancelResponseDTO.getStatus();
+        this.partnerOrderId = cancelResponseDTO.getPartner_order_id();
+        this.partnerUserId = cancelResponseDTO.getPartner_user_id();
+        this.paymentMethodType = cancelResponseDTO.getPayment_method_type();
+        this.itemName = cancelResponseDTO.getItem_name();
+        this.itemCode = cancelResponseDTO.getItem_code();
+        this.quantity = cancelResponseDTO.getQuantity();
+        this.createdAt = cancelResponseDTO.getCreated_at();
+        this.approvedAt = cancelResponseDTO.getApproved_at();
+        this.payload = cancelResponseDTO.getPayload();
+    }
+
+    public void addCanceledAmount(CanceledAmount canceledAmount) {
+        this.canceledAmount = canceledAmount;
+    }
 }
