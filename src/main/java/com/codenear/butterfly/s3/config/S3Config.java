@@ -17,16 +17,16 @@ public class S3Config {
     public static final int FULL_TIMEOUT_SECONDS = 60;
     public static final int RESTART_TIMEOUT_SECONDS = 20;
 
-    @Value("${cloud.aws.credentials.access-key}")
+    @Value("${cloud.access-key}")
     private String accessKey;
 
-    @Value("${cloud.aws.credentials.secret-key}")
+    @Value("${cloud.secret-key}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")
+    @Value("${cloud.region}")
     private String region;
 
-    @Value("${cloud.aws.s3.endpoint}")
+    @Value("${cloud.storage.endpoint}")
     private String endPoint;
 
     @Bean
