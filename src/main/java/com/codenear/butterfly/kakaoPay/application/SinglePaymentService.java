@@ -16,6 +16,7 @@ import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisReposi
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
+import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
@@ -25,16 +26,11 @@ import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,18 +42,6 @@ import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.*;
 @RequiredArgsConstructor
 public class SinglePaymentService {
 
-    @Value("${kakao.payment.cid}")
-    private String CID;
-
-    @Value("${kakao.payment.secret-key-dev}")
-    private String secretKey;
-
-    @Value("${kakao.payment.host}")
-    private String host;
-
-    @Value("${kakao.payment.request-url}")
-    private String requestUrl;
-
     private final SinglePaymentRepository singlePaymentRepository;
     private final AddressRepository addressRepository;
     private final OrderDetailsRepository orderDetailsRepository;
@@ -65,16 +49,14 @@ public class SinglePaymentService {
     private final ProductInventoryRepository productInventoryRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final PointRepository pointRepository;
+    private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
 
-        Map<String, Object> parameters = getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, getHeaders());
-        ReadyResponseDTO kakaoPayReady = new RestTemplate().postForObject(
-                host + "/ready",
-                requestEntity,
-                ReadyResponseDTO.class);
+        Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
+        ReadyResponseDTO kakaoPayReady = kakaoPaymentUtil.sendRequest("/ready",parameters,ReadyResponseDTO.class);
+
         String tid = kakaoPayReady != null ? kakaoPayReady.getTid() : null;
 
         Map<String,String> fields = getKakaoPayReadyRedisFields(partnerOrderId,orderType, tid ,paymentRequestDTO);
@@ -94,12 +76,9 @@ public class SinglePaymentService {
         Long addressId = addressIdByString != null ? Long.parseLong(addressIdByString) : null;
         String optionName = kakaoPaymentRedisRepository.getHashFieldValue(memberId, OPTION_NAME.getFieldName());
 
-        Map<String, Object> parameters = getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, getHeaders());
-        ApproveResponseDTO approveResponseDTO = new RestTemplate().postForObject(
-                host + "/approve",
-                requestEntity,
-                ApproveResponseDTO.class);
+        Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
+
+        ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve",parameters,ApproveResponseDTO.class);
 
         ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
         int quantity = approveResponseDTO.getQuantity();
@@ -240,38 +219,4 @@ public class SinglePaymentService {
         return fields;
     }
 
-
-    private Map<String, Object> getKakaoPayReadyParameters(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String partnerOrderId) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", CID);
-        parameters.put("partner_order_id", partnerOrderId);
-        parameters.put("partner_user_id", memberId.toString());
-        parameters.put("item_name", paymentRequestDTO.getProductName());
-        parameters.put("quantity", paymentRequestDTO.getQuantity());
-        parameters.put("total_amount", paymentRequestDTO.getTotal());
-        parameters.put("vat_amount", 0);
-        parameters.put("tax_free_amount", 0);
-        parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
-        parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
-        parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
-        parameters.put("return_custom_url", "butterfly://");
-        return parameters;
-    }
-
-    private Map<String, Object> getKakaoPayApproveParameters(Long memberId, String orderId, String transactionId, String pgToken) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", CID);
-        parameters.put("tid", transactionId);
-        parameters.put("partner_order_id", orderId);
-        parameters.put("partner_user_id", memberId.toString());
-        parameters.put("pg_token", pgToken);
-        return parameters;
-    }
-
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("Authorization", "SECRET_KEY " + secretKey);
-        return headers;
-    }
 }
