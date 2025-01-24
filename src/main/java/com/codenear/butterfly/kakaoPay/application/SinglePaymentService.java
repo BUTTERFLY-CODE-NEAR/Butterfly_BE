@@ -4,7 +4,11 @@ import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.address.domain.AddressRepository;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.HashMapUtil;
-import com.codenear.butterfly.kakaoPay.domain.*;
+import com.codenear.butterfly.kakaoPay.domain.Amount;
+import com.codenear.butterfly.kakaoPay.domain.CardInfo;
+import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
+import com.codenear.butterfly.kakaoPay.domain.PaymentMethod;
+import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
@@ -35,7 +39,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.*;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ADDRESS_ID;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.OPTION_NAME;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_ID;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_TYPE;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_STATUS;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_DATE;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_PLACE;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_TIME;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.TRANSACTION_ID;
 
 @Service
 @Transactional(readOnly = true)
@@ -55,13 +67,13 @@ public class SinglePaymentService {
         String partnerOrderId = UUID.randomUUID().toString();
 
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
-        ReadyResponseDTO kakaoPayReady = kakaoPaymentUtil.sendRequest("/ready",parameters,ReadyResponseDTO.class);
+        ReadyResponseDTO kakaoPayReady = kakaoPaymentUtil.sendRequest("/ready", parameters, ReadyResponseDTO.class);
 
         String tid = kakaoPayReady != null ? kakaoPayReady.getTid() : null;
 
-        Map<String,String> fields = getKakaoPayReadyRedisFields(partnerOrderId,orderType, tid ,paymentRequestDTO);
-        kakaoPaymentRedisRepository.addMultipleToHashSet(memberId,fields);
-        kakaoPaymentRedisRepository.savePaymentStatus(memberId,PaymentStatus.READY.name());
+        Map<String, String> fields = getKakaoPayReadyRedisFields(partnerOrderId, orderType, tid, paymentRequestDTO);
+        kakaoPaymentRedisRepository.addMultipleToHashSet(memberId, fields);
+        kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.READY.name());
 
         return kakaoPayReady;
     }
@@ -78,7 +90,7 @@ public class SinglePaymentService {
 
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
 
-        ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve",parameters,ApproveResponseDTO.class);
+        ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve", parameters, ApproveResponseDTO.class);
 
         ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
         int quantity = approveResponseDTO.getQuantity();
@@ -120,7 +132,6 @@ public class SinglePaymentService {
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
     }
-
 
     public String checkPaymentStatus(Long memberId) {
         String status = kakaoPaymentRedisRepository.getPaymentStatus(memberId);
@@ -164,7 +175,7 @@ public class SinglePaymentService {
                 .optionName(optionName)
                 .build();
 
-        switch(orderType) {
+        switch (orderType) {
             case PICKUP -> {
                 String pickupPlace = kakaoPaymentRedisRepository.getHashFieldValue(memberId, PICKUP_PLACE.getFieldName());
                 LocalDate pickupDate = LocalDate.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, PICKUP_DATE.getFieldName()));
@@ -184,15 +195,14 @@ public class SinglePaymentService {
     /**
      * 카카오페이 결제 준비 단계에서 Redis에 저장할 필드를 생성
      *
-     * @param partnerOrderId 파트너사 주문 ID
-     * @param orderType 주문 타입
-     * @param tid 카카오페이 트랜잭션 ID
+     * @param partnerOrderId    파트너사 주문 ID
+     * @param orderType         주문 타입
+     * @param tid               카카오페이 트랜잭션 ID
      * @param paymentRequestDTO 결제 요청 정보를 담고 있는 객체 (BasePaymentRequestDTO 타입)
-     *
      * @return Redis에 저장할 필드 값들을 키-값 쌍으로 담고 있는 Map 객체
      */
 
-    private Map<String,String> getKakaoPayReadyRedisFields(
+    private Map<String, String> getKakaoPayReadyRedisFields(
             final String partnerOrderId,
             final String orderType,
             final String tid,
@@ -204,7 +214,7 @@ public class SinglePaymentService {
         fields.put(ORDER_TYPE.getFieldName(), orderType);
         fields.put(OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
 
-        if(paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
+        if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
             fields.put(ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
         }
 
