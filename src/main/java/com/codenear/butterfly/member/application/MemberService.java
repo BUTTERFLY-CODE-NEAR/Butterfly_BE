@@ -2,6 +2,9 @@ package com.codenear.butterfly.member.application;
 
 import static com.codenear.butterfly.s3.domain.S3Directory.PROFILE_IMAGE;
 
+import com.codenear.butterfly.certify.application.CertifyService;
+import com.codenear.butterfly.certify.domain.CertifyType;
+import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -26,6 +29,7 @@ public class MemberService {
     private final PointService pointService;
     private final S3Service s3Service;
     private final AlarmRepository alarmRepository;
+    private final CertifyService certifyService;
 
     public MemberInfoDTO getMemberInfo(MemberDTO memberDTO) {
         Integer pointValue = pointService.loadPointByMemberId(memberDTO.getId()).getPoint();
@@ -64,10 +68,37 @@ public class MemberService {
     public void updateMemberProfileImage(Long memberId, String imageUrl) {
         Member member = loadMemberByMemberId(memberId);
         member.setProfileImage(imageUrl);
+
     }
 
     public Member loadMemberByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+    }
+
+
+    private void validateMemberExistsByPhone(String phoneNumber) {
+        if (!memberRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND, null);
+        }
+    }
+
+    public void findUserByPhoneNumber(String phoneNumber) {
+        validateMemberExistsByPhone(phoneNumber);
+
+        certifyService.sendCertifyCode(phoneNumber, CertifyType.REGISTER_PHONE);
+    }
+
+    private Member loadMemberByPhoneNumber(String phoneNumber) {
+        return memberRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, null));
+    }
+
+    public String findEmail(CertifyRequest request) {
+        certifyService.checkCertifyCode(request, CertifyType.REGISTER_PHONE);
+
+        Member member = loadMemberByPhoneNumber(request.phoneNumber());
+
+        return member.getEmail();
     }
 }
