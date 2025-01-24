@@ -3,6 +3,8 @@ package com.codenear.butterfly.kakaoPay.domain;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
 
+import java.util.Arrays;
+
 public enum PaymentMethod {
     CARD,
     MONEY;
@@ -15,11 +17,9 @@ public enum PaymentMethod {
      * @throws IllegalArgumentException 매핑되는 Enum 값이 없을 경우 예외 발생
      */
     public static PaymentMethod fromString(String name) {
-        for (PaymentMethod type : PaymentMethod.values()) {
-            if (type.name().equalsIgnoreCase(name)) { // 대소문자 구분 없이 비교
-                return type;
-            }
-        }
-        throw new KakaoPayException(ErrorCode.INVALID_PAYMENT_METHOD, "결제 방식을 확인해주세요" + name);
+        return Arrays.stream(PaymentMethod.values())
+                .filter(value -> value.name().equalsIgnoreCase(name))
+                .findFirst()
+                .orElseThrow(() -> new KakaoPayException(ErrorCode.INVALID_PAYMENT_METHOD, String.format("결제 방식을 확인해주세요: %s",name)));
     }
 }
