@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum S3Directory {
     TEST("test/"),
-    PROFILE_IMAGE("image/"),
-    PRODUCT_IMAGE("/");
+    PROFILE_IMAGE("profile/image"),
+    PRODUCT_IMAGE("product/image");
 
     private final String value;
 
