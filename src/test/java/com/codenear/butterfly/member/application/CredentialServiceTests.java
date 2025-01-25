@@ -9,7 +9,6 @@ import com.codenear.butterfly.member.domain.dto.ResetPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.enums.VerificationType;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,13 +20,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
-class CredentialServiceTest {
+public class CredentialServiceTests {
     @Mock
     private MemberRepository memberRepository;
     @Mock
@@ -37,9 +36,8 @@ class CredentialServiceTest {
     @InjectMocks
     private CredentialService credentialService;
 
-    @DisplayName("아이디찾기-핸드폰인증-없는유저")
     @Test
-    void findUserByPhoneNumber_NotFound() {
+    void 아이디찾기_핸드폰인증_없는유저() {
         String phoneNumber = "01012345678";
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
@@ -50,9 +48,8 @@ class CredentialServiceTest {
     }
 
     @Test
-    @DisplayName("아이디찾기-핸드폰인증-성공")
-    void findUserByPhoneNumberSuccess() {
-        String phoneNumber = "010-1234-5678";
+    void 아이디찾기_핸드폰인증_성공() {
+        String phoneNumber = "01012345678";
         Member mockMember = Member.builder()
                 .id(1L)
                 .phoneNumber(phoneNumber)
@@ -67,9 +64,8 @@ class CredentialServiceTest {
         verify(certifyService).sendCertifyCode(phoneNumber, CertifyType.CERTIFY_PHONE);
     }
 
-    @DisplayName("아이디찾기-성공(이메일반환)")
     @Test
-    void findEmail_success() {
+    void 아이디찾기_성공() {
         String phoneNumber = "01012345678";
         String email = "test@example.com";
 
@@ -89,9 +85,8 @@ class CredentialServiceTest {
         verify(memberRepository).findByPhoneNumber(phoneNumber);
     }
 
-    @DisplayName("아이디찾기-없는유저")
     @Test
-    void findEmail_NotFound() {
+    void 아이디찾기_없는유저() {
         String phoneNumber = "01012345678";
         CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, "123456");
 
@@ -108,9 +103,8 @@ class CredentialServiceTest {
         verify(memberRepository).findByPhoneNumber(phoneNumber);
     }
 
-    @DisplayName("비밀번호 찾기-핸드폰인증-없는유저(PHONE)")
     @Test
-    void sendFindPasswordCode_MemberNotFoundByPhone() {
+    void 비밀번호찾기_핸드폰인증_없는유저() {
         String phoneNumber = "01012345678";
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
@@ -120,9 +114,8 @@ class CredentialServiceTest {
         );
     }
 
-    @DisplayName("비밀번호 재설정-없는유저(PHONE)")
     @Test
-    void resetPassword_MemberNotFoundByPhone(){
+    void 비밀번호재설정_핸드폰_없는유저(){
         String phoneNumber = "01012345678";
         String newPassword = "1q2w3e,./";
 
@@ -134,9 +127,8 @@ class CredentialServiceTest {
         );
     }
 
-    @DisplayName("비밀번호 재설정-성공(PHONE)")
     @Test
-    void resetPassword_Success(){
+    void 비밀번호재설정_핸드폰_성공(){
         String phoneNumber = "01012345678";
         String newPassword = "1q2w3e,./";
 
