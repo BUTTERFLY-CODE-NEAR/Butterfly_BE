@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(MockitoExtension.class)
-class MemberServiceTest {
+class CredentialServiceTest {
     @Mock
     private MemberRepository memberRepository;
     @Mock
@@ -35,7 +35,7 @@ class MemberServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
-    private MemberService memberService;
+    private CredentialService credentialService;
 
     @DisplayName("아이디찾기-핸드폰인증-없는유저")
     @Test
@@ -44,7 +44,7 @@ class MemberServiceTest {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> memberService.sendFindEmailcode(phoneNumber),
+                () -> credentialService.sendFindEmailCode(phoneNumber),
                 "해당 번호로 가입된 회원이 없습니다."
         );
     }
@@ -62,7 +62,7 @@ class MemberServiceTest {
         when(memberRepository.findByPhoneNumber(phoneNumber))
                 .thenReturn(Optional.of(mockMember));
 
-        memberService.sendFindEmailcode(phoneNumber);
+        credentialService.sendFindEmailCode(phoneNumber);
 
         verify(certifyService).sendCertifyCode(phoneNumber, CertifyType.CERTIFY_PHONE);
     }
@@ -81,7 +81,7 @@ class MemberServiceTest {
 
         doNothing().when(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
 
-        String returnEmail = memberService.findEmail(certifyRequest);
+        String returnEmail = credentialService.findEmail(certifyRequest);
 
         assertThat(returnEmail).isEqualTo(email);
 
@@ -100,7 +100,7 @@ class MemberServiceTest {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> memberService.findEmail(certifyRequest),
+                () -> credentialService.findEmail(certifyRequest),
                 "해당 번호로 가입된 회원이 없습니다."
         );
 
@@ -115,7 +115,7 @@ class MemberServiceTest {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> memberService.sendFindPasswordCode(new FindPasswordRequestDTO(phoneNumber, VerificationType.PHONE)),
+                () -> credentialService.sendFindPasswordCode(new FindPasswordRequestDTO(phoneNumber, VerificationType.PHONE)),
                 "해당 번호로 가입된 회원이 없습니다."
         );
     }
@@ -129,7 +129,7 @@ class MemberServiceTest {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> memberService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, newPassword, VerificationType.PHONE)),
+                () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, newPassword, VerificationType.PHONE)),
                 "해당 번호로 가입된 회원이 없습니다."
         );
     }
@@ -145,7 +145,7 @@ class MemberServiceTest {
         when(passwordEncoder.encode(newPassword)).thenReturn("encoded_1q2w3e,./");
 
         ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, newPassword, VerificationType.PHONE);
-        memberService.resetPassword(request);
+        credentialService.resetPassword(request);
 
         assertThat(mockMember.getPassword()).isEqualTo("encoded_1q2w3e,./");
         verify(memberRepository).save(mockMember);

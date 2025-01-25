@@ -27,6 +27,7 @@ public class MemberController implements MemberControllerSwagger {
         return ResponseUtil.createSuccessResponse(memberService.getMemberInfo(memberDTO));
     }
 
+    /*
     @PostMapping("/credential/email/{phoneNumber}")
     public ResponseEntity<ResponseDTO> sendCodeForEmailVerification(@PathVariable String phoneNumber) {
         memberService.sendFindEmailcode(phoneNumber);
@@ -55,6 +56,6 @@ public class MemberController implements MemberControllerSwagger {
     public ResponseEntity<ResponseDTO> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO request) {
         memberService.resetPassword(request);
         return ResponseUtil.createSuccessResponse(null);
-    }
+    }*/
 
 }
