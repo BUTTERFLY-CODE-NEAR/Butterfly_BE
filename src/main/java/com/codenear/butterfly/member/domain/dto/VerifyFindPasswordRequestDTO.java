@@ -13,5 +13,4 @@ public class VerifyFindPasswordRequestDTO {
     private String identifier;
     @NotBlank
     private String certifyCode;
-
 }
