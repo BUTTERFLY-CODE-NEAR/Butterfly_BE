@@ -1,12 +1,14 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
 public class CardInfo {
 
     @Id
@@ -27,4 +29,20 @@ public class CardInfo {
 
     @OneToOne(mappedBy = "cardInfo")
     private SinglePayment singlePayment;
+
+    @Builder
+    public CardInfo(ApproveResponseDTO approveResponseDTO) {
+        this.approvedId = approveResponseDTO.getCard_info().getApproved_id();
+        this.bin = approveResponseDTO.getCard_info().getBin();
+        this.cardMid = approveResponseDTO.getCard_info().getCard_mid();
+        this.cardType = approveResponseDTO.getCard_info().getCard_type();
+        this.installMonth = approveResponseDTO.getCard_info().getInstall_month();
+        this.cardItemCode = approveResponseDTO.getCard_info().getCard_item_code();
+        this.installmentType = approveResponseDTO.getCard_info().getInstallment_type();
+        this.interestFreeInstall = approveResponseDTO.getCard_info().getInterest_free_install();
+        this.kakaopayPurchaseCorp = approveResponseDTO.getCard_info().getKakaopay_purchase_corp();
+        this.kakaopayPurchaseCorpCode = approveResponseDTO.getCard_info().getKakaopay_purchase_corp_code();
+        this.kakaopayIssuerCorp = approveResponseDTO.getCard_info().getKakaopay_issuer_corp();
+        this.kakaopayIssuerCorpCode = approveResponseDTO.getCard_info().getKakaopay_issuer_corp_code();
+    }
 }
