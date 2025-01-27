@@ -38,7 +38,7 @@ public class CertifyService {
             }
             case CERTIFY_EMAIL -> {
                 try {
-                    mailService.sendCertifyCode(identifier);
+                    mailService.sendCertifyCode(identifier, code);
                 } catch (MessagingException e) {
                     throw new CertifyException(VALIDATION_FAILED, e);
                 }
@@ -85,8 +85,12 @@ public class CertifyService {
         if (storedCode == null)
             throw new CertifyException(CERTIFY_CODE_EXPIRED, null);
 
-        if (!storedCode.equals(inputCode))
+        if (!storedCode.equals(inputCode)){
+            System.out.println(storedCode);
+            System.out.println(inputCode);
             throw new CertifyException(CERTIFY_CODE_MISMATCH, null);
+
+        }
     }
 
     private void deleteStoredCode(String key) {

@@ -17,9 +17,7 @@ public class MailService {
     @Value("${mail.username}")
     private String senderEmail;
 
-    public String sendCertifyCode(String sendEmail) throws MessagingException {
-        String code = generateCertifyCode();
-
+    public String sendCertifyCode(String sendEmail, String code) throws MessagingException {
         MimeMessage message = createMail(sendEmail, code);
         try {
             javaMailSender.send(message);
