@@ -42,6 +42,8 @@ public class CredentialService {
                 certifyService.sendCertifyCode(request.getIdentifier(), CertifyType.CERTIFY_PHONE);
             }
             case EMAIL -> {
+                validateMemberExistsByEmail(request.getIdentifier());
+                certifyService.sendCertifyCode(request.getIdentifier(), CertifyType.CERTIFY_EMAIL);
             }
         }
     }
@@ -49,31 +51,29 @@ public class CredentialService {
     public void verifyFindPasswordCode(VerifyFindPasswordRequestDTO request) {
         switch (request.getType()) {
             case PHONE -> {
-                CertifyRequest certifyRequest = new CertifyRequest(
-                        request.getIdentifier(),
-                        request.getCertifyCode()
-                );
+                CertifyRequest certifyRequest =
+                        new CertifyRequest(request.getIdentifier(), null, request.getCertifyCode());
                 certifyService.checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
             }
             case EMAIL -> {
+                CertifyRequest certifyRequest =
+                        new CertifyRequest(null, request.getIdentifier(), request.getCertifyCode());
+                certifyService.checkCertifyCode(certifyRequest, CertifyType.CERTIFY_EMAIL);
             }
-        }
+        };
     }
 
     @CacheEvict(value = "userCache, memberCache", key = "#memberId")
     public void resetPassword(ResetPasswordRequestDTO request) {
-        switch (request.getType()) {
-            case PHONE -> {
-                Member member = loadMemberByPhoneNumber(request.getIdentifier());
+        Member member = switch (request.getType()) {
+            case PHONE -> loadMemberByPhoneNumber(request.getIdentifier());
+            case EMAIL -> loadMemberByEmail(request.getIdentifier());
+        };
+        
+        String encodedPassword = passwordEncoder.encode(request.getNewPassword());
+        member.updatePassword(encodedPassword);
 
-                String encodedPassword = passwordEncoder.encode(request.getNewPassword());
-                member.updatePassword(encodedPassword);
-
-                memberRepository.save(member);
-            }
-            case EMAIL -> {
-            }
-        }
+        memberRepository.save(member);
     }
 
     private void validateMemberExistsByPhone(String phoneNumber) {
@@ -82,8 +82,19 @@ public class CredentialService {
         }
     }
 
+    private void validateMemberExistsByEmail(String email) {
+        if (!memberRepository.findByEmail(email).isPresent()) {
+            throw new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null);
+        }
+    }
+
     private Member loadMemberByPhoneNumber(String phoneNumber) {
         return memberRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null));
+    }
+
+    private Member loadMemberByEmail(String email) {
+        return memberRepository.findByPhoneNumber(email)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null));
     }
 }

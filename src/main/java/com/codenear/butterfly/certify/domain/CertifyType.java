@@ -2,7 +2,8 @@ package com.codenear.butterfly.certify.domain;
 
 public enum CertifyType {
     REGISTER_PHONE("RESISTER_CODE: %s"),
-    CERTIFY_PHONE("CERTIFY_CODE: %s");
+    CERTIFY_PHONE("CERTIFY_CODE: %s"),
+    CERTIFY_EMAIL("CERTIFY_CODE: %s");
 
     private final String redisKey;
 

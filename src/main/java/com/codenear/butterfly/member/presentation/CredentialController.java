@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member/credential")
+@RequestMapping("/auth/credential")
 public class CredentialController implements CredentialControllerSwagger{
 
     private final CredentialService credentialService;

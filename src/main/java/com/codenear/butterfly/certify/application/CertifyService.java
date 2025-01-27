@@ -1,17 +1,19 @@
 package com.codenear.butterfly.certify.application;
 
-import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_EXPIRED;
-import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_MISMATCH;
-
 import com.codenear.butterfly.certify.domain.CertifyType;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.certify.exception.CertifyException;
 import com.codenear.butterfly.global.util.RandomUtil;
+import com.codenear.butterfly.mail.application.MailService;
 import com.codenear.butterfly.sms.application.SmsService;
 import java.util.concurrent.TimeUnit;
+
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import static com.codenear.butterfly.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +24,38 @@ public class CertifyService {
     private static final int CERTIFY_CODE_LENGTH = 6;
 
     private final SmsService smsService;
+    private final MailService mailService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void sendCertifyCode(String phoneNumber, CertifyType certifyType) {
+    public void sendCertifyCode(String identifier, CertifyType certifyType) {
         String code = generateCertifyCode();
-        String message = String.format(MESSAGE, code);
 
-        smsService.sendSMS(phoneNumber, message);
+        switch (certifyType) {
+            case CERTIFY_PHONE -> {
+                String message = String.format(MESSAGE, code);
 
-        String key = createRedisKey(phoneNumber, certifyType);
+                smsService.sendSMS(identifier, message);
+            }
+            case CERTIFY_EMAIL -> {
+                try {
+                    mailService.sendCertifyCode(identifier);
+                } catch (MessagingException e) {
+                    throw new CertifyException(VALIDATION_FAILED, e);
+                }
+            }
+        }
+
+        String key = createRedisKey(identifier, certifyType);
         storeCertifyCode(key, code);
     }
 
     public void checkCertifyCode(CertifyRequest request, CertifyType certifyType) {
-        String key = createRedisKey(request.phoneNumber(), certifyType);
+        String key = switch (certifyType) {
+            case REGISTER_PHONE -> createRedisKey(request.phoneNumber(), certifyType); // 추후 삭제 예정
+            case CERTIFY_PHONE -> createRedisKey(request.phoneNumber(), certifyType);
+            case CERTIFY_EMAIL -> createRedisKey(request.email(), certifyType);
+        };
+
         String storedCode = getStoredCode(key);
 
         validateCertifyCode(storedCode, request.certifyCode());
