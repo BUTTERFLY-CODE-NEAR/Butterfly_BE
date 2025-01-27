@@ -63,7 +63,7 @@ public class CredentialService {
         };
     }
 
-    @CacheEvict(value = "userCache, memberCache", key = "#memberId")
+    @CacheEvict(value = "userCache, memberCache", key = "#request.identifier")
     public void resetPassword(ResetPasswordRequestDTO request) {
         Member member = switch (request.getType()) {
             case PHONE -> loadMemberByPhoneNumber(request.getIdentifier());
@@ -94,7 +94,7 @@ public class CredentialService {
     }
 
     private Member loadMemberByEmail(String email) {
-        return memberRepository.findByPhoneNumber(email)
+        return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null));
     }
 }
