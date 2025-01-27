@@ -1,17 +1,24 @@
 package com.codenear.butterfly.auth.annotation;
 
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
+import com.codenear.butterfly.member.domain.dto.ResetPasswordRequestDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PasswordValidator implements ConstraintValidator<ValidPassword, AuthRegisterDTO> {
+public class PasswordValidator implements ConstraintValidator<ValidPassword, Object> {
 
     private static final int MIN_PASSWORD_LENGTH = 10;
     private static final int MAX_PASSWORD_LENGTH = 18;
 
     @Override
-    public boolean isValid(AuthRegisterDTO authRequestDTO, ConstraintValidatorContext context) {
-        String password = authRequestDTO.getPassword();
+    public boolean isValid(Object dto, ConstraintValidatorContext context) {
+        String password = null;
+
+        if (dto instanceof AuthRegisterDTO) {
+            password = ((AuthRegisterDTO) dto).getPassword();
+        } else if (dto instanceof ResetPasswordRequestDTO) {
+            password = ((ResetPasswordRequestDTO) dto).getNewPassword();
+        }
 
         if (password == null || password.isBlank()) {
             buildValidatorMessage(context, "비밀번호 입력은 필수입니다.");

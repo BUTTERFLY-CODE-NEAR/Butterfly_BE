@@ -15,6 +15,5 @@ public class ResetPasswordRequestDTO {
     @NotBlank
     private String identifier;
     private String newPassword;
-    @NotBlank
     private VerificationType type;
 }
