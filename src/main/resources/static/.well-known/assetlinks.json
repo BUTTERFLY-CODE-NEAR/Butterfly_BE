@@ -1,9 +1,0 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "com.codenear.butterfly",
-    "package_name": "com.codenear.butterfly",
-    "sha256_cert_fingerprints":
-    ["52:d1:5e:80:91:fd:9f:f4:69:ab:c0:4a:66:da:57:67:fa:98:46:0d:5b:eb:44:55:ad:74:47:fb:21:84:9d:7b"]
-  }
-}]
