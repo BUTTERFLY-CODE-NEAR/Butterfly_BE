@@ -14,12 +14,16 @@ public class MailConfig {
     private String password;
     @Value("${mail.username}")
     private String username;
+    @Value("${mail.port}")
+    private Integer port;
+    @Value("${mail.host}")
+    private String host;
 
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
+        mailSender.setHost(host);
+        mailSender.setPort(port);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
