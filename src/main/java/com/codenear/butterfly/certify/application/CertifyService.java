@@ -85,12 +85,8 @@ public class CertifyService {
         if (storedCode == null)
             throw new CertifyException(CERTIFY_CODE_EXPIRED, null);
 
-        if (!storedCode.equals(inputCode)){
-            System.out.println(storedCode);
-            System.out.println(inputCode);
+        if (!storedCode.equals(inputCode))
             throw new CertifyException(CERTIFY_CODE_MISMATCH, null);
-
-        }
     }
 
     private void deleteStoredCode(String key) {
