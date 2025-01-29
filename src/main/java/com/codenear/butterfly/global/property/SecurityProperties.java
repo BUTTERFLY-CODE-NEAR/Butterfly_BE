@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 @Component
 public class SecurityProperties {
-    @Value("${SECURITY_WHITELIST:}")
+    @Value("${SECURITY_WHITELIST}")
     private String whitelist;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();

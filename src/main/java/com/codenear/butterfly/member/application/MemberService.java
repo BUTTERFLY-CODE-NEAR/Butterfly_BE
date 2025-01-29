@@ -64,6 +64,7 @@ public class MemberService {
     public void updateMemberProfileImage(Long memberId, String imageUrl) {
         Member member = loadMemberByMemberId(memberId);
         member.setProfileImage(imageUrl);
+
     }
 
     public Member loadMemberByMemberId(Long memberId) {
