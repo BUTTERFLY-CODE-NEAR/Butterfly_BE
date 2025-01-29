@@ -24,14 +24,6 @@ public class AlarmService {
     private final AlarmRedisRepository alarmRedisRepository;
     private final ConsentDataAccess consentDataAccess;
 
-    private static Alarm createAlarm(final NotifyMessage message, final Member member) {
-        return Alarm.builder()
-                .notifyMessage(message)
-                .member(member)
-                .isNew(true)
-                .build();
-    }
-
     public AlarmsResponse getAlarmsByMemberId(Long memberId) {
         List<Alarm> alarms = alarmRepository.findByMemberId(memberId);
         alarmRepository.markAllAsReadByMemberId(memberId); // 전체 읽음 처리
@@ -40,7 +32,8 @@ public class AlarmService {
     }
 
     public void addSingleAlarm(NotifyMessage message, Member member) {
-        alarmRepository.save(createAlarm(message, member));
+        Alarm alarm = Alarm.builder().notifyMessage(message).member(member).build();
+        alarmRepository.save(alarm);
     }
 
     public void addConsentBasedAlarms(NotifyMessage message) {
