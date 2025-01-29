@@ -4,6 +4,7 @@ import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.notify.alarm.application.AlarmService;
+import com.codenear.butterfly.notify.alarm.domain.dto.AlarmCountResponseDTO;
 import com.codenear.butterfly.notify.alarm.domain.dto.AlarmsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,11 @@ public class AlarmController implements AlarmControllerSwagger {
     public ResponseEntity<ResponseDTO> getAlarms(@AuthenticationPrincipal MemberDTO loginMember) {
         AlarmsResponse alarms = alarmService.getAlarmsByMemberId(loginMember.getId());
         return ResponseUtil.createSuccessResponse(alarms);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<ResponseDTO> getUnreadAlarmCount(MemberDTO loginMember) {
+        AlarmCountResponseDTO unreadAlarmCount = alarmService.getAlarmCountByMember(loginMember.getId());
+        return ResponseUtil.createSuccessResponse(unreadAlarmCount);
     }
 }
