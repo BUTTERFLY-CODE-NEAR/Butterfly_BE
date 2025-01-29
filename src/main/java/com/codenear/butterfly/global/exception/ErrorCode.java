@@ -48,6 +48,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(40402, "등록되지 않은 회원입니다.", NOT_FOUND),
     ORDER_NOT_FOUND(40403, "해당 주문이 없습니다.", NOT_FOUND),
     NOTIFY_MESSAGE_NOT_FOUND(40404, "찾을 수 없는 알림 메시지 입니다.", NOT_FOUND),
+    MEMBER_NOT_FOUND_BY_PHONE(40405, "해당 번호로 가입된 회원이 없습니다.", NOT_FOUND),
+    MEMBER_NOT_FOUND_BY_EMAIL(40406, "해당 이메일로 가입된 회원이 없습니다.", NOT_FOUND),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", CONFLICT),

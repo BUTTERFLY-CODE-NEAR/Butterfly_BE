@@ -38,3 +38,4 @@ out/
 ### resources
 **/src/main/resources/firebase/**
 **/src/main/resources/static/sb-admin/**
+**/src/main/resources/static/.well-known/**
