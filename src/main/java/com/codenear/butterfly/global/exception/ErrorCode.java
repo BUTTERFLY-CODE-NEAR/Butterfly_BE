@@ -1,11 +1,17 @@
 package com.codenear.butterfly.global.exception;
 
-import static org.springframework.http.HttpStatus.*;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.PAYMENT_REQUIRED;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,6 +25,7 @@ public enum ErrorCode {
     CERTIFY_CODE_EXPIRED(40005, "인증 번호 입력 시간이 초과되었습니다. 다시 시도해 주세요.", BAD_REQUEST),
     FILE_SIZE_LIMIT_EXCEEDED(40006, "업로드 파일 크기가 초과되었습니다.", BAD_REQUEST),
     INSUFFICIENT_STOCK(40007, "해당 상품의 재고가 부족합니다.", BAD_REQUEST),
+    INVALID_PAYMENT_METHOD(40008, "해당 결제 수단을 사용할 수 없습니다.", BAD_REQUEST),
 
     // 401 (UNAUTHORIZED)
     NULL_JWT_ACCESS_TOKEN(40100, "(Access) 토큰이 존재하지 않습니다.", UNAUTHORIZED),
@@ -30,7 +37,7 @@ public enum ErrorCode {
     BLACKLIST_JWT_REFRESH_TOKEN(40101, "(Refresh) 사용이 금지된 토큰입니다.", UNAUTHORIZED),
 
     // 402 (PAYMENT_REQUIRED)
-    PAY_FAILED(40200,"결제가 실패하였습니다.", PAYMENT_REQUIRED),
+    PAY_FAILED(40200, "결제가 실패하였습니다.", PAYMENT_REQUIRED),
 
     // 403 (FORBIDDEN)
     INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", FORBIDDEN),
@@ -41,6 +48,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(40402, "등록되지 않은 회원입니다.", NOT_FOUND),
     ORDER_NOT_FOUND(40403, "해당 주문이 없습니다.", NOT_FOUND),
     NOTIFY_MESSAGE_NOT_FOUND(40404, "찾을 수 없는 알림 메시지 입니다.", NOT_FOUND),
+    MEMBER_NOT_FOUND_BY_PHONE(40405, "해당 번호로 가입된 회원이 없습니다.", NOT_FOUND),
+    MEMBER_NOT_FOUND_BY_EMAIL(40406, "해당 이메일로 가입된 회원이 없습니다.", NOT_FOUND),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", CONFLICT),

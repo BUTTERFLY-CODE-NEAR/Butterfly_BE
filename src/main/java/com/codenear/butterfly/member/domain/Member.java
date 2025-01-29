@@ -82,4 +82,8 @@ public class Member extends BaseEntity {
         return favorites.stream()
                 .anyMatch(favorite -> favorite.getProduct().equals(product));
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

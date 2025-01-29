@@ -1,194 +1,73 @@
 package com.codenear.butterfly.kakaoPay.domain.repository;
 
-import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_STATUS;
+
 @Repository
+@RequiredArgsConstructor
 public class KakaoPaymentRedisRepository {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
-
+    private static final String PAYMENT_HASH_KEY_PREFIX = "pay:";
+    private static final int TIME_TO_LIVE_MINUTE = 15;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public KakaoPaymentRedisRepository(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    /**
+     * Redis Hash에 여러개의 데이터를 한번에 저장
+     *
+     * @param memberId 멤버 아이디
+     * @param fields   여러개의 필드와 값이 저장된 맵
+     */
+    public void addMultipleToHashSet(final Long memberId, final Map<String, String> fields) {
+        // 여러 값을 한 번에 저장
+        redisTemplate.opsForHash().putAll(PAYMENT_HASH_KEY_PREFIX + memberId, fields);
+        ensureTTL(memberId);
     }
 
-    public void saveOrderId(Long memberId, String orderId) {
-        String key = "order:" + memberId;
-        redisTemplate.opsForValue().set(key, orderId, 30, TimeUnit.MINUTES);
+    /**
+     * Redis Hash에서 특정 필드의 값을 가져오는 메서드
+     *
+     * @param memberId 멤버 아이디
+     * @param field    필드 이름
+     * @return 필드 값
+     */
+    public String getHashFieldValue(final Long memberId, final String field) {
+        return (String) redisTemplate.opsForHash().get(PAYMENT_HASH_KEY_PREFIX + memberId, field);
     }
 
-    public String getOrderId(Long memberId) {
-        String key = "order:" + memberId;
-        return redisTemplate.opsForValue().get(key);
+    /**
+     * 멤버의 Redis Hash Table 제거
+     *
+     * @param memberId 멤버 아이디
+     */
+    public void removeHashTableKey(final Long memberId) {
+        redisTemplate.delete(PAYMENT_HASH_KEY_PREFIX + memberId);
     }
 
-    public void removeOrderId(Long memberId) {
-        String key = "order:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    public void saveTransactionId(Long memberId, String tid) {
-        String key = "transaction:" + memberId;
-        redisTemplate.opsForValue().set(key, tid, 30, TimeUnit.MINUTES);
-    }
-
-    public String getTransactionId(Long memberId) {
-        String key = "transaction:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    public void removeTransactionId(Long memberId) {
-        String key = "transaction:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    public void saveOrderRelatedData(Long memberId, String orderType, BasePaymentRequestDTO paymentRequestDTO) {
-        saveOrderType(memberId, orderType);
-        saveAddressId(memberId, paymentRequestDTO);
-        saveOptionName(memberId, paymentRequestDTO);
-
-        if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupDTO) {
-            savePickupPlace(memberId, pickupDTO.getPickupPlace());
-            savePickupDate(memberId, pickupDTO.getPickupDate());
-            savePickupTime(memberId, pickupDTO.getPickupTime());
+    /**
+     * TTL 시간 설정
+     */
+    private void ensureTTL(final Long memberId) {
+        String key = PAYMENT_HASH_KEY_PREFIX + memberId;
+        // Hash Key가 처음 생성된 경우에만 TTL 설정
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(key + memberId))) {
+            // TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
+            redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MILLISECONDS);
         }
-    }
-
-    private void saveOrderType(Long memberId, String orderType) {
-        String key = "orderType:" + memberId;
-        redisTemplate.opsForValue().set(key, orderType, 30, TimeUnit.MINUTES);
-    }
-
-    public String getOrderType(Long memberId) {
-        String key = "orderType:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removeOrderType(Long memberId) {
-        String key = "orderType:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void saveAddressId(Long memberId, BasePaymentRequestDTO paymentRequestDTO) {
-        if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO) {
-            String key = "addressId:" + memberId;
-            redisTemplate.opsForValue().set(key, ((DeliveryPaymentRequestDTO) paymentRequestDTO).getAddressId().toString(), 30, TimeUnit.MINUTES);
-        }
-    }
-
-    public Long getAddressId(Long memberId) {
-        String key = "addressId:" + memberId;
-        String addressIdStr = redisTemplate.opsForValue().get(key);
-        return addressIdStr != null ? Long.parseLong(addressIdStr) : null;
-    }
-
-    private void removeAddressId(Long memberId) {
-        String key = "addressId:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void saveOptionName(Long memberId, BasePaymentRequestDTO paymentRequestDTO) {
-        String optionName = paymentRequestDTO.getOptionName();
-        if (optionName != null) {
-            String key = "optionName:" + memberId;
-            redisTemplate.opsForValue().set(key, optionName, 30, TimeUnit.MINUTES);
-        }
-    }
-
-    public String getOptionName(Long memberId) {
-        String key = "optionName:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removeOptionName(Long memberId) {
-        String key = "optionName:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void savePickupDate(Long memberId, LocalDate pickupDate) {
-        if (pickupDate != null) {
-            String key = "pickupDate:" + memberId;
-            String dateStr = pickupDate.format(DATE_FORMATTER);
-            redisTemplate.opsForValue().set(key, dateStr, 30, TimeUnit.MINUTES);
-        }
-    }
-
-    public LocalDate getPickupDate(Long memberId) {
-        String key = "pickupDate:" + memberId;
-        String dateStr = redisTemplate.opsForValue().get(key);
-        return dateStr != null ? LocalDate.parse(dateStr, DATE_FORMATTER) : null;
-    }
-
-    private void removePickupDate(Long memberId) {
-        String key = "pickupDate:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void savePickupTime(Long memberId, LocalTime pickupTime) {
-        if (pickupTime != null) {
-            String key = "pickupTime:" + memberId;
-            String timeStr = pickupTime.format(TIME_FORMATTER);
-            redisTemplate.opsForValue().set(key, timeStr, 30, TimeUnit.MINUTES);
-        }
-    }
-
-    public LocalTime getPickupTime(Long memberId) {
-        String key = "pickupTime:" + memberId;
-        String timeStr = redisTemplate.opsForValue().get(key);
-        return timeStr != null ? LocalTime.parse(timeStr, TIME_FORMATTER) : null;
-    }
-
-    private void removePickupTime(Long memberId) {
-        String key = "pickupTime:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    private void savePickupPlace(Long memberId, String pickupPlace) {
-        if (pickupPlace != null) {
-            String key = "pickupPlace:" + memberId;
-            redisTemplate.opsForValue().set(key, pickupPlace, 30, TimeUnit.MINUTES);
-        }
-    }
-
-    public String getPickupPlace(Long memberId) {
-        String key = "pickupPlace:" + memberId;
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    private void removePickupPlace(Long memberId) {
-        String key = "pickupPlace:" + memberId;
-        redisTemplate.delete(key);
-    }
-
-    public void removeOrderRelatedData(Long memberId) {
-        removeOrderId(memberId);
-        removeTransactionId(memberId);
-        removeOrderType(memberId);
-        removeAddressId(memberId);
-        removeOptionName(memberId);
-        removePickupDate(memberId);
-        removePickupTime(memberId);
-        removePickupPlace(memberId);
     }
 
     public void savePaymentStatus(Long memberId, String status) {
-        String key = "paymentStatus:" + memberId;
+        String key = PAYMENT_STATUS.getFieldName() + memberId;
         redisTemplate.opsForValue().set(key, status, 30, TimeUnit.MINUTES);
     }
 
     public String getPaymentStatus(Long memberId) {
-        String key = "paymentStatus:" + memberId;
+        String key = PAYMENT_STATUS.getFieldName() + memberId;
         return redisTemplate.opsForValue().get(key);
     }
 

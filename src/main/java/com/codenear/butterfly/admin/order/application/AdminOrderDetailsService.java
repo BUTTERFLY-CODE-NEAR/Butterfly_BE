@@ -29,7 +29,7 @@ public class AdminOrderDetailsService {
         OrderDetails order = orderDetailsRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ErrorCode.ORDER_NOT_FOUND, ErrorCode.ORDER_NOT_FOUND.getMessage()));
 
-        order.setOrderStatus(newStatus);
+        order.updateOrderStatus(newStatus);
         orderDetailsRepository.save(order);
     }
 }
