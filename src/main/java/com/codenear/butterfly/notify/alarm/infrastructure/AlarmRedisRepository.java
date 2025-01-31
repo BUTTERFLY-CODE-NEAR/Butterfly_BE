@@ -4,22 +4,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.concurrent.TimeUnit;
+
 @Repository
 @RequiredArgsConstructor
 public class AlarmRedisRepository {
     private final String ALARM_REDIS_PREFIX = "unread_alarm:";
     private final String BROADCAST_COUNT_KEY = "broadcast_count";
     private final String LAST_READ_BROADCAST_PREFIX = "last_read_broadcast:";
-
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 알림이 생성되었을 때 미확인 알림 개수 증가
+     * 초기 TTL을 1주일로 설정 이유 : 앱 설치 후 7일 경과 시 평균 앱 이탈률은 87%이며, 30일 후에는 94%정도의 이탈률
+     * 출처 : NNT-Consulting 블로
      *
      * @param memberId 멤버 아이디
      */
     public void incrementAlarmByMember(Long memberId) {
-        redisTemplate.opsForValue().increment(ALARM_REDIS_PREFIX + memberId);
+        String key = ALARM_REDIS_PREFIX + memberId;
+
+        redisTemplate.opsForValue().increment(key);
+        //TODO: 추후 이탈률 계산해서 TTL 재설정 하기
+        redisTemplate.expire(key, 7, TimeUnit.DAYS);
     }
 
     /**
