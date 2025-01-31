@@ -47,7 +47,6 @@ public class AlarmService {
      * @param memberId 멤버 아이디
      * @return 미확인 알림 개수 반환 ResponseDTO
      */
-    @Transactional(readOnly = true)
     public AlarmCountResponseDTO getAlarmCountByMember(Long memberId) {
         Long unreadCount = alarmRedisRepository.getTotalUnreadAlarms(memberId);
         return AlarmCountResponseDTO.builder()
