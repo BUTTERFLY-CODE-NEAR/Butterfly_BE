@@ -50,11 +50,13 @@ class AlarmServiceTest {
 
     private Long memberId;
     private NotifyMessage message;
+    private AtomicLong unreadCount;
 
     @BeforeEach
     void setUp() {
         memberId = 1L;
         message = mock(NotifyMessage.class);
+        unreadCount = new AtomicLong(0L);
     }
 
     @Test
@@ -88,8 +90,6 @@ class AlarmServiceTest {
     @Test
     void 개인_알림을_발행하면_미확인_알림_개수가_증가한다() {
         //given
-        AtomicLong unreadCount = new AtomicLong(0L);
-
         doAnswer(invocation -> {
             unreadCount.incrementAndGet();
             return null;
@@ -112,7 +112,6 @@ class AlarmServiceTest {
     void 전역_알림을_발송하면_미확인_알림_개수가_증가한다() {
         // given
         String topic = "topic";
-        AtomicLong unreadCount = new AtomicLong(0L);
 
         doAnswer(invocation -> {
             unreadCount.incrementAndGet();
@@ -133,8 +132,6 @@ class AlarmServiceTest {
     @Test
     void 알림을_확인하면_미확인_알림_개수가_초기화된다() {
         //given
-        AtomicLong unreadCount = new AtomicLong(0L);
-
         doAnswer(invocation -> {
             unreadCount.incrementAndGet();
             return null;
