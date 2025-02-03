@@ -2,7 +2,6 @@ package com.codenear.butterfly.product.util;
 
 import com.codenear.butterfly.product.domain.Option;
 import com.codenear.butterfly.product.domain.Price;
-import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.OptionDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
@@ -17,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductMapper {
 
-    public static ProductViewDTO toProductViewDTO(ProductInventory product, boolean isFavorite) {
+    public static ProductViewDTO toProductViewDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
         Price price = Price.of(
                 product.getOriginalPrice(),
                 product.getSaleRate(),
@@ -35,11 +34,12 @@ public class ProductMapper {
                 product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(),
                 isFavorite,
-                product.isSoldOut()
+                product.isSoldOut(),
+                appliedGauge
         );
     }
 
-    public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite) {
+    public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
         Price price = Price.of(product.getOriginalPrice(), product.getSaleRate(), product.getCurrentDiscountRate());
         List<OptionDTO> optionDTOs = product.getOptions().stream()
                 .map(ProductMapper::toOptionDTO)
@@ -59,7 +59,8 @@ public class ProductMapper {
                 optionDTOs,
                 product.getDescription(),
                 product.getProductVolume(),
-                product.getExpirationDate()
+                product.getExpirationDate(),
+                appliedGauge
         );
     }
 

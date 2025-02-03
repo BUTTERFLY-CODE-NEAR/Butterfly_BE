@@ -2,7 +2,11 @@ package com.codenear.butterfly.product.domain;
 
 import com.codenear.butterfly.admin.products.dto.DiscountRateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -109,6 +113,10 @@ public class ProductInventory extends Product {
         if (this.purchaseParticipantCount >= this.maxPurchaseCount) {
             this.purchaseParticipantCount %= this.maxPurchaseCount;
         }
+    }
+
+    public Float calculateGauge() {
+        return Math.round((float) purchaseParticipantCount / maxPurchaseCount * 1000f) / 1000f;
     }
 
     private double calculateParticipationRate() {
