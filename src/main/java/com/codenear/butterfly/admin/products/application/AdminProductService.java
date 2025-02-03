@@ -28,7 +28,6 @@ import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 @Service
 @RequiredArgsConstructor
 public class AdminProductService {
-
     private final S3Service s3Service;
     private final FCMFacade fcmFacade;
     private final ProductInventoryRepository productRepository;
@@ -46,6 +45,11 @@ public class AdminProductService {
                 .map(Keyword::new)
                 .toList();
 
+        String deliveryInformation = request.deliveryInformation();
+        if (deliveryInformation.isEmpty()) {
+            deliveryInformation = "6시 이후 순차배송";
+        }
+
         ProductInventory product = ProductInventory.builder()
                 .productName(request.productName())
                 .companyName(request.companyName())
@@ -58,6 +62,7 @@ public class AdminProductService {
                 .maxPurchaseCount(request.maxPurchaseCount())
                 .keywords(keywords)
                 .productImage(imageUrl)
+                .deliveryInformation(deliveryInformation)
                 .build();
 
         productRepository.save(product);

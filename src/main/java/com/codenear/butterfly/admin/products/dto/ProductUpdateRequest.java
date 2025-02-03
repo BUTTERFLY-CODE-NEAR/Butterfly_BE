@@ -29,6 +29,7 @@ public class ProductUpdateRequest {
     private Integer purchaseParticipantCount;
     private Integer maxPurchaseCount;
     private Integer stockQuantity;
+    private String deliveryInformation;
     private List<String> keywords;
     private List<DiscountRateRequest> discountRates;
 

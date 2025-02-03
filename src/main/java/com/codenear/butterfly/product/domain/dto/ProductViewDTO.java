@@ -17,6 +17,7 @@ public record ProductViewDTO(
         @Schema(description = "최대 구매 수량") Integer maxPurchaseCount,
         @Schema(description = "좋아요 여부") Boolean isFavorite,
         @Schema(description = "품절 여부") Boolean isSoldOut,
-        @Schema(description = "신청 게이지") Float appliedGauge
+        @Schema(description = "신청 게이지") Float appliedGauge,
+        @Schema(description = "배송 정보") String deliveryInformation
 ) {
 }

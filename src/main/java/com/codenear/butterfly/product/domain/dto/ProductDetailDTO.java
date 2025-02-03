@@ -21,6 +21,7 @@ public record ProductDetailDTO(
         @Schema(description = "상품 설명") String description,
         @Schema(description = "개별 내용물의 용량(중량)") String productVolume,
         @Schema(description = "소비기한") String expirationDate,
-        @Schema(description = "신청 게이지") Float appliedGauge
+        @Schema(description = "신청 게이지") Float appliedGauge,
+        @Schema(description = "배송 정보") String deliveryInformation
 ) {
 }

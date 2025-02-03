@@ -35,7 +35,8 @@ public class ProductMapper {
                 product.getMaxPurchaseCount(),
                 isFavorite,
                 product.isSoldOut(),
-                appliedGauge
+                appliedGauge,
+                product.getDeliveryInformation()
         );
     }
 
@@ -60,7 +61,8 @@ public class ProductMapper {
                 product.getDescription(),
                 product.getProductVolume(),
                 product.getExpirationDate(),
-                appliedGauge
+                appliedGauge,
+                product.getDeliveryInformation()
         );
     }
 
