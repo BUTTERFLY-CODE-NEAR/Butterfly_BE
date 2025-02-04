@@ -57,7 +57,7 @@ public class KakaoPaymentRedisRepository {
         // Hash Key가 처음 생성된 경우에만 TTL 설정
         if (Boolean.FALSE.equals(redisTemplate.hasKey(key + memberId))) {
             // TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
-            redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MILLISECONDS);
+            redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MINUTES);
         }
     }
 
