@@ -23,21 +23,7 @@ public class ProductMapper {
                 product.getCurrentDiscountRate()
         );
 
-        return new ProductViewDTO(
-                product.getId(),
-                product.getCompanyName(),
-                product.getProductName(),
-                product.getProductImage(),
-                product.getOriginalPrice(),
-                calculateFinalSaleRate(product),
-                price.calculateSalePrice(),
-                product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount(),
-                isFavorite,
-                product.isSoldOut(),
-                appliedGauge,
-                product.getDeliveryInformation()
-        );
+        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), appliedGauge);
     }
 
     public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
@@ -46,24 +32,7 @@ public class ProductMapper {
                 .map(ProductMapper::toOptionDTO)
                 .toList();
 
-        return new ProductDetailDTO(
-                product.getId(),
-                product.getCompanyName(),
-                product.getProductName(),
-                product.getProductImage(),
-                product.getOriginalPrice(),
-                calculateFinalSaleRate(product),
-                price.calculateSalePrice(),
-                product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount(),
-                isFavorite,
-                optionDTOs,
-                product.getDescription(),
-                product.getProductVolume(),
-                product.getExpirationDate(),
-                appliedGauge,
-                product.getDeliveryInformation()
-        );
+        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), appliedGauge, optionDTOs);
     }
 
     private static BigDecimal calculateFinalSaleRate(ProductInventory product) {
@@ -76,14 +45,6 @@ public class ProductMapper {
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         BigDecimal salePrice = originalPriceDecimal.subtract(discount);
 
-        return new OptionDTO(
-                option.getId(),
-                option.getSubtitle(),
-                option.getProductName(),
-                option.getProductImage(),
-                option.getOriginalPrice(),
-                option.getSaleRate(),
-                salePrice.intValue()
-        );
+        return new OptionDTO(option, salePrice.intValue());
     }
 }

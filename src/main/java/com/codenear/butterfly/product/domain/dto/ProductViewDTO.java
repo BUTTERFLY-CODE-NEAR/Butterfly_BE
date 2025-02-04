@@ -1,5 +1,7 @@
 package com.codenear.butterfly.product.domain.dto;
 
+import com.codenear.butterfly.product.domain.Price;
+import com.codenear.butterfly.product.domain.ProductInventory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -20,4 +22,14 @@ public record ProductViewDTO(
         @Schema(description = "신청 게이지") Float appliedGauge,
         @Schema(description = "배송 정보") String deliveryInformation
 ) {
+    public ProductViewDTO(ProductInventory product,
+                          Price price,
+                          boolean isFavorite,
+                          BigDecimal saleRate,
+                          Float appliedGauge) {
+        this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
+                price.originalPrice(), saleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
+                product.getMaxPurchaseCount(), isFavorite, product.isSoldOut(), appliedGauge, product.getDeliveryInformation());
+
+    }
 }
