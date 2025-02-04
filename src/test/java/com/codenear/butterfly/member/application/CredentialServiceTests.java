@@ -71,7 +71,7 @@ public class CredentialServiceTests {
 
         Member mockMember = Mockito.mock(Member.class);
 
-        CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, "123456");
+        CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, null, "123456");
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(mockMember));
         when(mockMember.getEmail()).thenReturn(email);
 
@@ -88,7 +88,7 @@ public class CredentialServiceTests {
     @Test
     void 아이디찾기_없는유저() {
         String phoneNumber = "01012345678";
-        CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, "123456");
+        CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, null, "123456");
 
         doNothing().when(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
 
@@ -122,7 +122,7 @@ public class CredentialServiceTests {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, newPassword, VerificationType.PHONE)),
+                () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword)),
                 "해당 번호로 가입된 회원이 없습니다."
         );
     }
@@ -136,7 +136,7 @@ public class CredentialServiceTests {
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(mockMember));
         when(passwordEncoder.encode(newPassword)).thenReturn("encoded_1q2w3e,./");
 
-        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, newPassword, VerificationType.PHONE);
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword);
         credentialService.resetPassword(request);
 
         assertThat(mockMember.getPassword()).isEqualTo("encoded_1q2w3e,./");
