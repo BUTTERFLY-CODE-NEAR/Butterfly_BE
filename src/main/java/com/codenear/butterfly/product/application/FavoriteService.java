@@ -39,8 +39,7 @@ public class FavoriteService {
 
         return favoriteProducts.stream()
                 .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
-                .map(product -> ProductMapper.toProductViewDTO(product, true))
-                .toList();
+                .map(product -> ProductMapper.toProductViewDTO(product, true, product.calculateGauge())).toList();
     }
 
     @Transactional
