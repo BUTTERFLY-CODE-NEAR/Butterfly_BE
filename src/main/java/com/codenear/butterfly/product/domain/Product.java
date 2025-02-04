@@ -1,5 +1,6 @@
 package com.codenear.butterfly.product.domain;
 
+import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.CascadeType;
@@ -74,23 +75,17 @@ public abstract class Product {
     @JoinColumn(name = "product_id")
     private List<Keyword> keywords = new ArrayList<>();
 
-    protected Product(
-            String productName,
-            String companyName,
-            String description,
-            String productImage,
-            BigDecimal saleRate,
-            Category category,
-            List<Keyword> keywords,
-            String deliveryInformation,
-            String descriptionImage
-    ) {
-        this.productName = productName;
-        this.companyName = companyName;
-        this.description = description;
+    protected Product(ProductCreateRequest createRequest,
+                      String productImage,
+                      String descriptionImage,
+                      String deliveryInformation,
+                      List<Keyword> keywords) {
+        this.productName = createRequest.productName();
+        this.companyName = createRequest.companyName();
+        this.description = createRequest.description();
         this.productImage = productImage;
-        this.saleRate = saleRate;
-        this.category = category;
+        this.saleRate = createRequest.saleRate();
+        this.category = Category.fromValue(createRequest.category());
         if (keywords != null) {
             this.keywords.addAll(keywords);
         }

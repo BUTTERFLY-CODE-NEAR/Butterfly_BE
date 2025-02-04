@@ -46,19 +46,11 @@ public class AdminProductService {
         }
 
         ProductInventory product = ProductInventory.builder()
-                .productName(request.productName())
-                .companyName(request.companyName())
-                .description(request.description())
-                .originalPrice(request.originalPrice())
-                .saleRate(request.saleRate())
-                .category(Category.fromValue(request.category()))
-                .stockQuantity(request.stockQuantity())
-                .purchaseParticipantCount(request.purchaseParticipantCount())
-                .maxPurchaseCount(request.maxPurchaseCount())
-                .keywords(keywords)
+                .createRequest(request)
                 .productImage(imageConverter(request.productImage()))
-                .deliveryInformation(deliveryInformation)
                 .descriptionImage(imageConverter(request.descriptionImage()))
+                .deliveryInformation(deliveryInformation)
+                .keywords(keywords)
                 .build();
 
         productRepository.save(product);
