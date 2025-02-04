@@ -27,7 +27,7 @@ public class AlarmController implements AlarmControllerSwagger {
     }
 
     @GetMapping("/count")
-    public ResponseEntity<ResponseDTO> getUnreadAlarmCount(MemberDTO loginMember) {
+    public ResponseEntity<ResponseDTO> getUnreadAlarmCount(@AuthenticationPrincipal MemberDTO loginMember) {
         AlarmCountResponseDTO unreadAlarmCount = alarmService.getAlarmCountByMember(loginMember.getId());
         return ResponseUtil.createSuccessResponse(unreadAlarmCount);
     }
