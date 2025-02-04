@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 public class ResetPasswordRequestDTO {
     @NotBlank
     private String identifier;
-    private String newPassword;
+    @NotBlank
     private VerificationType type;
+    @NotBlank
+    private String newPassword;
+
 }

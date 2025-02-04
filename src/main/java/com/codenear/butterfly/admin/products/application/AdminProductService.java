@@ -16,6 +16,7 @@ import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,6 @@ import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 @Service
 @RequiredArgsConstructor
 public class AdminProductService {
-
     private final S3Service s3Service;
     private final FCMFacade fcmFacade;
     private final ProductInventoryRepository productRepository;
@@ -36,28 +36,21 @@ public class AdminProductService {
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
-        String imageUrl = null;
-        if (request.productImage() != null && !request.productImage().isEmpty()) {
-            String fileName = s3Service.uploadFile(request.productImage(), PRODUCT_IMAGE);
-            imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
-        }
-
         List<Keyword> keywords = request.keywords().stream()
                 .map(Keyword::new)
                 .toList();
 
+        String deliveryInformation = request.deliveryInformation();
+        if (deliveryInformation.isEmpty()) {
+            deliveryInformation = "6시 이후 순차배송";
+        }
+
         ProductInventory product = ProductInventory.builder()
-                .productName(request.productName())
-                .companyName(request.companyName())
-                .description(request.description())
-                .originalPrice(request.originalPrice())
-                .saleRate(request.saleRate())
-                .category(Category.fromValue(request.category()))
-                .stockQuantity(request.stockQuantity())
-                .purchaseParticipantCount(request.purchaseParticipantCount())
-                .maxPurchaseCount(request.maxPurchaseCount())
+                .createRequest(request)
+                .productImage(imageConverter(request.productImage()))
+                .descriptionImage(imageConverter(request.descriptionImage()))
+                .deliveryInformation(deliveryInformation)
                 .keywords(keywords)
-                .productImage(imageUrl)
                 .build();
 
         productRepository.save(product);
@@ -132,5 +125,13 @@ public class AdminProductService {
 
     private String extractFileNameFromUrl(String url) {
         return url.substring(url.lastIndexOf('/') + 1);
+    }
+
+    private String imageConverter(MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            String fileName = s3Service.uploadFile(file, PRODUCT_IMAGE);
+            return s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
+        }
+        return null;
     }
 }

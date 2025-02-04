@@ -58,6 +58,18 @@
                                 <textarea class="form-control" name="description" rows="3" th:text="${product.description}"></textarea>
                             </div>
 
+                            <div class="form-group">
+                                <label>현재 상품 설명 이미지</label>
+                                <img th:if="${product.descriptionImage}" th:src="${product.descriptionImage}" alt="현재 상품 이미지" class="img-thumbnail mb-2" style="max-width: 200px;">
+                                <input type="file" class="form-control-file" name="descriptionImage" accept="image/*">
+                                <input type="hidden" name="existingProductImageUrl" th:value="${product.descriptionImage}">
+                            </div>
+
+                            <div class="form-group">
+                                <label>배송 정보</label>
+                                <textarea class="form-control" name="deliveryInformation" th:text="${product.deliveryInformation}"></textarea>
+                            </div>
+
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label>원가</label>
