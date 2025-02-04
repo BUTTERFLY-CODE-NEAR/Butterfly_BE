@@ -30,6 +30,7 @@ public class ProductUpdateRequest {
     private Integer maxPurchaseCount;
     private Integer stockQuantity;
     private String deliveryInformation;
+    private String descriptionImage;
     private List<String> keywords;
     private List<DiscountRateRequest> discountRates;
 

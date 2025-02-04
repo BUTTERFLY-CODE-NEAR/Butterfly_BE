@@ -20,7 +20,8 @@ public record ProductCreateRequest(
         Integer maxPurchaseCount,
         Integer stockQuantity,
         List<String> keywords,
-        String deliveryInformation
+        String deliveryInformation,
+        MultipartFile descriptionImage
 ) {
 
 }

@@ -50,6 +50,8 @@ public abstract class Product {
     @Lob
     private String description;
 
+    private String descriptionImage;
+
     private String productVolume;
 
     private String expirationDate;
@@ -80,7 +82,8 @@ public abstract class Product {
             BigDecimal saleRate,
             Category category,
             List<Keyword> keywords,
-            String deliveryInformation
+            String deliveryInformation,
+            String descriptionImage
     ) {
         this.productName = productName;
         this.companyName = companyName;
@@ -92,6 +95,7 @@ public abstract class Product {
             this.keywords.addAll(keywords);
         }
         this.deliveryInformation = deliveryInformation;
+        this.descriptionImage = descriptionImage;
     }
 
     protected void updateBasicInfo(ProductUpdateRequest request) {
@@ -103,6 +107,8 @@ public abstract class Product {
         this.productVolume = request.getProductVolume();
         this.expirationDate = request.getExpirationDate();
         this.deliveryInformation = request.getDeliveryInformation();
+        this.description = request.getDescriptionImage();
+        this.descriptionImage = request.getDescriptionImage();
         updateKeywordsIfPresent(request.getKeywords());
     }
 

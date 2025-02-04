@@ -19,6 +19,7 @@ public record ProductDetailDTO(
         @Schema(description = "좋아요 여부") Boolean isFavorite,
         @Schema(description = "상품 옵션") List<OptionDTO> option,
         @Schema(description = "상품 설명") String description,
+        @Schema(description = "상품 설명 이미지") String descriptionImage,
         @Schema(description = "개별 내용물의 용량(중량)") String productVolume,
         @Schema(description = "소비기한") String expirationDate,
         @Schema(description = "신청 게이지") Float appliedGauge,

@@ -50,10 +50,11 @@ public class ProductInventory extends Product {
             Integer purchaseParticipantCount,
             Integer maxPurchaseCount,
             String deliveryInformation,
+            String descriptionImage,
             List<Keyword> keywords,
             List<DiscountRate> discountRates
     ) {
-        super(productName, companyName, description, productImage, saleRate, category, keywords, deliveryInformation);
+        super(productName, companyName, description, productImage, saleRate, category, keywords, deliveryInformation, descriptionImage);
         this.originalPrice = originalPrice;
         this.stockQuantity = stockQuantity;
         this.purchaseParticipantCount = purchaseParticipantCount;

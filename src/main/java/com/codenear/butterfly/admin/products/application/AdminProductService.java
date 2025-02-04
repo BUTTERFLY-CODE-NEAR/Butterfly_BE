@@ -16,6 +16,7 @@ import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,12 +36,6 @@ public class AdminProductService {
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
-        String imageUrl = null;
-        if (request.productImage() != null && !request.productImage().isEmpty()) {
-            String fileName = s3Service.uploadFile(request.productImage(), PRODUCT_IMAGE);
-            imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
-        }
-
         List<Keyword> keywords = request.keywords().stream()
                 .map(Keyword::new)
                 .toList();
@@ -61,8 +56,9 @@ public class AdminProductService {
                 .purchaseParticipantCount(request.purchaseParticipantCount())
                 .maxPurchaseCount(request.maxPurchaseCount())
                 .keywords(keywords)
-                .productImage(imageUrl)
+                .productImage(imageConverter(request.productImage()))
                 .deliveryInformation(deliveryInformation)
+                .descriptionImage(imageConverter(request.descriptionImage()))
                 .build();
 
         productRepository.save(product);
@@ -137,5 +133,13 @@ public class AdminProductService {
 
     private String extractFileNameFromUrl(String url) {
         return url.substring(url.lastIndexOf('/') + 1);
+    }
+
+    private String imageConverter(MultipartFile file) {
+        if (file != null && !file.isEmpty()) {
+            String fileName = s3Service.uploadFile(file, PRODUCT_IMAGE);
+            return s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
+        }
+        return null;
     }
 }
