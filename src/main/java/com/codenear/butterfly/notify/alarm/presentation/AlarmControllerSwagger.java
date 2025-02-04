@@ -2,6 +2,7 @@ package com.codenear.butterfly.notify.alarm.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
+import com.codenear.butterfly.notify.alarm.domain.dto.AlarmCountResponseDTO;
 import com.codenear.butterfly.notify.alarm.domain.dto.AlarmsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,4 +23,12 @@ public interface AlarmControllerSwagger {
             @ApiResponse(responseCode = "200", description = "Success")
     })
     ResponseEntity<ResponseDTO> getAlarms(@AuthenticationPrincipal MemberDTO loginMember);
+
+    @Operation(summary = "미확인 알림 개수", description = "미확인 알림 개수 반환 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = AlarmCountResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> getUnreadAlarmCount(@AuthenticationPrincipal MemberDTO loginMember);
 }

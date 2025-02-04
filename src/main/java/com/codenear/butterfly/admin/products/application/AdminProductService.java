@@ -95,7 +95,7 @@ public class AdminProductService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void sendNewProductNotification() {
         fcmFacade.sendTopicMessage(NEW_PRODUCT, MARKETING.getTopic());
     }
