@@ -1,8 +1,13 @@
 package com.codenear.butterfly.product.domain;
 
 import com.codenear.butterfly.admin.products.dto.DiscountRateRequest;
+import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,25 +39,17 @@ public class ProductInventory extends Product {
     private List<DiscountRate> discountRates = new ArrayList<>();
 
     @Builder
-    public ProductInventory(
-            String productName,
-            String companyName,
-            String description,
-            String productImage,
-            Integer originalPrice,
-            BigDecimal saleRate,
-            Category category,
-            Integer stockQuantity,
-            Integer purchaseParticipantCount,
-            Integer maxPurchaseCount,
-            List<Keyword> keywords,
-            List<DiscountRate> discountRates
-    ) {
-        super(productName, companyName, description, productImage, saleRate, category, keywords);
-        this.originalPrice = originalPrice;
-        this.stockQuantity = stockQuantity;
-        this.purchaseParticipantCount = purchaseParticipantCount;
-        this.maxPurchaseCount = maxPurchaseCount;
+    public ProductInventory(ProductCreateRequest createRequest,
+                            String productImage,
+                            String descriptionImage,
+                            String deliveryInformation,
+                            List<Keyword> keywords,
+                            List<DiscountRate> discountRates) {
+        super(createRequest, productImage, descriptionImage, deliveryInformation, keywords);
+        this.originalPrice = createRequest.originalPrice();
+        this.stockQuantity = createRequest.stockQuantity();
+        this.purchaseParticipantCount = createRequest.purchaseParticipantCount();
+        this.maxPurchaseCount = createRequest.maxPurchaseCount();
         if (discountRates != null) {
             this.discountRates.addAll(discountRates);
         }
@@ -109,6 +106,10 @@ public class ProductInventory extends Product {
         if (this.purchaseParticipantCount >= this.maxPurchaseCount) {
             this.purchaseParticipantCount %= this.maxPurchaseCount;
         }
+    }
+
+    public Float calculateGauge() {
+        return Math.round((float) purchaseParticipantCount / maxPurchaseCount * 1000f) / 1000f;
     }
 
     private double calculateParticipationRate() {
