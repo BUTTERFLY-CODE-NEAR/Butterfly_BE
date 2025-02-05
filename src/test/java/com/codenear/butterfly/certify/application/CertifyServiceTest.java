@@ -1,6 +1,6 @@
 package com.codenear.butterfly.certify.application;
 
-import static com.codenear.butterfly.certify.domain.CertifyType.REGISTER_PHONE;
+import static com.codenear.butterfly.certify.domain.CertifyType.CERTIFY_PHONE;
 import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_EXPIRED;
 import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_MISMATCH;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,8 +40,8 @@ class CertifyServiceTest {
 
     private final String phoneNumber = "01012345678";
     private final String code = "123456";
-    private final CertifyType type = REGISTER_PHONE;
-    private final CertifyRequest request = new CertifyRequest(phoneNumber, code);
+    private final CertifyType type = CERTIFY_PHONE;
+    private final CertifyRequest request = new CertifyRequest(phoneNumber, null, code);
 
     @BeforeEach
     void setUp() {
