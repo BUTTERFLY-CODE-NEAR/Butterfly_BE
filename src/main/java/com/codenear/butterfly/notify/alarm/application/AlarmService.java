@@ -33,7 +33,7 @@ public class AlarmService {
 
     public void addSingleAlarm(NotifyMessage message, Member member) {
         Alarm alarm = Alarm.builder()
-                .notifyMessage(message)
+                .message(message)
                 .member(member)
                 .build();
         alarmRepository.save(alarm);
