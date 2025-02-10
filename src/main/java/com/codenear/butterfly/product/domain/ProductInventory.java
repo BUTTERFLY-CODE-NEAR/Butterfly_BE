@@ -41,11 +41,11 @@ public class ProductInventory extends Product {
     @Builder
     public ProductInventory(ProductCreateRequest createRequest,
                             String productImage,
-                            String descriptionImage,
                             String deliveryInformation,
                             List<Keyword> keywords,
-                            List<DiscountRate> discountRates) {
-        super(createRequest, productImage, descriptionImage, deliveryInformation, keywords);
+                            List<DiscountRate> discountRates,
+                            List<ProductDescriptionImage> descriptionImages) {
+        super(createRequest, productImage, deliveryInformation, keywords, descriptionImages);
         this.originalPrice = createRequest.originalPrice();
         this.stockQuantity = createRequest.stockQuantity();
         this.purchaseParticipantCount = createRequest.purchaseParticipantCount();
