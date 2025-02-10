@@ -21,22 +21,23 @@ public record ProductDetailDTO(
         @Schema(description = "좋아요 여부") Boolean isFavorite,
         @Schema(description = "상품 옵션") List<OptionDTO> option,
         @Schema(description = "상품 설명") String description,
-        @Schema(description = "상품 설명 이미지") String descriptionImage,
         @Schema(description = "개별 내용물의 용량(중량)") String productVolume,
         @Schema(description = "소비기한") String expirationDate,
         @Schema(description = "신청 게이지") Float appliedGauge,
-        @Schema(description = "배송 정보") String deliveryInformation
+        @Schema(description = "배송 정보") String deliveryInformation,
+        @Schema(description = "상품 설명 이미지 리스트") List<ProductDescriptionImageDTO> descriptionImages
 ) {
     public ProductDetailDTO(ProductInventory product,
                             Price price,
                             boolean isFavorite,
                             BigDecimal saleRate,
                             Float appliedGauge,
-                            List<OptionDTO> option) {
+                            List<OptionDTO> option,
+                            List<ProductDescriptionImageDTO> descriptionImages) {
         this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
                 price.originalPrice(), saleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
-                product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getDescriptionImage(),
-                product.getProductVolume(), product.getExpirationDate(), appliedGauge, product.getDeliveryInformation());
+                product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getProductVolume(),
+                product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), descriptionImages);
 
     }
 }

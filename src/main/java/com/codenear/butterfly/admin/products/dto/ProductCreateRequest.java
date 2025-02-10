@@ -21,7 +21,7 @@ public record ProductCreateRequest(
         Integer stockQuantity,
         List<String> keywords,
         String deliveryInformation,
-        MultipartFile descriptionImage
+        List<MultipartFile> descriptionImages
 ) {
 
 }

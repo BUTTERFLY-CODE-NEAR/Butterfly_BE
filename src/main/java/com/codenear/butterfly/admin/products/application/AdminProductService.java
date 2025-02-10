@@ -8,8 +8,10 @@ import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductDescriptionImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
+import com.codenear.butterfly.product.domain.repository.ProductDescriptionImageRepository;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.exception.ProductException;
 import com.codenear.butterfly.s3.application.S3Service;
@@ -33,6 +35,7 @@ public class AdminProductService {
     private final FCMFacade fcmFacade;
     private final ProductInventoryRepository productRepository;
     private final FavoriteRepository favoriteRepository;
+    private final ProductDescriptionImageRepository productDescriptionImageRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
@@ -48,12 +51,15 @@ public class AdminProductService {
         ProductInventory product = ProductInventory.builder()
                 .createRequest(request)
                 .productImage(imageConverter(request.productImage()))
-                .descriptionImage(imageConverter(request.descriptionImage()))
                 .deliveryInformation(deliveryInformation)
                 .keywords(keywords)
                 .build();
-
         productRepository.save(product);
+
+        if (request.descriptionImages() != null && !request.descriptionImages().isEmpty()) {
+            List<ProductDescriptionImage> descriptionImages = getDescriptionImages(request.descriptionImages(), product);
+            productDescriptionImageRepository.saveAll(descriptionImages);
+        }
     }
 
     public List<ProductInventory> loadAllProducts() {
@@ -73,6 +79,20 @@ public class AdminProductService {
             String fileName = s3Service.uploadFile(request.getProductImage(), PRODUCT_IMAGE);
             String imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
             product.setProductImage(imageUrl);
+        }
+
+        // 상품 설명 이미지 업데이트
+        if (request.getDescriptionImages() != null && !request.getDescriptionImages().isEmpty()) {
+            List<ProductDescriptionImage> descriptionImages = productDescriptionImageRepository.findAllByProductId(product.getId());
+            descriptionImages
+                    .forEach(image -> {
+                        String fileName = extractFileNameFromUrl(image.getImageUrl());
+                        s3Service.deleteFile(fileName, PRODUCT_IMAGE);
+                        productDescriptionImageRepository.deleteById(image.getId());
+                    });
+            List<ProductDescriptionImage> newDescriptionImages = getDescriptionImages(request.getDescriptionImages(), product);
+            productDescriptionImageRepository.saveAll(newDescriptionImages);
+            product.updateDescriptionImage(newDescriptionImages);
         }
 
         product.update(request);
@@ -134,4 +154,14 @@ public class AdminProductService {
         }
         return null;
     }
+
+    private List<ProductDescriptionImage> getDescriptionImages(List<MultipartFile> images, Product product) {
+        return images.stream()
+                .map(image -> ProductDescriptionImage.builder()
+                        .imgUrl(imageConverter(image))
+                        .product(product)
+                        .build())
+                .toList();
+    }
+
 }
