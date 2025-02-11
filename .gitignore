@@ -29,6 +29,7 @@ out/
 **/application-secret.properties
 **/application-local.properties
 **/application-build.properties
+**/application-test.properties
 **/messages.properties
 **/data.sql
 
