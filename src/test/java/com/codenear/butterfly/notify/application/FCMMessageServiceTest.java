@@ -1,25 +1,27 @@
 package com.codenear.butterfly.notify.application;
 
-import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
+import com.codenear.butterfly.notify.alarm.application.AlarmService;
 import com.codenear.butterfly.notify.fcm.application.FCMMessageService;
-import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.codenear.butterfly.notify.fcm.domain.FCM;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FCMMessageServiceTest {
@@ -32,6 +34,9 @@ class FCMMessageServiceTest {
 
     @Mock
     private FirebaseMessagingClient firebaseMessagingClient;
+
+    @Mock
+    private AlarmService alarmService;
 
     @InjectMocks
     private FCMMessageService fcmMessageService;
