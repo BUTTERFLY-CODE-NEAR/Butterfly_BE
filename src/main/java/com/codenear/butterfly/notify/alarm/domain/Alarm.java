@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Getter
 public class Alarm extends BaseEntity {
 
@@ -36,11 +37,4 @@ public class Alarm extends BaseEntity {
     private Member member;
 
     private boolean isNew;
-
-    @Builder
-    public Alarm(final NotifyMessage message, final Member member) {
-        this.notifyMessage = message;
-        this.member = member;
-        this.isNew = true;
-    }
 }
