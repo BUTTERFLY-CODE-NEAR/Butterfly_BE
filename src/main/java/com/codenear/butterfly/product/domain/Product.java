@@ -51,8 +51,6 @@ public abstract class Product {
     @Lob
     private String description;
 
-    private String descriptionImage;
-
     private String productVolume;
 
     private String expirationDate;
@@ -75,11 +73,14 @@ public abstract class Product {
     @JoinColumn(name = "product_id")
     private List<Keyword> keywords = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductDescriptionImage> descriptionImages = new ArrayList<>();
+
     protected Product(ProductCreateRequest createRequest,
                       String productImage,
-                      String descriptionImage,
                       String deliveryInformation,
-                      List<Keyword> keywords) {
+                      List<Keyword> keywords,
+                      List<ProductDescriptionImage> descriptionImages) {
         this.productName = createRequest.productName();
         this.companyName = createRequest.companyName();
         this.description = createRequest.description();
@@ -90,7 +91,11 @@ public abstract class Product {
             this.keywords.addAll(keywords);
         }
         this.deliveryInformation = deliveryInformation;
-        this.descriptionImage = descriptionImage;
+        this.descriptionImages = descriptionImages;
+    }
+
+    public void updateDescriptionImage(List<ProductDescriptionImage> newDescriptionImages) {
+        this.descriptionImages = newDescriptionImages;
     }
 
     protected void updateBasicInfo(ProductUpdateRequest request) {
@@ -102,8 +107,6 @@ public abstract class Product {
         this.productVolume = request.getProductVolume();
         this.expirationDate = request.getExpirationDate();
         this.deliveryInformation = request.getDeliveryInformation();
-        this.description = request.getDescriptionImage();
-        this.descriptionImage = request.getDescriptionImage();
         updateKeywordsIfPresent(request.getKeywords());
     }
 
