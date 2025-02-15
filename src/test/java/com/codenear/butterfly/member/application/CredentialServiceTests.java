@@ -4,6 +4,7 @@ import com.codenear.butterfly.certify.application.CertifyService;
 import com.codenear.butterfly.certify.domain.CertifyType;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.dto.FindPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.dto.ResetPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.enums.VerificationType;
@@ -36,24 +37,26 @@ public class CredentialServiceTests {
     @InjectMocks
     private CredentialService credentialService;
 
+    private static String phoneNumber = "01012345678";
+    private static String email = "test@example.com";
+    private static String newPassword = "1q2w3e,./";
+
     @Test
     void 아이디찾기_핸드폰인증_없는유저() {
-        String phoneNumber = "01012345678";
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
                 () -> credentialService.sendFindEmailCode(phoneNumber),
-                "해당 번호로 가입된 회원이 없습니다."
+                "일치하는 회원 정보가 없습니다."
         );
     }
 
     @Test
     void 아이디찾기_핸드폰인증_성공() {
-        String phoneNumber = "01012345678";
         Member mockMember = Member.builder()
                 .id(1L)
                 .phoneNumber(phoneNumber)
-                .email("test@example.com")
+                .email(email)
                 .build();
 
         when(memberRepository.findByPhoneNumber(phoneNumber))
@@ -66,9 +69,6 @@ public class CredentialServiceTests {
 
     @Test
     void 아이디찾기_성공() {
-        String phoneNumber = "01012345678";
-        String email = "test@example.com";
-
         Member mockMember = Mockito.mock(Member.class);
 
         CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, null, "123456");
@@ -87,7 +87,6 @@ public class CredentialServiceTests {
 
     @Test
     void 아이디찾기_없는유저() {
-        String phoneNumber = "01012345678";
         CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, null, "123456");
 
         doNothing().when(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
@@ -96,7 +95,7 @@ public class CredentialServiceTests {
 
         assertThrows(MemberException.class,
                 () -> credentialService.findEmail(certifyRequest),
-                "해당 번호로 가입된 회원이 없습니다."
+                "일치하는 회원 정보가 없습니다."
         );
 
         verify(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
@@ -105,38 +104,96 @@ public class CredentialServiceTests {
 
     @Test
     void 비밀번호찾기_핸드폰인증_없는유저() {
-        String phoneNumber = "01012345678";
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
                 () -> credentialService.sendFindPasswordCode(new FindPasswordRequestDTO(phoneNumber, VerificationType.PHONE)),
-                "해당 번호로 가입된 회원이 없습니다."
+                "일치하는 회원 정보가 없습니다."
         );
     }
 
     @Test
     void 비밀번호재설정_핸드폰_없는유저(){
-        String phoneNumber = "01012345678";
-        String newPassword = "1q2w3e,./";
-
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
         assertThrows(MemberException.class,
-                () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword)),
-                "해당 번호로 가입된 회원이 없습니다."
+                () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword, null)),
+                "일치하는 회원 정보가 없습니다."
         );
     }
 
     @Test
     void 비밀번호재설정_핸드폰_성공(){
-        String phoneNumber = "01012345678";
-        String newPassword = "1q2w3e,./";
-
         Member mockMember = Member.builder().id(1L).phoneNumber(phoneNumber).build();
         when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(mockMember));
         when(passwordEncoder.encode(newPassword)).thenReturn("encoded_1q2w3e,./");
 
-        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword);
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword, null);
+        credentialService.resetPassword(request);
+
+        assertThat(mockMember.getPassword()).isEqualTo("encoded_1q2w3e,./");
+        verify(memberRepository).save(mockMember);
+    }
+
+    @Test
+    void 비밀번호_인증코드발송_없는유저(){
+        when(memberRepository.existsByEmail(email)).thenReturn(false);
+
+        assertThrows(MemberException.class,
+                () -> credentialService.sendFindPasswordCode(new FindPasswordRequestDTO(email, VerificationType.EMAIL)),
+                "일치하는 회원 정보가 없습니다."
+        );
+    }
+
+    @Test
+    void 비밀번호_인증코드발송_성공(){
+        when(memberRepository.existsByEmail(email)).thenReturn(true);
+
+        FindPasswordRequestDTO request = new FindPasswordRequestDTO(email, VerificationType.EMAIL);
+        credentialService.sendFindPasswordCode(request);
+
+        verify(certifyService).sendCertifyCode(email, CertifyType.CERTIFY_EMAIL);
+    }
+
+    @Test
+    void 비밀번호_재설정_없는유저(){
+        Platform platform = Platform.CODENEAR;
+        when(memberRepository.findByEmailAndPlatform(email, platform)).thenReturn(Optional.empty());
+
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(
+                email,
+                VerificationType.EMAIL,
+                newPassword,
+                platform
+        );
+
+        assertThrows(MemberException.class,
+                () -> credentialService.resetPassword(request),
+                "일치하는 회원 정보가 없습니다."
+        );
+    }
+
+    @Test
+    void 비밀번호_재설정_성공(){
+        Platform platform = Platform.CODENEAR;
+        Member mockMember = Member.builder()
+                .id(1L)
+                .email(email)
+                .platform(platform)
+                .build();
+
+        when(memberRepository.findByEmailAndPlatform(email, platform))
+                .thenReturn(Optional.of(mockMember));
+        when(passwordEncoder.encode(newPassword))
+                .thenReturn("encoded_1q2w3e,./");
+
+        ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(
+                email,
+                VerificationType.EMAIL,
+                newPassword,
+                platform
+        );
+
         credentialService.resetPassword(request);
 
         assertThat(mockMember.getPassword()).isEqualTo("encoded_1q2w3e,./");

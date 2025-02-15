@@ -5,6 +5,7 @@ import com.codenear.butterfly.certify.domain.CertifyType;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.dto.FindPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.dto.ResetPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.dto.VerifyFindPasswordRequestDTO;
@@ -67,7 +68,7 @@ public class CredentialService {
     public void resetPassword(ResetPasswordRequestDTO request) {
         Member member = switch (request.getType()) {
             case PHONE -> loadMemberByPhoneNumber(request.getIdentifier());
-            case EMAIL -> loadMemberByEmail(request.getIdentifier());
+            case EMAIL -> loadMemberByEmailAndPlatform(request.getIdentifier(), request.getPlatform());
         };
         
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
@@ -83,7 +84,7 @@ public class CredentialService {
     }
 
     private void validateMemberExistsByEmail(String email) {
-        if (!memberRepository.findByEmail(email).isPresent()) {
+        if (!memberRepository.existsByEmail(email)) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null);
         }
     }
@@ -93,8 +94,8 @@ public class CredentialService {
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null));
     }
 
-    private Member loadMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null));
+    private Member loadMemberByEmailAndPlatform(String email, Platform platform) {
+        return memberRepository.findByEmailAndPlatform(email, platform)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL_AND_PLATFORM, null));
     }
 }
