@@ -74,27 +74,14 @@ public class AdminProductService {
 
         if (request.getProductImage() != null && !request.getProductImage().isEmpty()) {
             if (product.getProductImage() != null) {
-                String existingFileName = extractFileNameFromUrl(product.getProductImage());
-                s3Service.deleteFile(existingFileName, PRODUCT_IMAGE);
+                deleteS3UploadedFile(product);
             }
-
-            String fileName = s3Service.uploadFile(request.getProductImage(), PRODUCT_IMAGE);
-            String imageUrl = s3Service.generateFileUrl(fileName, PRODUCT_IMAGE);
-            product.setProductImage(imageUrl);
+            product.setProductImage(imageConverter(request.getProductImage()));
         }
 
         // 상품 설명 이미지 업데이트
         if (request.getDescriptionImages() != null && !request.getDescriptionImages().isEmpty()) {
-            List<ProductDescriptionImage> descriptionImages = productDescriptionImageRepository.findAllByProductId(product.getId());
-            descriptionImages
-                    .forEach(image -> {
-                        String fileName = extractFileNameFromUrl(image.getImageUrl());
-                        s3Service.deleteFile(fileName, PRODUCT_IMAGE);
-                        productDescriptionImageRepository.deleteById(image.getId());
-                    });
-            List<ProductDescriptionImage> newDescriptionImages = getDescriptionImages(request.getDescriptionImages(), product);
-            productDescriptionImageRepository.saveAll(newDescriptionImages);
-            product.updateDescriptionImage(newDescriptionImages);
+            updateDescriptionImages(request, product);
         }
 
         product.update(request);
@@ -157,6 +144,11 @@ public class AdminProductService {
         return null;
     }
 
+    private void deleteS3UploadedFile(Product product) {
+        String existingFileName = extractFileNameFromUrl(product.getProductImage());
+        s3Service.deleteFile(existingFileName, PRODUCT_IMAGE);
+    }
+
     private List<ProductDescriptionImage> getDescriptionImages(List<MultipartFile> images, Product product) {
         return images.stream()
                 .map(image -> ProductDescriptionImage.builder()
@@ -166,4 +158,15 @@ public class AdminProductService {
                 .toList();
     }
 
+    private void updateDescriptionImages(ProductUpdateRequest request, Product product) {
+        List<ProductDescriptionImage> descriptionImages = productDescriptionImageRepository.findAllByProductId(product.getId());
+        descriptionImages
+                .forEach(image -> {
+                    deleteS3UploadedFile(product);
+                    productDescriptionImageRepository.deleteById(image.getId());
+                });
+        List<ProductDescriptionImage> newDescriptionImages = getDescriptionImages(request.getDescriptionImages(), product);
+        productDescriptionImageRepository.saveAll(newDescriptionImages);
+        product.updateDescriptionImage(newDescriptionImages);
+    }
 }
