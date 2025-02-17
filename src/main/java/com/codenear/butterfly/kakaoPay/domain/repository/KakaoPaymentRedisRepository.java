@@ -118,4 +118,15 @@ public class KakaoPaymentRedisRepository {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다");
         }
     }
+
+    /**
+     * 주문 취소 시 재고 추가
+     *
+     * @param productName 상품 이름
+     * @param quantity    취소 재고 개수
+     */
+    public void restoreStockOnOrderCancellation(String productName, int quantity) {
+        String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
+        redisTemplate.opsForValue().increment(key, quantity);
+    }
 }
