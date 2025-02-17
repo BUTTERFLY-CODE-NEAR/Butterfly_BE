@@ -108,6 +108,17 @@ public class ProductInventory extends Product {
         }
     }
 
+    public void increaseQuantity(int quantity) {
+        this.stockQuantity += quantity;
+    }
+
+    public void decreasePurchaseParticipantCount(int quantity) {
+        this.purchaseParticipantCount -= quantity;
+        if (this.purchaseParticipantCount < 0) {
+            this.purchaseParticipantCount = ((this.purchaseParticipantCount % this.maxPurchaseCount) + this.maxPurchaseCount) % this.maxPurchaseCount;
+        }
+    }
+
     public Float calculateGauge() {
         return Math.round((float) purchaseParticipantCount / maxPurchaseCount * 1000f) / 1000f;
     }

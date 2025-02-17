@@ -13,6 +13,7 @@ import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.rabbitmq.InventoryDecreaseMessageDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
@@ -20,6 +21,7 @@ import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisReposi
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
+import com.codenear.butterfly.kakaoPay.util.KakaoPayRabbitMQProducer;
 import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
@@ -62,6 +64,7 @@ public class SinglePaymentService {
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final PointRepository pointRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
+    private final KakaoPayRabbitMQProducer rabbitMQProducer;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         // 재고 예약
@@ -96,12 +99,8 @@ public class SinglePaymentService {
         ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve", parameters, ApproveResponseDTO.class);
 
         ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
+
         int quantity = approveResponseDTO.getQuantity();
-
-        if (product.getStockQuantity() < quantity) {
-            throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
-        }
-
         int refundedPoints = product.calculatePointRefund(quantity);
 
         Member member = memberRepository.findById(memberId)
@@ -117,9 +116,6 @@ public class SinglePaymentService {
 
         point.increasePoint(refundedPoints);
 
-        product.decreaseQuantity(quantity);
-        product.increasePurchaseParticipantCount(quantity);
-
         SinglePayment singlePayment = SinglePayment.builder().approveResponseDTO(approveResponseDTO).build();
         Amount amount = Amount.builder().approveResponseDTO(approveResponseDTO).build();
         singlePayment.addAmount(amount);
@@ -134,6 +130,10 @@ public class SinglePaymentService {
 
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
+
+        // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
+        InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(product.getProductName(), approveResponseDTO.getQuantity());
+        rabbitMQProducer.sendMessage(message);
     }
 
     public String checkPaymentStatus(Long memberId) {
