@@ -64,6 +64,9 @@ public class SinglePaymentService {
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
+        // 재고 예약
+        kakaoPaymentRedisRepository.reserveStock(paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity());
+
         String partnerOrderId = UUID.randomUUID().toString();
 
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
@@ -228,5 +231,4 @@ public class SinglePaymentService {
         }
         return fields;
     }
-
 }
