@@ -4,6 +4,7 @@ import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
@@ -36,6 +37,7 @@ public class AdminProductService {
     private final ProductInventoryRepository productRepository;
     private final FavoriteRepository favoriteRepository;
     private final ProductDescriptionImageRepository productDescriptionImageRepository;
+    private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
@@ -55,7 +57,7 @@ public class AdminProductService {
                 .keywords(keywords)
                 .build();
         productRepository.save(product);
-
+        kakaoPaymentRedisRepository.saveStockQuantity(request.productName(), request.stockQuantity());
         if (request.descriptionImages() != null && !request.descriptionImages().isEmpty()) {
             List<ProductDescriptionImage> descriptionImages = getDescriptionImages(request.descriptionImages(), product);
             productDescriptionImageRepository.saveAll(descriptionImages);
