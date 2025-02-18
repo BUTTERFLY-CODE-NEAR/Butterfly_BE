@@ -68,7 +68,7 @@ public class CredentialService {
     public void resetPassword(ResetPasswordRequestDTO request) {
         Member member = switch (request.getType()) {
             case PHONE -> loadMemberByPhoneNumber(request.getIdentifier());
-            case EMAIL -> loadMemberByEmailAndPlatform(request.getIdentifier(), request.getPlatform());
+            case EMAIL -> loadMemberByEmail(request.getIdentifier());
         };
         
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
@@ -78,7 +78,7 @@ public class CredentialService {
     }
 
     private void validateMemberExistsByPhone(String phoneNumber) {
-        if (!memberRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+        if (!memberRepository.existsByPhoneNumber(phoneNumber)) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null);
         }
     }
@@ -90,12 +90,12 @@ public class CredentialService {
     }
 
     private Member loadMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber)
+        return memberRepository.findByPhoneNumberAndPlatform(phoneNumber, Platform.CODENEAR)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null));
     }
 
-    private Member loadMemberByEmailAndPlatform(String email, Platform platform) {
-        return memberRepository.findByEmailAndPlatform(email, platform)
+    private Member loadMemberByEmail(String email) {
+        return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL_AND_PLATFORM, null));
     }
 }

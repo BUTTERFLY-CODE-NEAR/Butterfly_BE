@@ -22,7 +22,4 @@ public class ResetPasswordRequestDTO {
 
     @NotBlank
     private String newPassword;
-
-    private Platform platform;
-
 }
