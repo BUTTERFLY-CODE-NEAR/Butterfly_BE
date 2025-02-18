@@ -83,10 +83,10 @@ public interface CredentialControllerSwagger {
             examples = {
                     @ExampleObject(
                             name = "PHONE 예시",
-                            value = "{ \"identifier\": \"01012345678\", \"type\": \"PHONE\", \"newPassword\": \"1q2w3e4r!!!\" }"),
+                            value = "{ \"identifier\": \"01012345678\", \"type\": \"PHONE\", \"newPassword\": \"1q2w3e4r!!!\", \"platform\": \"KAKAO\" }"),
                     @ExampleObject(
                             name = "EMAIL 예시",
-                            value = "{ \"identifier\": \"example@gmail.com\", \"type\": \"EMAIL\" , \"newPassword\": \"1q2w3e4r!!!\" }")
+                            value = "{ \"identifier\": \"example@gmail.com\", \"type\": \"EMAIL\" , \"newPassword\": \"1q2w3e4r!!!\", \"platform\": \"KAKAO\" }")
             }
     ))
     ResponseEntity<ResponseDTO> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO request);

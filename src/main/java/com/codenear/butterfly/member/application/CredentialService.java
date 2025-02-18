@@ -5,6 +5,7 @@ import com.codenear.butterfly.certify.domain.CertifyType;
 import com.codenear.butterfly.certify.domain.dto.CertifyRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.dto.FindPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.dto.ResetPasswordRequestDTO;
 import com.codenear.butterfly.member.domain.dto.VerifyFindPasswordRequestDTO;
@@ -77,24 +78,24 @@ public class CredentialService {
     }
 
     private void validateMemberExistsByPhone(String phoneNumber) {
-        if (!memberRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+        if (!memberRepository.existsByPhoneNumber(phoneNumber)) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null);
         }
     }
 
     private void validateMemberExistsByEmail(String email) {
-        if (!memberRepository.findByEmail(email).isPresent()) {
+        if (!memberRepository.existsByEmail(email)) {
             throw new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null);
         }
     }
 
     private Member loadMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber)
+        return memberRepository.findByPhoneNumberAndPlatform(phoneNumber, Platform.CODENEAR)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null));
     }
 
     private Member loadMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL, null));
+        return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_EMAIL_AND_PLATFORM, null));
     }
 }

@@ -1,5 +1,6 @@
 package com.codenear.butterfly.member.domain.dto;
 
+import com.codenear.butterfly.member.domain.Platform;
 import com.codenear.butterfly.member.domain.enums.VerificationType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
