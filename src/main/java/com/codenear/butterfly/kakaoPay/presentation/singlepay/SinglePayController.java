@@ -4,18 +4,20 @@ import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.kakaoPay.application.OrderDetailsService;
 import com.codenear.butterfly.kakaoPay.application.SinglePaymentService;
+import com.codenear.butterfly.kakaoPay.domain.dto.order.OrderDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/payment")
@@ -67,5 +69,11 @@ public class SinglePayController implements SinglePayControllerSwagger {
                 HttpStatus.OK,
                 "주문 내역 조회 성공",
                 orderDetailsService.getAllOrderDetails(memberDTO.getId()));
+    }
+
+    @PostMapping("/order/possible")
+    public ResponseEntity<ResponseDTO> isPossibleOrder(OrderDTO orderDTO) {
+        singlePaymentService.isPossibleToOrder(orderDTO);
+        return ResponseUtil.createSuccessResponse(null);
     }
 }

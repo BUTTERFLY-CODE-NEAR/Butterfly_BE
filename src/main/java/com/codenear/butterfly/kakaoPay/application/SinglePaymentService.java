@@ -13,6 +13,7 @@ import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.PaymentStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ReadyResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.order.OrderDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.rabbitmq.InventoryDecreaseMessageDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.DeliveryPaymentRequestDTO;
@@ -161,6 +162,19 @@ public class SinglePaymentService {
             kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.NONE.name());
         } else if (status.equals(PaymentStatus.SUCCESS.name())) {
             kakaoPaymentRedisRepository.removePaymentStatus(key);
+        }
+    }
+
+    /**
+     * 주문 가능 여부 확인
+     *
+     * @param orderDTO 주문한 상품명과 상품개수를 담은 DTO
+     */
+    public void isPossibleToOrder(OrderDTO orderDTO) {
+        int remainderProductQuantity = kakaoPaymentRedisRepository.getRemainderProductQuantity(orderDTO.productName());
+
+        if (remainderProductQuantity < orderDTO.orderQuantity()) {
+            throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
         }
     }
 
