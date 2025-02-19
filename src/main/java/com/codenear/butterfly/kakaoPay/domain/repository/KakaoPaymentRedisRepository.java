@@ -129,4 +129,11 @@ public class KakaoPaymentRedisRepository {
         String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
         redisTemplate.opsForValue().increment(key, quantity);
     }
+
+    public int getRemainderProductQuantity(String productName) {
+        String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
+        String remainderQuantity = redisTemplate.opsForValue().get(key);
+
+        return remainderQuantity == null ? 0 : Integer.parseInt(remainderQuantity);
+    }
 }

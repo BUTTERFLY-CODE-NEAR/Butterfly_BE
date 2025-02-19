@@ -44,10 +44,10 @@ public class KakaoPaymentUtil<T> {
         parameters.put("total_amount", paymentRequestDTO.getTotal());
         parameters.put("vat_amount", 0);
         parameters.put("tax_free_amount", 0);
-        parameters.put("approval_url", requestUrl + "/payment/success?memberId=" + memberId);
-        parameters.put("cancel_url", requestUrl + "/payment/cancel?memberId=" + memberId);
-        parameters.put("fail_url", requestUrl + "/payment/fail?memberId=" + memberId);
-        parameters.put("return_custom_url", "butterfly://");
+        parameters.put("approval_url", requestUrl + "/success");
+        parameters.put("cancel_url", requestUrl + "/cancel");
+        parameters.put("fail_url", requestUrl + "/fail");
+        parameters.put("custom_json", "{\"return_custom_url\":\"butterfly://\"}");
         return parameters;
     }
 
@@ -61,8 +61,8 @@ public class KakaoPaymentUtil<T> {
         return parameters;
     }
 
-    public Map<String,Object> getKakaoPayCancelParameters(OrderDetails orderDetails, CancelRequestDTO cancelRequestDTO) {
-        Map<String,Object> parameters = new HashMap<>();
+    public Map<String, Object> getKakaoPayCancelParameters(OrderDetails orderDetails, CancelRequestDTO cancelRequestDTO) {
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("cid", CID);
         parameters.put("tid", orderDetails.getTid());
         parameters.put("cancel_amount", cancelRequestDTO.getCancelAmount());
@@ -70,6 +70,7 @@ public class KakaoPaymentUtil<T> {
 
         return parameters;
     }
+
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
