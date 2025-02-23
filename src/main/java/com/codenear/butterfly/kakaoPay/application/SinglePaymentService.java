@@ -171,7 +171,21 @@ public class SinglePaymentService {
      * @param orderDTO 주문한 상품명과 상품개수를 담은 DTO
      */
     public void isPossibleToOrder(OrderDTO orderDTO) {
-        int remainderProductQuantity = kakaoPaymentRedisRepository.getRemainderProductQuantity(orderDTO.productName());
+        String remainderProductQuantityStr = kakaoPaymentRedisRepository.getRemainderProductQuantity(orderDTO.productName());
+        int remainderProductQuantity;
+
+        if (remainderProductQuantityStr == null) {
+            ProductInventory product = productInventoryRepository.findProductByProductName(orderDTO.productName());
+
+            if (product == null) {
+                throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
+            }
+
+            remainderProductQuantity = product.getStockQuantity();
+            kakaoPaymentRedisRepository.saveStockQuantity(orderDTO.productName(), remainderProductQuantity);
+        } else {
+            remainderProductQuantity = Integer.parseInt(remainderProductQuantityStr);
+        }
 
         if (remainderProductQuantity < orderDTO.orderQuantity()) {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
