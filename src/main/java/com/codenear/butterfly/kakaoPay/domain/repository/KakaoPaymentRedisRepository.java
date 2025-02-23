@@ -130,10 +130,14 @@ public class KakaoPaymentRedisRepository {
         redisTemplate.opsForValue().increment(key, quantity);
     }
 
-    public int getRemainderProductQuantity(String productName) {
+    /**
+     * 상품 재고 반환
+     *
+     * @param productName 상품 이름
+     * @return 재고수량
+     */
+    public String getRemainderProductQuantity(String productName) {
         String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
-        String remainderQuantity = redisTemplate.opsForValue().get(key);
-
-        return remainderQuantity == null ? 0 : Integer.parseInt(remainderQuantity);
+        return redisTemplate.opsForValue().get(key);
     }
 }
