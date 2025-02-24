@@ -25,6 +25,7 @@ public record ProductDetailDTO(
         @Schema(description = "소비기한") String expirationDate,
         @Schema(description = "신청 게이지") Float appliedGauge,
         @Schema(description = "배송 정보") String deliveryInformation,
+        @Schema(description = "품절 여부") Boolean isSoldOut,
         @Schema(description = "상품 설명 이미지 리스트") List<ProductDescriptionImageDTO> descriptionImages
 ) {
     public ProductDetailDTO(ProductInventory product,
@@ -37,7 +38,8 @@ public record ProductDetailDTO(
         this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
                 price.originalPrice(), saleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getProductVolume(),
-                product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), descriptionImages);
+                product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), product.isSoldOut(),
+                descriptionImages);
 
     }
 }
