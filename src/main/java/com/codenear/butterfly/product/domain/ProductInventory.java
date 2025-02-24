@@ -85,12 +85,7 @@ public class ProductInventory extends Product {
 
     public BigDecimal getCurrentDiscountRate() {
         double participationRate = calculateParticipationRate();
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
+        return getDiscountRateForParticipationRate(participationRate);
     }
 
     public boolean isSoldOut() {
@@ -102,9 +97,16 @@ public class ProductInventory extends Product {
     }
 
     public void increasePurchaseParticipantCount(int quantity) {
+        // TODO : 현재 기본값 5. 매직넘버 리팩토링 필요
+        int defaultIncreaseCount = 5;
         this.purchaseParticipantCount += quantity;
+
         if (this.purchaseParticipantCount >= this.maxPurchaseCount) {
-            this.purchaseParticipantCount %= this.maxPurchaseCount;
+            // maxPurchaseCount를 기본값으로 증가시키되, 최대값을 넘지 않도록 조정
+            int newMaxPurchaseCount = this.maxPurchaseCount + defaultIncreaseCount;
+            int maxAllowedPurchaseCount = this.purchaseParticipantCount + stockQuantity;
+
+            this.maxPurchaseCount = Math.min(newMaxPurchaseCount, maxAllowedPurchaseCount);
         }
     }
 
@@ -113,10 +115,18 @@ public class ProductInventory extends Product {
     }
 
     public void decreasePurchaseParticipantCount(int quantity) {
+        // TODO : 현재 기본값 5. 매직넘버 리팩토링 필요
+        int defaultDecreaseCount = 5;
         this.purchaseParticipantCount -= quantity;
-        if (this.purchaseParticipantCount < 0) {
-            this.purchaseParticipantCount = ((this.purchaseParticipantCount % this.maxPurchaseCount) + this.maxPurchaseCount) % this.maxPurchaseCount;
+
+        // 구매 개수가 이전 maxPurchaseCount 보다 적어졌다면, maxPurchaseCount도 줄이기
+        if (this.purchaseParticipantCount < this.maxPurchaseCount - defaultDecreaseCount) {
+            int newMaxPurchaseCount = this.maxPurchaseCount - defaultDecreaseCount;
+
+            // 최소 구매 개수를 5로 설정 (이하로 내려가지 않도록)
+            this.maxPurchaseCount = Math.max(defaultDecreaseCount, newMaxPurchaseCount);
         }
+
     }
 
     public Float calculateGauge() {
@@ -124,8 +134,7 @@ public class ProductInventory extends Product {
     }
 
     private double calculateParticipationRate() {
-        return maxPurchaseCount == 0 ? 0 :
-                ((double) purchaseParticipantCount / maxPurchaseCount) * 100;
+        return ((double) purchaseParticipantCount / (purchaseParticipantCount + stockQuantity)) * 100;
     }
 
     public int calculatePointRefund(int quantity) {
@@ -152,7 +161,7 @@ public class ProductInventory extends Product {
 
     private BigDecimal getDiscountRateForParticipationRate(double participationRate) {
         return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
+                .filter(rate -> participationRate >= rate.getMinParticipationRate()
                         && participationRate <= rate.getMaxParticipationRate())
                 .findFirst()
                 .map(DiscountRate::getDiscountRate)
