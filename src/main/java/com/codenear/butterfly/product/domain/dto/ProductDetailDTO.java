@@ -15,6 +15,7 @@ public record ProductDetailDTO(
         @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") String productImage,
         @Schema(description = "상품 원가") Integer originalPrice,
         @Schema(description = "할인률 (%)") BigDecimal saleRate,
+        @Schema(description = "다음 할인율 (%)") BigDecimal nextSaleRate,
         @Schema(description = "상품 할인가") Integer salePrice,
         @Schema(description = "현재 구매 수량") Integer purchaseParticipantCount,
         @Schema(description = "최대 구매 수량") Integer maxPurchaseCount,
@@ -32,11 +33,12 @@ public record ProductDetailDTO(
                             Price price,
                             boolean isFavorite,
                             BigDecimal saleRate,
+                            BigDecimal nextSaleRate,
                             Float appliedGauge,
                             List<OptionDTO> option,
                             List<ProductDescriptionImageDTO> descriptionImages) {
         this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
-                price.originalPrice(), saleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
+                price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getProductVolume(),
                 product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), product.isSoldOut(),
                 descriptionImages);

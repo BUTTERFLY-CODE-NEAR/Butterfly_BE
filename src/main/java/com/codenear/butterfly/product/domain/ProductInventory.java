@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Entity
 @DiscriminatorValue("INVENTORY")
@@ -150,6 +151,24 @@ public class ProductInventory extends Product {
         int pointRefundAmount = nextDiscountAmount - currentDiscountAmount;
 
         return Math.max(pointRefundAmount, 0);
+    }
+
+    /**
+     * 다음 할인율이 있는지 확인하고 반환한다.
+     *
+     * @return 할인율
+     */
+    public BigDecimal getNextDiscountRate() {
+        double participationRate = calculateParticipationRate();
+
+        int nextDiscountRateIndex = IntStream.range(0, discountRates.size())
+                .filter(i -> discountRates.get(i).getMinParticipationRate() > participationRate) // 다음 할인율 찾기
+                .min()
+                .orElse(-1);
+
+        return (nextDiscountRateIndex != -1)
+                ? discountRates.get(nextDiscountRateIndex).getDiscountRate()
+                : BigDecimal.ZERO;
     }
 
     private int calculateSectionCount() {
