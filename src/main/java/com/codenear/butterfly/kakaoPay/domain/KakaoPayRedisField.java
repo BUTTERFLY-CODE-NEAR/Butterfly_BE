@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public enum KakaoPayRedisField {
+    // 결제 필드
     ORDER_ID("orderId"),
     ORDER_TYPE("orderType"),
     TRANSACTION_ID("transactionId"),
@@ -16,7 +17,11 @@ public enum KakaoPayRedisField {
     PAYMENT_STATUS("paymentStatus"),
     PICKUP_PLACE("pickupPlace"),
     PICKUP_DATE("pickupDate"),
-    PICKUP_TIME("pickupTime");
+    PICKUP_TIME("pickupTime"),
+
+    // 재고 예약 필드
+    PRODUCT_NAME("productName"),
+    QUANTITY("quantity");
 
     private String fieldName;
 }

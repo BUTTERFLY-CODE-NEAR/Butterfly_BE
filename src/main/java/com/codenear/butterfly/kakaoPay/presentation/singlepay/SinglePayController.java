@@ -47,13 +47,17 @@ public class SinglePayController implements SinglePayControllerSwagger {
     }
 
     @GetMapping("/cancel")
-    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId) {
-        singlePaymentService.cancelPayment(memberId);
+    public void cancelPaymentRequest(@RequestParam("memberId") Long memberId,
+                                     @RequestParam("productName") String productName,
+                                     @RequestParam("quantity") int quantity) {
+        singlePaymentService.cancelPayment(memberId, productName, quantity);
     }
 
     @GetMapping("/fail")
-    public void failPaymentRequest(@RequestParam("memberId") Long memberId) {
-        singlePaymentService.failPayment(memberId);
+    public void failPaymentRequest(@RequestParam("memberId") Long memberId,
+                                   @RequestParam("productName") String productName,
+                                   @RequestParam("quantity") int quantity) {
+        singlePaymentService.failPayment(memberId, productName, quantity);
     }
 
     @GetMapping("/status")
