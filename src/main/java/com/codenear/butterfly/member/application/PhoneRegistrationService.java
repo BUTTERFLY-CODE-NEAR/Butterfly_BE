@@ -1,6 +1,6 @@
 package com.codenear.butterfly.member.application;
 
-import static com.codenear.butterfly.certify.domain.CertifyType.REGISTER_PHONE;
+import static com.codenear.butterfly.certify.domain.CertifyType.CERTIFY_PHONE;
 import static com.codenear.butterfly.global.exception.ErrorCode.PHONE_NUMBER_ALREADY_USE;
 
 import com.codenear.butterfly.certify.application.CertifyService;
@@ -25,11 +25,11 @@ public class PhoneRegistrationService {
 
     public void sendRegistrationCode(String phoneNumber) {
         validatePhoneNumberDuplicate(phoneNumber);
-        certifyService.sendCertifyCode(phoneNumber, REGISTER_PHONE);
+        certifyService.sendCertifyCode(phoneNumber, CERTIFY_PHONE);
     }
 
     public void checkRegistrationCode(CertifyRequest request, MemberDTO loginMember) {
-        certifyService.checkCertifyCode(request, REGISTER_PHONE);
+        certifyService.checkCertifyCode(request, CERTIFY_PHONE);
         Member member = getMemberById(loginMember.getId());
         updatePhoneNumber(request.phoneNumber(), member);
 
