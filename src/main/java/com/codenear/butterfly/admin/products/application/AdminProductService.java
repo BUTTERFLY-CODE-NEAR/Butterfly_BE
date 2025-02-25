@@ -58,7 +58,7 @@ public class AdminProductService {
                 .build();
         productRepository.save(product);
         kakaoPaymentRedisRepository.saveStockQuantity(request.productName(), request.stockQuantity());
-        if (request.descriptionImages() != null && !request.descriptionImages().isEmpty()) {
+        if (request.descriptionImages().get(0) != null && !request.descriptionImages().get(0).isEmpty()) {
             List<ProductDescriptionImage> descriptionImages = getDescriptionImages(request.descriptionImages(), product);
             productDescriptionImageRepository.saveAll(descriptionImages);
         }
@@ -80,7 +80,7 @@ public class AdminProductService {
         }
 
         // 상품 설명 이미지 업데이트
-        if (request.getDescriptionImages() != null && !request.getDescriptionImages().isEmpty()) {
+        if (request.getDescriptionImages().get(0) != null && !request.getDescriptionImages().get(0).isEmpty()) {
             updateDescriptionImages(request, product);
         }
 
