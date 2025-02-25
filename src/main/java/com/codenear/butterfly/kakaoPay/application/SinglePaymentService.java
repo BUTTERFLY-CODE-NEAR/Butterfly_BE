@@ -69,7 +69,7 @@ public class SinglePaymentService {
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         // 재고 예약
-        kakaoPaymentRedisRepository.reserveStock(paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity());
+        kakaoPaymentRedisRepository.reserveStock(paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity(), memberId);
 
         String partnerOrderId = UUID.randomUUID().toString();
 
@@ -131,6 +131,7 @@ public class SinglePaymentService {
 
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
+        kakaoPaymentRedisRepository.removeReserveProduct(memberId, approveResponseDTO.getItem_name(), quantity);
 
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(product.getProductName(), approveResponseDTO.getQuantity());
@@ -145,14 +146,16 @@ public class SinglePaymentService {
         return status;
     }
 
-    public void cancelPayment(Long memberId) {
+    public void cancelPayment(Long memberId, String productName, int quantity) {
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.CANCEL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
+        restoreQuantity(memberId, productName, quantity);
     }
 
-    public void failPayment(Long memberId) {
+    public void failPayment(Long memberId, String productName, int quantity) {
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
+        restoreQuantity(memberId, productName, quantity);
     }
 
     public void updatePaymentStatus(Long memberId) {
@@ -190,6 +193,18 @@ public class SinglePaymentService {
         if (remainderProductQuantity < orderDTO.orderQuantity()) {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다.");
         }
+    }
+
+    /**
+     * 예약된 재고 반환 후 key 삭제
+     *
+     * @param memberId    사용자 아이디
+     * @param productName 상품 이름
+     * @param quantity    예약 개수
+     */
+    public void restoreQuantity(Long memberId, String productName, int quantity) {
+        kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(productName, quantity);
+        kakaoPaymentRedisRepository.removeReserveProduct(memberId, productName, quantity);
     }
 
     private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
