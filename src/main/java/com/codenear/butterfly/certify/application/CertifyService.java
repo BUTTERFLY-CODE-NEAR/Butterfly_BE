@@ -51,7 +51,6 @@ public class CertifyService {
 
     public void checkCertifyCode(CertifyRequest request, CertifyType certifyType) {
         String key = switch (certifyType) {
-            case REGISTER_PHONE -> createRedisKey(request.phoneNumber(), certifyType); // 추후 삭제 예정
             case CERTIFY_PHONE -> createRedisKey(request.phoneNumber(), certifyType);
             case CERTIFY_EMAIL -> createRedisKey(request.email(), certifyType);
         };
