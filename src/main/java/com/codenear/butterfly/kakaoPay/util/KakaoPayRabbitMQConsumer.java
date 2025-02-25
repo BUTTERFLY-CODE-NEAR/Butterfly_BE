@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class KakaoPayRabbitMQConsumer {
+    private final int DEFAULT_MAX_PURCHASE_NUM = 5;
     private final ProductInventoryRepository productInventoryRepository;
 
     /**
@@ -28,7 +29,7 @@ public class KakaoPayRabbitMQConsumer {
 
         // 예약된 재고를 최종 차감
         product.decreaseQuantity(message.quantity());
-        product.increasePurchaseParticipantCount(message.quantity());
+        product.increasePurchaseParticipantCount(message.quantity(), DEFAULT_MAX_PURCHASE_NUM);
     }
 
     /**
@@ -42,7 +43,7 @@ public class KakaoPayRabbitMQConsumer {
 
         // 취소된 주문 재고 추가
         product.increaseQuantity(message.quantity());
-        product.decreasePurchaseParticipantCount(message.quantity());
+        product.decreasePurchaseParticipantCount(message.quantity(), DEFAULT_MAX_PURCHASE_NUM);
     }
 }
 

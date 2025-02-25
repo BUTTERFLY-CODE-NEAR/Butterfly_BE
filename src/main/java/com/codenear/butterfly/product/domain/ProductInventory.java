@@ -97,14 +97,12 @@ public class ProductInventory extends Product {
         this.stockQuantity -= quantity;
     }
 
-    public void increasePurchaseParticipantCount(int quantity) {
-        // TODO : 현재 기본값 5. 매직넘버 리팩토링 필요
-        int defaultIncreaseCount = 5;
+    public void increasePurchaseParticipantCount(int quantity, int defaultMaxPurchaseNum) {
         this.purchaseParticipantCount += quantity;
 
         if (this.purchaseParticipantCount >= this.maxPurchaseCount) {
             // maxPurchaseCount를 기본값으로 증가시키되, 최대값을 넘지 않도록 조정
-            int newMaxPurchaseCount = this.maxPurchaseCount + defaultIncreaseCount;
+            int newMaxPurchaseCount = this.maxPurchaseCount + defaultMaxPurchaseNum;
             int maxAllowedPurchaseCount = this.purchaseParticipantCount + stockQuantity;
 
             this.maxPurchaseCount = Math.min(newMaxPurchaseCount, maxAllowedPurchaseCount);
@@ -115,17 +113,15 @@ public class ProductInventory extends Product {
         this.stockQuantity += quantity;
     }
 
-    public void decreasePurchaseParticipantCount(int quantity) {
-        // TODO : 현재 기본값 5. 매직넘버 리팩토링 필요
-        int defaultDecreaseCount = 5;
+    public void decreasePurchaseParticipantCount(int quantity, int defaultMaxPurchaseNum) {
         this.purchaseParticipantCount -= quantity;
 
         // 구매 개수가 이전 maxPurchaseCount 보다 적어졌다면, maxPurchaseCount도 줄이기
-        if (this.purchaseParticipantCount < this.maxPurchaseCount - defaultDecreaseCount) {
-            int newMaxPurchaseCount = this.maxPurchaseCount - defaultDecreaseCount;
+        if (this.purchaseParticipantCount < this.maxPurchaseCount - defaultMaxPurchaseNum) {
+            int newMaxPurchaseCount = this.maxPurchaseCount - defaultMaxPurchaseNum;
 
             // 최소 구매 개수를 5로 설정 (이하로 내려가지 않도록)
-            this.maxPurchaseCount = Math.max(defaultDecreaseCount, newMaxPurchaseCount);
+            this.maxPurchaseCount = Math.max(defaultMaxPurchaseNum, newMaxPurchaseCount);
         }
 
     }
