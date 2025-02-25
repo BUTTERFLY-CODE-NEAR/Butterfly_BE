@@ -8,10 +8,13 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_STATUS;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PRODUCT_NAME;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.QUANTITY;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class KakaoPaymentRedisRepository {
 
     private static final String PAYMENT_HASH_KEY_PREFIX = "pay:";
     private static final String REMAINDER_PRODUCT_KEY_PREFIX = "remainder:product:";
+    private static final String RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX = "reserve:product:%s:quantity:%s:member:%s";
     private static final int TIME_TO_LIVE_MINUTE = 15;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -29,9 +33,10 @@ public class KakaoPaymentRedisRepository {
      * @param fields   여러개의 필드와 값이 저장된 맵
      */
     public void addMultipleToHashSet(final Long memberId, final Map<String, String> fields) {
+        String key = PAYMENT_HASH_KEY_PREFIX + memberId;
         // 여러 값을 한 번에 저장
-        redisTemplate.opsForHash().putAll(PAYMENT_HASH_KEY_PREFIX + memberId, fields);
-        ensureTTL(memberId);
+        redisTemplate.opsForHash().putAll(key, fields);
+        ensureTTL(key);
     }
 
     /**
@@ -52,18 +57,6 @@ public class KakaoPaymentRedisRepository {
      */
     public void removeHashTableKey(final Long memberId) {
         redisTemplate.delete(PAYMENT_HASH_KEY_PREFIX + memberId);
-    }
-
-    /**
-     * TTL 시간 설정
-     */
-    private void ensureTTL(final Long memberId) {
-        String key = PAYMENT_HASH_KEY_PREFIX + memberId;
-        // Hash Key가 처음 생성된 경우에만 TTL 설정
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(key + memberId))) {
-            // TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
-            redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MINUTES);
-        }
     }
 
     public void savePaymentStatus(Long memberId, String status) {
@@ -97,7 +90,7 @@ public class KakaoPaymentRedisRepository {
      * @param productName 상품 이름
      * @param quantity    주문 개수
      */
-    public void reserveStock(String productName, int quantity) {
+    public void reserveStock(String productName, int quantity, Long memberId) {
         String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
         // 재고가 충분하면 차감하고, 부족하면 -1 반환
         String script = "local stock = tonumber(redis.call('GET', KEYS[1])) " +
@@ -117,6 +110,8 @@ public class KakaoPaymentRedisRepository {
         if (result == null || result == -1) {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다");
         }
+
+        orderReservation(memberId, productName, quantity);
     }
 
     /**
@@ -139,5 +134,44 @@ public class KakaoPaymentRedisRepository {
     public String getRemainderProductQuantity(String productName) {
         String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
         return redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 재고 예약 삭제
+     *
+     * @param memberId 사용자 아이디
+     */
+    public void removeReserveProduct(Long memberId, String productName, int quantity) {
+        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, memberId);
+        redisTemplate.delete(key);
+    }
+
+    /**
+     * 사용자가 주문한 재고 저장 (TTL 15분)
+     *
+     * @param memberId    사용자 아이디
+     * @param productName 상품 이름
+     * @param quantity    주문 개수
+     */
+    private void orderReservation(Long memberId, String productName, int quantity) {
+        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, memberId);
+
+        Map<String, String> reserveMap = new HashMap<>();
+        reserveMap.put(PRODUCT_NAME.getFieldName(), productName);
+        reserveMap.put(QUANTITY.getFieldName(), String.valueOf(quantity));
+
+        redisTemplate.opsForHash().putAll(key, reserveMap);
+        ensureTTL(key);
+    }
+
+    /**
+     * TTL 시간 설정
+     */
+    private void ensureTTL(final String key) {
+        // Hash Key가 처음 생성된 경우에만 TTL 설정
+        if (Boolean.FALSE.equals(redisTemplate.hasKey(key))) {
+            // TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
+            redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MINUTES);
+        }
     }
 }
