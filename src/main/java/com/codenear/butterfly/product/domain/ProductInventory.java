@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Entity
 @DiscriminatorValue("INVENTORY")
@@ -85,12 +86,7 @@ public class ProductInventory extends Product {
 
     public BigDecimal getCurrentDiscountRate() {
         double participationRate = calculateParticipationRate();
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
+        return getDiscountRateForParticipationRate(participationRate);
     }
 
     public boolean isSoldOut() {
@@ -101,10 +97,15 @@ public class ProductInventory extends Product {
         this.stockQuantity -= quantity;
     }
 
-    public void increasePurchaseParticipantCount(int quantity) {
+    public void increasePurchaseParticipantCount(int quantity, int defaultMaxPurchaseNum) {
         this.purchaseParticipantCount += quantity;
+
         if (this.purchaseParticipantCount >= this.maxPurchaseCount) {
-            this.purchaseParticipantCount %= this.maxPurchaseCount;
+            // maxPurchaseCount를 기본값으로 증가시키되, 최대값을 넘지 않도록 조정
+            int newMaxPurchaseCount = this.maxPurchaseCount + defaultMaxPurchaseNum;
+            int maxAllowedPurchaseCount = this.purchaseParticipantCount + stockQuantity;
+
+            this.maxPurchaseCount = Math.min(newMaxPurchaseCount, maxAllowedPurchaseCount);
         }
     }
 
@@ -112,11 +113,17 @@ public class ProductInventory extends Product {
         this.stockQuantity += quantity;
     }
 
-    public void decreasePurchaseParticipantCount(int quantity) {
+    public void decreasePurchaseParticipantCount(int quantity, int defaultMaxPurchaseNum) {
         this.purchaseParticipantCount -= quantity;
-        if (this.purchaseParticipantCount < 0) {
-            this.purchaseParticipantCount = ((this.purchaseParticipantCount % this.maxPurchaseCount) + this.maxPurchaseCount) % this.maxPurchaseCount;
+
+        // 구매 개수가 이전 maxPurchaseCount 보다 적어졌다면, maxPurchaseCount도 줄이기
+        if (this.purchaseParticipantCount < this.maxPurchaseCount - defaultMaxPurchaseNum) {
+            int newMaxPurchaseCount = this.maxPurchaseCount - defaultMaxPurchaseNum;
+
+            // 최소 구매 개수를 5로 설정 (이하로 내려가지 않도록)
+            this.maxPurchaseCount = Math.max(defaultMaxPurchaseNum, newMaxPurchaseCount);
         }
+
     }
 
     public Float calculateGauge() {
@@ -124,8 +131,7 @@ public class ProductInventory extends Product {
     }
 
     private double calculateParticipationRate() {
-        return maxPurchaseCount == 0 ? 0 :
-                ((double) purchaseParticipantCount / maxPurchaseCount) * 100;
+        return ((double) purchaseParticipantCount / (purchaseParticipantCount + stockQuantity)) * 100;
     }
 
     public int calculatePointRefund(int quantity) {
@@ -143,6 +149,24 @@ public class ProductInventory extends Product {
         return Math.max(pointRefundAmount, 0);
     }
 
+    /**
+     * 다음 할인율이 있는지 확인하고 반환한다.
+     *
+     * @return 할인율
+     */
+    public BigDecimal getNextDiscountRate() {
+        double participationRate = calculateParticipationRate();
+
+        int nextDiscountRateIndex = IntStream.range(0, discountRates.size())
+                .filter(i -> discountRates.get(i).getMinParticipationRate() > participationRate) // 다음 할인율 찾기
+                .min()
+                .orElse(-1);
+
+        return (nextDiscountRateIndex != -1)
+                ? discountRates.get(nextDiscountRateIndex).getDiscountRate()
+                : BigDecimal.ZERO;
+    }
+
     private int calculateSectionCount() {
         return discountRates.stream()
                 .findFirst()
@@ -152,7 +176,7 @@ public class ProductInventory extends Product {
 
     private BigDecimal getDiscountRateForParticipationRate(double participationRate) {
         return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
+                .filter(rate -> participationRate >= rate.getMinParticipationRate()
                         && participationRate <= rate.getMaxParticipationRate())
                 .findFirst()
                 .map(DiscountRate::getDiscountRate)

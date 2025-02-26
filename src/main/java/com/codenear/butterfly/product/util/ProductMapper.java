@@ -25,7 +25,7 @@ public class ProductMapper {
                 product.getCurrentDiscountRate()
         );
 
-        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), appliedGauge);
+        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge);
     }
 
     public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
@@ -34,7 +34,7 @@ public class ProductMapper {
                 .map(ProductMapper::toOptionDTO)
                 .toList();
         List<ProductDescriptionImageDTO> descriptionImageDTOs = toProductDescriptionImageDTOList(product.getDescriptionImages());
-        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs);
+        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs);
     }
 
     private static BigDecimal calculateFinalSaleRate(ProductInventory product) {
@@ -60,5 +60,15 @@ public class ProductMapper {
         return productDescriptionImages.stream()
                 .map(descriptionImage -> new ProductDescriptionImageDTO(descriptionImage.getImageUrl()))
                 .toList();
+    }
+
+    /**
+     * 기존 할인율에 다음 할인율을 더하여 반환한다.
+     *
+     * @param product
+     * @return 할인율
+     */
+    private static BigDecimal nextSaleRate(ProductInventory product) {
+        return product.getSaleRate().add(product.getNextDiscountRate());
     }
 }
