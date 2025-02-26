@@ -1,8 +1,5 @@
 package com.codenear.butterfly.s3.application;
 
-import static java.util.UUID.randomUUID;
-import static software.amazon.awssdk.services.s3.model.ObjectCannedACL.PUBLIC_READ;
-
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.s3.domain.S3Directory;
 import com.codenear.butterfly.s3.exception.S3Exception;
@@ -15,6 +12,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import static java.util.UUID.randomUUID;
+import static software.amazon.awssdk.services.s3.model.ObjectCannedACL.PUBLIC_READ;
+
 @Service
 @RequiredArgsConstructor
 public class S3Service {
@@ -24,8 +24,8 @@ public class S3Service {
     @Value("${cloud.storage.bukkit.name}")
     private String bukkit_name;
 
-    @Value("${cloud.storage.url}")
-    private String storageUrl;
+    @Value("${cloud.storage.endpoint}")
+    private String endPoint;
 
     public String uploadFile(MultipartFile file, S3Directory directory) {
         try {
@@ -50,7 +50,7 @@ public class S3Service {
     }
 
     public String generateFileUrl(String fileName, S3Directory directory) {
-        return storageUrl + directory.getValue() + fileName;
+        return endPoint + "/" + bukkit_name + "/" + directory.getValue() + fileName;
     }
 
     public void deleteFile(String fileName, S3Directory directory) {
