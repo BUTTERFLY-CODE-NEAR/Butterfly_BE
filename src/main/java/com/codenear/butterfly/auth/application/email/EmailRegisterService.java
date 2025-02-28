@@ -3,7 +3,6 @@ package com.codenear.butterfly.auth.application.email;
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.consent.application.ConsentFacade;
-import com.codenear.butterfly.consent.application.ConsentService;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
@@ -58,8 +57,8 @@ public class EmailRegisterService {
                 .platform(Platform.CODENEAR)
                 .build();
 
-        Point point = Point.builder()
-                .point(0)
+        Point point = Point.createPoint()
+                .member(member)
                 .build();
 
         member.setPoint(point);
