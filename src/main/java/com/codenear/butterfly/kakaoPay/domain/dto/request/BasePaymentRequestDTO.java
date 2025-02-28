@@ -18,4 +18,7 @@ public abstract class BasePaymentRequestDTO {
 
     @Schema(description = "옵션 이름", example = "옵션 B", nullable = true)
     private String optionName;
+
+    @Schema(description = "사용 포인트", example = "500")
+    private int point;
 }

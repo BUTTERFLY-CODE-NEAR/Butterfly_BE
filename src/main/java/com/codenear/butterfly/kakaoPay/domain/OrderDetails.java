@@ -62,12 +62,13 @@ public class OrderDetails {
     private String optionName;
     private Integer total;
     private Integer quantity;
+    private Integer point;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
     @Builder
-    public OrderDetails(Member member, OrderType orderType, ApproveResponseDTO approveResponseDTO, Product product, String optionName) {
+    public OrderDetails(Member member, OrderType orderType, ApproveResponseDTO approveResponseDTO, Product product, String optionName, int point) {
         this.member = member;
         this.orderType = orderType;
         this.orderCode = generateOrderCode();
@@ -79,6 +80,7 @@ public class OrderDetails {
         this.optionName = optionName;
         this.quantity = approveResponseDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
+        this.point = point;
 
     }
 
