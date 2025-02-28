@@ -30,6 +30,7 @@ public class PhoneRegistrationService {
 
     public void checkRegistrationCode(CertifyRequest request, MemberDTO loginMember) {
         certifyService.checkCertifyCode(request, CERTIFY_PHONE);
+
         Member member = getMemberById(loginMember.getId());
         updatePhoneNumber(request.phoneNumber(), member);
 

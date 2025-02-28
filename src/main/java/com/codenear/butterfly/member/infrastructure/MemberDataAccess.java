@@ -8,7 +8,6 @@ import com.codenear.butterfly.member.exception.MemberException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,7 @@ public class MemberDataAccess {
         return memberRepository.findByPhoneNumber(phoneNumber);
     }
 
-    @Cacheable(value = "memberCache", key = "#memberId")
+//    @Cacheable(value = "memberCache", key = "#memberId")
     public Member findByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(SERVER_ERROR, null));
