@@ -27,8 +27,6 @@ import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
-import com.codenear.butterfly.point.domain.Point;
-import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
@@ -63,7 +61,6 @@ public class SinglePaymentService {
     private final MemberRepository memberRepository;
     private final ProductInventoryRepository productInventoryRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
-    private final PointRepository pointRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
     private final KakaoPayRabbitMQProducer rabbitMQProducer;
 
@@ -102,20 +99,6 @@ public class SinglePaymentService {
         ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
 
         int quantity = approveResponseDTO.getQuantity();
-        int refundedPoints = product.calculatePointRefund(quantity);
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
-
-        Point point = pointRepository.findByMember(member)
-                .orElseGet(() -> {
-                    Point newPoint = Point.builder()
-                            .point(0)
-                            .build();
-                    return pointRepository.save(newPoint);
-                });
-
-        point.increasePoint(refundedPoints);
 
         SinglePayment singlePayment = SinglePayment.builder().approveResponseDTO(approveResponseDTO).build();
         Amount amount = Amount.builder().approveResponseDTO(approveResponseDTO).build();
