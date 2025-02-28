@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ADDRESS_ID;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.DELIVER_DATE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.OPTION_NAME;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_ID;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_TYPE;
@@ -48,6 +49,7 @@ import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_DATE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_PLACE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_TIME;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.POINT;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.TRANSACTION_ID;
 
 @Service
@@ -214,7 +216,8 @@ public class SinglePaymentService {
             case DELIVER -> {
                 Address address = addressRepository.findById(addressId)
                         .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
-                orderDetails.addOrderTypeByDeliver(address);
+                LocalDate deliverDate = LocalDate.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, DELIVER_DATE.getFieldName()));
+                orderDetails.addOrderTypeByDeliver(address, deliverDate);
             }
         }
 
@@ -242,9 +245,11 @@ public class SinglePaymentService {
         fields.put(TRANSACTION_ID.getFieldName(), tid);
         fields.put(ORDER_TYPE.getFieldName(), orderType);
         fields.put(OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
+        fields.put(POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
 
         if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
             fields.put(ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
+            fields.put(DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
         }
 
         if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupPaymentRequestDTO) {

@@ -6,7 +6,16 @@ import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.product.domain.Product;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -79,9 +88,10 @@ public class OrderDetails {
         this.pickupTime = pickupTime;
     }
 
-    public void addOrderTypeByDeliver(Address address) {
+    public void addOrderTypeByDeliver(Address address, LocalDate deliverDate) {
         this.address = address.getAddress();
         this.detailedAddress = address.getDetailedAddress();
+        this.deliverDate = deliverDate;
     }
 
     public void updateOrderStatus(OrderStatus orderStatus) {
