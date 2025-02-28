@@ -98,6 +98,11 @@ public class Member extends BaseEntity {
         this.withdrawalDate = LocalDateTime.now();
     }
 
+    public void restore() {
+        this.isDeleted = false;
+        this.withdrawalDate = null;
+    }
+
     public boolean isRecentlyWithdrawn() {
         if (this.withdrawalDate == null) {
             return false;

@@ -8,7 +8,6 @@ import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

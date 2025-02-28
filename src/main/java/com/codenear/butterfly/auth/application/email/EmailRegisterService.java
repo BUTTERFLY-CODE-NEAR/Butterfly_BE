@@ -27,7 +27,11 @@ public class EmailRegisterService {
     private final ForbiddenWordFilter forbiddenWordFilter;
 
     public Member emailRegister(AuthRegisterDTO authRegisterDTO) {
-        if (hasMember(authRegisterDTO.getEmail())) {
+        String email = authRegisterDTO.getEmail();
+        if (hasMember(email)) {
+            if (isWithdrawn(email)) {
+                return memberRepository.save(restoreId(email));
+            }
             throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
         }
 
@@ -47,6 +51,16 @@ public class EmailRegisterService {
 
     private boolean hasMember(String email) {
         return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).isPresent();
+    }
+
+    private boolean isWithdrawn(String email) {
+        return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).get().isDeleted();
+    }
+
+    private Member restoreId(String email){
+        Member member = memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).get();
+        member.restore();
+        return member;
     }
 
     private Member register(AuthRegisterDTO requestDTO) {
