@@ -5,6 +5,8 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
+import com.codenear.butterfly.point.domain.Point;
+import com.codenear.butterfly.point.domain.PointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminOrderDetailsService {
 
     private final OrderDetailsRepository orderDetailsRepository;
+    private final PointRepository pointRepository;
 
     public Page<OrderDetails> getAllOrders(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
@@ -31,5 +34,14 @@ public class AdminOrderDetailsService {
 
         order.updateOrderStatus(newStatus);
         orderDetailsRepository.save(order);
+
+        Point point = pointRepository.findByMember(order.getMember())
+                .orElseGet(() -> {
+                    Point newPoint = Point.createPoint()
+                            .member(order.getMember())
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
+
     }
 }
