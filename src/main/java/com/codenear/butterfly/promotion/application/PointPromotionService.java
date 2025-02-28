@@ -28,11 +28,11 @@ public class PointPromotionService {
     public void processPromotion(Member member) {
         PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
 
-        if (isPromotionApplicable(member.getPhoneNumber(), promotion)) { // 프로모션 가능 여부
-            applyPromotion(member.getPoint(), promotion);
-            saveRecipient(member);
-            sendPromotionMessage(member.getId());
-        }
+        if (!isPromotionApplicable(member.getPhoneNumber(), promotion) || member.isRecentlyWithdrawn()) return;
+
+        applyPromotion(member.getPoint(), promotion);
+        saveRecipient(member);
+        sendPromotionMessage(member.getId());
     }
 
     private boolean isPromotionApplicable(String phoneNumber, PointPromotion promotion) {
