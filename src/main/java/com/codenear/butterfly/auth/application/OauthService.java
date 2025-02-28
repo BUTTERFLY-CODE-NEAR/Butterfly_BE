@@ -1,6 +1,8 @@
 package com.codenear.butterfly.auth.application;
 
 import com.codenear.butterfly.auth.domain.dto.OauthDTO;
+import com.codenear.butterfly.auth.exception.AuthException;
+import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.application.NicknameService;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
@@ -21,6 +23,9 @@ public class OauthService {
 
     public void socialLoginAndIssueJwt(OauthDTO dto, HttpServletResponse response) {
         Member member = registerOrLogin(dto);
+        if (member.isDeleted()){
+            throw new AuthException(ErrorCode.WITHDRAWN_ID, null);
+        }
         jwtService.processTokens(member.getId(), response);
     }
 
