@@ -10,6 +10,7 @@ import com.codenear.butterfly.promotion.domain.Recipient;
 import com.codenear.butterfly.promotion.domain.repository.RecipientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -23,6 +24,7 @@ public class PointPromotionService {
     private final RecipientRepository recipientRepository;
     private final FCMFacade fcmFacade;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processPromotion(Member member) {
         PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
 

@@ -43,7 +43,7 @@ public class MemberService {
         );
     }
 
-    @Cacheable(value = "userCache", key = "#memberId")
+    @Cacheable(value = "userCache", key = "#memberId", condition = "#memberId != null")
     public MemberDTO getMemberDTOByMemberId(Long memberId) {
         Member member = loadMemberByMemberId(memberId);
 
