@@ -4,11 +4,12 @@ import com.codenear.butterfly.auth.application.email.EmailLoginService;
 import com.codenear.butterfly.auth.application.email.EmailRegisterService;
 import com.codenear.butterfly.auth.domain.dto.AuthLoginDTO;
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
+import com.codenear.butterfly.auth.exception.AuthException;
+import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ public class AuthService {
 
     public void handleLogin(AuthLoginDTO requestDTO, HttpServletResponse response) {
         Member member = emailLoginService.login(requestDTO, requestDTO.getPassword());
+        if (member.isDeleted()){
+            throw new AuthException(ErrorCode.WITHDRAWN_ID, null);
+        }
         jwtService.processTokens(member.getId(), response);
     }
 
