@@ -11,6 +11,8 @@ import com.codenear.butterfly.product.domain.ProductInventory;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +66,10 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Alarm> alarms = new ArrayList<>();
 
+    private boolean isDeleted;
+
+    private LocalDateTime withdrawalDate;
+
     public void setPoint(Point point) {
         this.point = point;
         point.setMember(this);
@@ -85,5 +91,18 @@ public class Member extends BaseEntity {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void withdraw() {
+        this.isDeleted = true;
+        this.withdrawalDate = LocalDateTime.now();
+    }
+
+    public boolean isRecentlyWithdrawn() {
+        if (this.withdrawalDate == null) {
+            return false;
+        }
+
+        return ChronoUnit.MONTHS.between(this.withdrawalDate, LocalDateTime.now()) < 2;
     }
 }

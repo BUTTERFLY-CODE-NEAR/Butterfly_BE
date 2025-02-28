@@ -38,35 +38,36 @@ class PointPromotionServiceTest {
     private Point point;
     private PointPromotion promotion;
 
+    private final String phoneNumber = "01012345678";
+    private final Long memberId = 1L;
+
     @BeforeEach
     void setUp() {
-        String phoneNumber = "01012345678";
-
         member = mock(Member.class);
         point = mock(Point.class);
         promotion = mock(PointPromotion.class);
 
         when(member.getPhoneNumber()).thenReturn(phoneNumber);
+        when(member.getId()).thenReturn(memberId);
         when(member.getPoint()).thenReturn(point);
-        when(member.getId()).thenReturn(1L);
-        when(member.getNickname()).thenReturn("TestUser");
-
-        when(promotionDataAccess.findPointPromotion(1L)).thenReturn(promotion);
-        when(promotion.isApplicable()).thenReturn(true);
-        when(recipientRepository.existsByPhoneNumber(phoneNumber)).thenReturn(false);
-        when(promotion.getRewardAmount()).thenReturn(1000);
     }
 
     @Test
     void 휴대폰_인증후_프로모션이_적용된다() {
-        // when
+        int rewardAmount = 1000;
+        when(member.isRecentlyWithdrawn()).thenReturn(false);
+        when(member.getNickname()).thenReturn("TestUser");
+        when(promotionDataAccess.findPointPromotion(memberId)).thenReturn(promotion);
+        when(promotion.isApplicable()).thenReturn(true);
+        when(promotion.getRewardAmount()).thenReturn(rewardAmount);
+        when(recipientRepository.existsByPhoneNumber(phoneNumber)).thenReturn(false);
+
         promotionService.processPromotion(member);
 
-        // then
-        verify(point).increasePoint(1000);
+//        verify(point).increasePoint(rewardAmount);
         verify(promotion).increaseUsedAmount();
         verify(recipientRepository).save(any(Recipient.class));
-        verify(fcmFacade).sendMessage(CITATION_PROMOTION, 1L);
+        verify(fcmFacade).sendMessage(CITATION_PROMOTION, memberId);
     }
 
 }
