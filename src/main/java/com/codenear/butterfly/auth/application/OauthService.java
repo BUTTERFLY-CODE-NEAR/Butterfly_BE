@@ -49,8 +49,8 @@ public class OauthService {
                 .platform(dto.getPlatform())
                 .build();
 
-        Point point = Point.builder()
-                .point(0)
+        Point point = Point.createPoint()
+                .member(member)
                 .build();
 
         member.setPoint(point);
