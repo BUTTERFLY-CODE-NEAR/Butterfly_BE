@@ -18,6 +18,7 @@ import static com.codenear.butterfly.global.util.ResponseUtil.createSuccessRespo
 @RequiredArgsConstructor
 public class LogoutAndWithdrawController implements LogoutAndWithdrawControllerSwagger {
     private final AuthService authService;
+
     @PostMapping("/logout")
     public ResponseEntity<ResponseDTO> logout() {
         return ResponseUtil.createSuccessResponse(null);

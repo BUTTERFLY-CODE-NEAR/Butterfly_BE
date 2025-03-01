@@ -39,7 +39,7 @@ public class SwaggerConfig {
     @Bean
     public List<GroupedOpenApi> apis() {
         return List.of(
-            createGroupedOpenApi("회원가입, 로그인 API", "/auth/**", "/oauth/**", "/logout"),
+            createGroupedOpenApi("회원가입, 로그인 API", "/auth/**", "/oauth/**", "/logout", "/withdraw"),
             createGroupedOpenApi("유저 API", "/member/**","/certify/**","/fcm/**"),
             createGroupedOpenApi("푸시, 알림 API (notify)", "/notify/**"),
             createGroupedOpenApi("상품 API", "/products/**"),
