@@ -70,10 +70,10 @@ public class SinglePaymentService {
     private final PointRepository pointRepository;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
-        // 재고 예약
-        kakaoPaymentRedisRepository.reserveStock(paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity(), memberId);
-
         String partnerOrderId = UUID.randomUUID().toString();
+
+        // 재고 예약
+        kakaoPaymentRedisRepository.reserveStock(paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity(), partnerOrderId);
 
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayReadyParameters(paymentRequestDTO, memberId, partnerOrderId);
         ReadyResponseDTO kakaoPayReady = kakaoPaymentUtil.sendRequest("/ready", parameters, ReadyResponseDTO.class);
@@ -121,7 +121,7 @@ public class SinglePaymentService {
 
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.SUCCESS.name());
-        kakaoPaymentRedisRepository.removeReserveProduct(memberId, approveResponseDTO.getItem_name(), quantity);
+        kakaoPaymentRedisRepository.removeReserveProduct(approveResponseDTO.getItem_name(), quantity, orderId);
 
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(product.getProductName(), approveResponseDTO.getQuantity());
@@ -137,15 +137,15 @@ public class SinglePaymentService {
     }
 
     public void cancelPayment(Long memberId, String productName, int quantity) {
+        restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, ORDER_ID.getFieldName()));
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.CANCEL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
-        restoreQuantity(memberId, productName, quantity);
     }
 
     public void failPayment(Long memberId, String productName, int quantity) {
+        restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, ORDER_ID.getFieldName()));
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
-        restoreQuantity(memberId, productName, quantity);
     }
 
     public void updatePaymentStatus(Long memberId) {
@@ -188,13 +188,13 @@ public class SinglePaymentService {
     /**
      * 예약된 재고 반환 후 key 삭제
      *
-     * @param memberId    사용자 아이디
      * @param productName 상품 이름
      * @param quantity    예약 개수
+     * @param orderId     주문 id
      */
-    public void restoreQuantity(Long memberId, String productName, int quantity) {
+    public void restoreQuantity(String productName, int quantity, String orderId) {
         kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(productName, quantity);
-        kakaoPaymentRedisRepository.removeReserveProduct(memberId, productName, quantity);
+        kakaoPaymentRedisRepository.removeReserveProduct(productName, quantity, orderId);
     }
 
     private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId, int point) {

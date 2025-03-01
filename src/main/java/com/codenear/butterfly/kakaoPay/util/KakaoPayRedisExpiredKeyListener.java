@@ -28,13 +28,13 @@ public class KakaoPayRedisExpiredKeyListener extends KeyExpirationEventMessageLi
     @Override
     public void onMessage(Message message, byte[] pattern) {
         if (message.toString().startsWith("reserve:")) {
-            Pattern keyPattern = Pattern.compile("reserve:product:(.*):quantity:(.*):member:(.*)");
+            Pattern keyPattern = Pattern.compile("reserve:product:(.*):quantity:(.*):orderId:(.*)");
             Matcher matcher = keyPattern.matcher(message.toString().trim());
             if (matcher.matches()) {
                 String productName = matcher.group(1);
                 int quantity = Integer.parseInt(matcher.group(2));
-                Long memberId = Long.parseLong(matcher.group(3));
-                singlePaymentService.restoreQuantity(memberId, productName, quantity);
+                String orderId = matcher.group(3);
+                singlePaymentService.restoreQuantity(productName, quantity, orderId);
             }
         }
     }

@@ -22,7 +22,7 @@ public class KakaoPaymentRedisRepository {
 
     private static final String PAYMENT_HASH_KEY_PREFIX = "pay:";
     private static final String REMAINDER_PRODUCT_KEY_PREFIX = "remainder:product:";
-    private static final String RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX = "reserve:product:%s:quantity:%s:member:%s";
+    private static final String RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX = "reserve:product:%s:quantity:%s:orderId:%s";
     private static final int TIME_TO_LIVE_MINUTE = 15;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -90,7 +90,7 @@ public class KakaoPaymentRedisRepository {
      * @param productName 상품 이름
      * @param quantity    주문 개수
      */
-    public void reserveStock(String productName, int quantity, Long memberId) {
+    public void reserveStock(String productName, int quantity, String orderId) {
         String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
         // 재고가 충분하면 차감하고, 부족하면 -1 반환
         String script = "local stock = tonumber(redis.call('GET', KEYS[1])) " +
@@ -111,7 +111,7 @@ public class KakaoPaymentRedisRepository {
             throw new KakaoPayException(ErrorCode.INSUFFICIENT_STOCK, "재고가 부족합니다");
         }
 
-        orderReservation(memberId, productName, quantity);
+        orderReservation(productName, quantity, orderId);
     }
 
     /**
@@ -139,22 +139,22 @@ public class KakaoPaymentRedisRepository {
     /**
      * 재고 예약 삭제
      *
-     * @param memberId 사용자 아이디
+     * @param orderId 주문 id
      */
-    public void removeReserveProduct(Long memberId, String productName, int quantity) {
-        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, memberId);
+    public void removeReserveProduct(String productName, int quantity, String orderId) {
+        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, orderId);
         redisTemplate.delete(key);
     }
 
     /**
      * 사용자가 주문한 재고 저장 (TTL 15분)
      *
-     * @param memberId    사용자 아이디
      * @param productName 상품 이름
      * @param quantity    주문 개수
+     * @param orderId     주문 Id
      */
-    private void orderReservation(Long memberId, String productName, int quantity) {
-        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, memberId);
+    private void orderReservation(String productName, int quantity, String orderId) {
+        String key = String.format(RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX, productName, quantity, orderId);
 
         Map<String, String> reserveMap = new HashMap<>();
         reserveMap.put(PRODUCT_NAME.getFieldName(), productName);
