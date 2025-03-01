@@ -27,6 +27,8 @@ import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.point.domain.Point;
+import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
@@ -41,6 +43,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ADDRESS_ID;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.DELIVER_DATE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.OPTION_NAME;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_ID;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.ORDER_TYPE;
@@ -48,6 +51,7 @@ import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PAYMENT_
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_DATE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_PLACE;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.PICKUP_TIME;
+import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.POINT;
 import static com.codenear.butterfly.kakaoPay.domain.KakaoPayRedisField.TRANSACTION_ID;
 
 @Service
@@ -63,6 +67,7 @@ public class SinglePaymentService {
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
     private final KakaoPayRabbitMQProducer rabbitMQProducer;
+    private final PointRepository pointRepository;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         // 재고 예약
@@ -91,7 +96,6 @@ public class SinglePaymentService {
         String addressIdByString = kakaoPaymentRedisRepository.getHashFieldValue(memberId, ADDRESS_ID.getFieldName());
         Long addressId = addressIdByString != null ? Long.parseLong(addressIdByString) : null;
         String optionName = kakaoPaymentRedisRepository.getHashFieldValue(memberId, OPTION_NAME.getFieldName());
-
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
 
         ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve", parameters, ApproveResponseDTO.class);
@@ -109,7 +113,10 @@ public class SinglePaymentService {
             singlePayment.addCardInfo(cardInfo);
         }
 
-        saveOrderDetails(orderType, addressId, approveResponseDTO, optionName, memberId);
+        int usePoint = parsingStringToInt(memberId, POINT.getFieldName());
+        decreaseUsePoint(memberId, usePoint);
+        saveOrderDetails(orderType, addressId, approveResponseDTO, optionName, memberId, usePoint);
+
         singlePaymentRepository.save(singlePayment);
 
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
@@ -190,7 +197,7 @@ public class SinglePaymentService {
         kakaoPaymentRedisRepository.removeReserveProduct(memberId, productName, quantity);
     }
 
-    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId) {
+    private void saveOrderDetails(OrderType orderType, Long addressId, ApproveResponseDTO approveResponseDTO, String optionName, Long memberId, int point) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
 
@@ -202,6 +209,7 @@ public class SinglePaymentService {
                 .approveResponseDTO(approveResponseDTO)
                 .product(product)
                 .optionName(optionName)
+                .point(point)
                 .build();
 
         switch (orderType) {
@@ -214,7 +222,8 @@ public class SinglePaymentService {
             case DELIVER -> {
                 Address address = addressRepository.findById(addressId)
                         .orElseThrow(() -> new KakaoPayException(ErrorCode.ADDRESS_NOT_FOUND, null));
-                orderDetails.addOrderTypeByDeliver(address);
+                LocalDate deliverDate = LocalDate.parse(kakaoPaymentRedisRepository.getHashFieldValue(memberId, DELIVER_DATE.getFieldName()));
+                orderDetails.addOrderTypeByDeliver(address, deliverDate);
             }
         }
 
@@ -242,9 +251,11 @@ public class SinglePaymentService {
         fields.put(TRANSACTION_ID.getFieldName(), tid);
         fields.put(ORDER_TYPE.getFieldName(), orderType);
         fields.put(OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
+        fields.put(POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
 
         if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
             fields.put(ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
+            fields.put(DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
         }
 
         if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupPaymentRequestDTO) {
@@ -256,5 +267,33 @@ public class SinglePaymentService {
             fields.put(PICKUP_TIME.getFieldName(), pickupTime);
         }
         return fields;
+    }
+
+    /**
+     * redis에 저장된 String 데이터 타입의 값을 int로 형변환 하여 반환한다.
+     *
+     * @param memberId 사용자 아이디
+     * @param key      redis에서 가져올 키
+     * @return int형 데이터
+     */
+    private int parsingStringToInt(Long memberId, String key) {
+        String keyString = kakaoPaymentRedisRepository.getHashFieldValue(memberId, key);
+
+        return keyString == null ? 0 : Integer.parseInt(keyString);
+    }
+
+    private void decreaseUsePoint(Long memberId, int usePoint) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+
+        Point point = pointRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Point newPoint = Point.createPoint()
+                            .member(member)
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
+
+        point.decreasePoint(usePoint);
     }
 }

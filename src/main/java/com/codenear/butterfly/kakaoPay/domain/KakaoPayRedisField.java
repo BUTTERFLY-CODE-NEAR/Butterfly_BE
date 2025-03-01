@@ -18,6 +18,8 @@ public enum KakaoPayRedisField {
     PICKUP_PLACE("pickupPlace"),
     PICKUP_DATE("pickupDate"),
     PICKUP_TIME("pickupTime"),
+    POINT("point"),
+    DELIVER_DATE("deliverDate"),
 
     // 재고 예약 필드
     PRODUCT_NAME("productName"),

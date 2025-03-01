@@ -12,6 +12,9 @@ import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisReposi
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.util.KakaoPayRabbitMQProducer;
 import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
+import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.point.domain.Point;
+import com.codenear.butterfly.point.domain.PointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,7 @@ public class CancelPaymentService {
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final KakaoPayRabbitMQProducer rabbitMQProducer;
+    private final PointRepository pointRepository;
 
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
 
@@ -43,10 +47,23 @@ public class CancelPaymentService {
 
         orderDetails.updateOrderStatus(OrderStatus.CANCELED);
         kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(orderDetails.getProductName(), orderDetails.getQuantity());
+        increaseUsePoint(orderDetails.getMember(), orderDetails.getPoint());
         cancelPaymentRepository.save(cancelPayment);
 
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(orderDetails.getProductName(), orderDetails.getQuantity());
         rabbitMQProducer.sendMessage(message);
+    }
+
+    public void increaseUsePoint(Member member, int usePoint) {
+        Point point = pointRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Point newPoint = Point.createPoint()
+                            .member(member)
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
+
+        point.increasePoint(usePoint);
     }
 }
