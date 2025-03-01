@@ -1,5 +1,6 @@
 package com.codenear.butterfly.promotion.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.DecimalMin;
@@ -9,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

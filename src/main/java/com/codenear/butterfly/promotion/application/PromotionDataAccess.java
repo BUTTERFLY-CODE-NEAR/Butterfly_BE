@@ -15,7 +15,7 @@ public class PromotionDataAccess {
 
     private final PointPromotionRepository pointPromotionRepository;
 
-//    @Cacheable(value = "pointPromotion", key = "#promotionId")
+    @Cacheable(value = "pointPromotion", key = "#promotionId")
     public PointPromotion findPointPromotion(Long promotionId) {
         return pointPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new PromotionException(SERVER_ERROR, null));
