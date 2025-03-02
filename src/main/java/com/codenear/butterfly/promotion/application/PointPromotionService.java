@@ -27,8 +27,7 @@ public class PointPromotionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processPromotion(Member member) {
         PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
-        if (!isPromotionApplicable(member.getPhoneNumber(), promotion) || member.isRecentlyWithdrawn())
-            return;
+        if (!isPromotionApplicable(member.getPhoneNumber(), promotion)) return;
 
         applyPromotion(member.getPoint(), promotion);
         saveRecipient(member);
