@@ -14,6 +14,9 @@ import java.util.Map;
 
 @Component
 public class KakaoPaymentUtil<T> {
+    private final String SUCCESS = "/payment/success?memberId=%s";
+    private final String FAILURE = "/payment/fail?memberId=%s&productName=%s&quantity=%s";
+    private final String CANCEL = "/payment/fail?memberId=%s&productName=%s&quantity=%s";
     @Value("${kakao.payment.cid}")
     private String CID;
 
@@ -44,9 +47,9 @@ public class KakaoPaymentUtil<T> {
         parameters.put("total_amount", paymentRequestDTO.getTotal());
         parameters.put("vat_amount", 0);
         parameters.put("tax_free_amount", 0);
-        parameters.put("approval_url", requestUrl + "/success");
-        parameters.put("cancel_url", requestUrl + "/cancel");
-        parameters.put("fail_url", requestUrl + "/fail");
+        parameters.put("approval_url", requestUrl + String.format(SUCCESS, memberId));
+        parameters.put("cancel_url", requestUrl + String.format(CANCEL, memberId, paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity()));
+        parameters.put("fail_url", requestUrl + String.format(FAILURE, memberId, paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity()));
         parameters.put("custom_json", "{\"return_custom_url\":\"butterfly://\"}");
         return parameters;
     }
