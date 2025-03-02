@@ -6,12 +6,12 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-import static org.springframework.http.HttpStatus.PAYMENT_REQUIRED;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.PAYMENT_REQUIRED;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -38,6 +38,7 @@ public enum ErrorCode {
 
     // 402 (PAYMENT_REQUIRED)
     PAY_FAILED(40200, "결제가 실패하였습니다.", PAYMENT_REQUIRED),
+    PAYMENT_REDIRECT_FAILED(40201, "페이지 이동에 실패하였습니다", PAYMENT_REQUIRED),
 
     // 403 (FORBIDDEN)
     INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", FORBIDDEN),
