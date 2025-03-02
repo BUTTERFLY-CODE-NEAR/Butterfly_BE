@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -24,9 +24,11 @@ public class PointPromotion extends Promotion {
     private int rewardAmount;
 
     @NotNull
+    @Getter
     private int usedAmount; // 프로모션 지급한 금액
 
     @NotNull
+    @Getter
     private int totalAmount; // 프로모션 최대 한도 금액
 
     @Override
