@@ -32,7 +32,8 @@ public class MemberDataAccess {
                 .orElseThrow(() -> new MemberException(SERVER_ERROR, null));
     }
 
-    @CacheEvict(value = "userCache, memberCache", key = "#member.id")
+//    @CacheEvict(value = "userCache, memberCache", key = "#member.id")
+    @CacheEvict(cacheNames = {"userCache", "memberCache"}, key = "#member.id")
     public void save(Member member) {
         memberRepository.save(member);
     }
