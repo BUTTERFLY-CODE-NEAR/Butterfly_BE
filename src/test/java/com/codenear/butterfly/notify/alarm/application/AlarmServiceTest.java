@@ -73,14 +73,14 @@ class AlarmServiceTest {
 
         List<Alarm> alarms = List.of(alarm);
 
-        when(alarmRepository.findByMemberId(memberId))
+        when(alarmRepository.findByMemberIdOrderByCreatedAtDesc(memberId))
                 .thenReturn(alarms);
 
         // when
         AlarmsResponse result = alarmService.getAlarmsByMemberId(memberId);
 
         // then
-        verify(alarmRepository).findByMemberId(memberId);
+        verify(alarmRepository).findByMemberIdOrderByCreatedAtDesc(memberId);
         assertThat(result.alarmResponses())
                 .hasSize(alarms.size())
                 .extracting(AlarmResponse::id)
