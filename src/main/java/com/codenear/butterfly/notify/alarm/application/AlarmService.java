@@ -25,7 +25,7 @@ public class AlarmService {
     private final ConsentDataAccess consentDataAccess;
 
     public AlarmsResponse getAlarmsByMemberId(Long memberId) {
-        List<Alarm> alarms = alarmRepository.findByMemberId(memberId);
+        List<Alarm> alarms = alarmRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
         alarmRepository.markAllAsReadByMemberId(memberId); // 전체 읽음 처리
         alarmRedisRepository.readAlarm(memberId); // 미확인 알림 개수 초기화
         return AlarmsResponse.of(alarms);
