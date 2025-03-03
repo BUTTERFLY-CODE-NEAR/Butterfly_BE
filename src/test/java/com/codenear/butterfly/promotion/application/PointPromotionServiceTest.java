@@ -55,7 +55,7 @@ class PointPromotionServiceTest {
     @Test
     void 휴대폰_인증후_프로모션이_적용된다() {
         int rewardAmount = 1000;
-        when(member.isRecentlyWithdrawn()).thenReturn(false);
+//        when(member.isRecentlyWithdrawn()).thenReturn(false);
         when(member.getNickname()).thenReturn("TestUser");
         when(promotionDataAccess.findPointPromotion(memberId)).thenReturn(promotion);
         when(promotion.isApplicable()).thenReturn(true);
