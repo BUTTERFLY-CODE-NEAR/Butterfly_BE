@@ -1,8 +1,5 @@
 package com.codenear.butterfly.member.application;
 
-import static com.codenear.butterfly.member.util.ImageResizeUtil.resizeImage;
-import static com.codenear.butterfly.s3.domain.S3Directory.PROFILE_IMAGE;
-
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.dto.ProfileUpdateRequestDTO;
 import com.codenear.butterfly.s3.application.S3Service;
@@ -10,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import static com.codenear.butterfly.member.util.ImageResizeUtil.resizeImage;
+import static com.codenear.butterfly.s3.domain.S3Directory.PROFILE_IMAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +45,8 @@ public class ProfileService {
     }
 
     private String uploadNewProfileImage(MultipartFile profileImage) {
-        MultipartFile resized = resizeImage(profileImage); // 이미지 리사이즈
-        return s3Service.uploadFile(resized, PROFILE_IMAGE);
+        MultipartFile resized = resizeImage(profileImage);
+        String fileName = s3Service.uploadFile(resized, PROFILE_IMAGE);// 이미지 리사이즈
+        return s3Service.generateFileUrl(fileName, PROFILE_IMAGE);
     }
 }
