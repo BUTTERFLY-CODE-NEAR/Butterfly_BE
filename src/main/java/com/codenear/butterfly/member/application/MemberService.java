@@ -1,7 +1,5 @@
 package com.codenear.butterfly.member.application;
 
-import static com.codenear.butterfly.s3.domain.S3Directory.PROFILE_IMAGE;
-
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -10,7 +8,6 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.notify.alarm.infrastructure.AlarmRepository;
 import com.codenear.butterfly.point.application.PointService;
-import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,7 +21,6 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PointService pointService;
-    private final S3Service s3Service;
     private final AlarmRepository alarmRepository;
 
     public MemberInfoDTO getMemberInfo(MemberDTO memberDTO) {
@@ -35,7 +31,7 @@ public class MemberService {
                 memberDTO.getEmail(),
                 memberDTO.getPhoneNumber(),
                 memberDTO.getNickname(),
-                s3Service.generateFileUrl(memberDTO.getProfileImage(), PROFILE_IMAGE),
+                memberDTO.getProfileImage(),
                 0, // TODO : 추후 쿠폰 시스템 도입 후 수정
                 memberDTO.getGrade().getGrade(),
                 pointValue,
@@ -60,7 +56,7 @@ public class MemberService {
         );
     }
 
-    @CacheEvict(value = "userCache, memberCache", key = "#memberId")
+    @CacheEvict(value = "userCache", key = "#memberId")
     public void updateMemberProfileImage(Long memberId, String imageUrl) {
         Member member = loadMemberByMemberId(memberId);
         member.setProfileImage(imageUrl);
