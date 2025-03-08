@@ -50,7 +50,7 @@ public class KakaoPaymentUtil<T> {
         parameters.put("approval_url", requestUrl + String.format(SUCCESS, memberId));
         parameters.put("cancel_url", requestUrl + String.format(CANCEL, memberId, paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity()));
         parameters.put("fail_url", requestUrl + String.format(FAILURE, memberId, paymentRequestDTO.getProductName(), paymentRequestDTO.getQuantity()));
-        parameters.put("custom_json", "{\"return_custom_url\":\"butterfly://\"}");
+        parameters.put("custom_json", "{\"return_custom_url\":\"butterfly://kakaopay/success\"}");
         return parameters;
     }
 
