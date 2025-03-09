@@ -30,6 +30,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,9 +76,9 @@ class FCMTokenServiceTest {
         // Given
         when(memberFacade.getMember(anyLong())).thenReturn(testMember);
         when(consentFacade.getConsents(anyLong())).thenReturn(testConsents);
-        when(fcmRepository.findByToken(testToken)).thenReturn(Optional.empty());
 
         // When
+        when(fcmRepository.findByToken(testToken)).thenReturn(Collections.emptyList());
         fcmTokenService.saveFCM(testToken, testMemberDTO);
 
         // Then
@@ -99,20 +100,37 @@ class FCMTokenServiceTest {
     }
 
     @Test
-    void 존재하는_FCM_토큰_업데이트() {
+    void 기존_FCM_토큰_삭제_후_새로운_FCM_생성() {
         // Given
-        FCM existingFcm = mock(FCM.class);
-
         when(memberFacade.getMember(anyLong())).thenReturn(testMember);
         when(consentFacade.getConsents(anyLong())).thenReturn(testConsents);
-        when(fcmRepository.findByToken(testToken)).thenReturn(Optional.of(existingFcm));
+
+        // FCM이 존재하는 경우
+        FCM existingFcm = FCM.builder()
+                .token(testToken)
+                .member(testMember)
+                .build();
+        when(fcmRepository.findByToken(testToken)).thenReturn(List.of(existingFcm));
 
         // When
         fcmTokenService.saveFCM(testToken, testMemberDTO);
 
         // Then
-        verify(existingFcm, times(1)).updateLastUsedDate();
-        // 기존 토큰은 이미 구독되어 있을 수 있으므로, 토픽 구독 메서드가 호출되지 않아야 함
-        verify(firebaseMessagingClient, never()).subscribeToTopic(any(), any());
+        verify(fcmRepository, times(1)).delete(existingFcm); // 기존 FCM 삭제 확인
+        verify(fcmRepository).save(fcmCaptor.capture());
+        FCM savedFcm = fcmCaptor.getValue();
+
+        assertEquals(testMember, savedFcm.getMember());
+        assertEquals(testToken, savedFcm.getToken());
+        assertNotNull(savedFcm.getLastUsedDate());
+
+        verify(firebaseMessagingClient, times(1)).subscribeToTopic(
+                eq(List.of(testToken)),
+                eq("marketing")
+        );
+        verify(firebaseMessagingClient, never()).subscribeToTopic(
+                any(),
+                eq("event")
+        );
     }
 }

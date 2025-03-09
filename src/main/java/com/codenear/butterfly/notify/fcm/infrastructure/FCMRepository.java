@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FCMRepository extends JpaRepository<FCM, Long> {
     List<FCM> findByMemberId(Long memberId);
-    Optional<FCM> findByToken(String Token);
+    List<FCM> findByToken(String token);
 }
