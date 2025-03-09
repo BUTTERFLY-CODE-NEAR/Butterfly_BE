@@ -23,7 +23,7 @@ public class MemberDTO {
     private Platform platform;
     private String authorities;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
+//    @JsonIgnoreProperties(ignoreUnknown = true)
     public MemberDTO(Long id, String username, String email, String phoneNumber, String password, String nickname, String profileImage, Grade grade, Platform platform) {
         this.id = id;
         this.username = username;

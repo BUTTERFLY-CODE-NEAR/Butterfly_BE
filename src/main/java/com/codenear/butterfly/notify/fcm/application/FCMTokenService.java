@@ -31,15 +31,16 @@ public class FCMTokenService {
         List<Consent> consents = consentFacade.getConsents(member.getId());
 
         Optional<FCM> existingFcm = fcmRepository.findByToken(token);
+        FCM fcm;
         if (existingFcm.isPresent()){
-            FCM fcm = existingFcm.get();
+            fcm = existingFcm.get();
             fcm.updateLastUsedDate();
         } else {
-            FCM fcm = createFCM(token, member);
+            fcm = createFCM(token, member);
             subscribeToConsentedTopics(token, consents);
-
-            fcmRepository.save(fcm);
         }
+        fcmRepository.save(fcm);
+
     }
 
     protected void subscribeToTopic(Long memberId, String topic) {
