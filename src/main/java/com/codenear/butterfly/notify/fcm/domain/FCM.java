@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Builder
@@ -35,4 +36,8 @@ public class FCM {
     private String token;
 
     private LocalDateTime lastUsedDate;
+
+    public void updateLastUsedDate(){
+        this.lastUsedDate = LocalDateTime.now();
+    }
 }
