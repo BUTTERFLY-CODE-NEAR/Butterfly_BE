@@ -35,4 +35,8 @@ public class FCM {
     private String token;
 
     private LocalDateTime lastUsedDate;
+
+    public void updateLastUsedDate(){
+        this.lastUsedDate = LocalDateTime.now();
+    }
 }

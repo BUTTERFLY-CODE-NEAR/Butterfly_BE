@@ -2,6 +2,7 @@ package com.codenear.butterfly.member.domain.dto;
 
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Platform;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,7 @@ public class MemberDTO {
     private Platform platform;
     private String authorities;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public MemberDTO(Long id, String username, String email, String phoneNumber, String password, String nickname, String profileImage, Grade grade, Platform platform) {
         this.id = id;
         this.username = username;
