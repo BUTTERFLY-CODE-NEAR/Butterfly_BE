@@ -44,9 +44,7 @@ public interface CredentialControllerSwagger {
             mediaType = "application/json",
             examples = {
                     @ExampleObject(
-                            name = "PHONE 예시", value = "{ \"phoneNumber\": \"01012345678\", \"certifyCode\": \"123456\" }"),
-                    @ExampleObject(
-                            name = "EMAIL 예시", value = "{ \"email\": \"example@gmail.com\", \"certifyCode\": \"123456\" }")
+                            name = "PHONE 예시", value = "{ \"phoneNumber\": \"01012345678\", \"certifyCode\": \"123456\" }")
             }
     ))
     ResponseEntity<ResponseDTO> findEmail(@RequestBody @Valid CertifyRequest request);
@@ -83,10 +81,10 @@ public interface CredentialControllerSwagger {
             examples = {
                     @ExampleObject(
                             name = "PHONE 예시",
-                            value = "{ \"identifier\": \"01012345678\", \"type\": \"PHONE\", \"newPassword\": \"1q2w3e4r!!!\", \"platform\": \"KAKAO\" }"),
+                            value = "{ \"identifier\": \"01012345678\", \"type\": \"PHONE\", \"newPassword\": \"1q2w3e4r!!!\"}"),
                     @ExampleObject(
                             name = "EMAIL 예시",
-                            value = "{ \"identifier\": \"example@gmail.com\", \"type\": \"EMAIL\" , \"newPassword\": \"1q2w3e4r!!!\", \"platform\": \"KAKAO\" }")
+                            value = "{ \"identifier\": \"example@gmail.com\", \"type\": \"EMAIL\" , \"newPassword\": \"1q2w3e4r!!!\"}")
             }
     ))
     ResponseEntity<ResponseDTO> resetPassword(@RequestBody @Valid ResetPasswordRequestDTO request);
