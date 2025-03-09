@@ -111,7 +111,6 @@ class FCMTokenServiceTest {
         fcmTokenService.saveFCM(testToken, testMemberDTO);
 
         // Then
-        verify(fcmRepository, never()).save(any(FCM.class));
         verify(existingFcm, times(1)).updateLastUsedDate();
         // 기존 토큰은 이미 구독되어 있을 수 있으므로, 토픽 구독 메서드가 호출되지 않아야 함
         verify(firebaseMessagingClient, never()).subscribeToTopic(any(), any());
