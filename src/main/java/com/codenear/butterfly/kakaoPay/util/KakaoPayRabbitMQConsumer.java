@@ -30,15 +30,15 @@ public class KakaoPayRabbitMQConsumer {
     @RabbitHandler
     public void handleInventoryDecrease(InventoryDecreaseMessageDTO message, Channel channel, Message rabbitMessage) {
         try {
-            ProductInventory product = productInventoryRepository.findProductByProductName(message.getProductName());
+            ProductInventory product = productInventoryRepository.findProductByProductName(message.productName());
             // 예약된 재고를 최종 차감
-            product.decreaseQuantity(message.getQuantity());
-            product.increasePurchaseParticipantCount(message.getQuantity(), DEFAULT_MAX_PURCHASE_NUM);
+            product.decreaseQuantity(message.quantity());
+            product.increasePurchaseParticipantCount(message.quantity(), DEFAULT_MAX_PURCHASE_NUM);
 
             // 메시지 처리 성공 시 ack
             channel.basicAck(rabbitMessage.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            restoreMessage("decrease", message.getProductName(), message.getQuantity(), channel, rabbitMessage);
+            restoreMessage("decrease", message.productName(), message.quantity(), channel, rabbitMessage);
         }
     }
 
@@ -50,15 +50,15 @@ public class KakaoPayRabbitMQConsumer {
     @RabbitHandler
     public void handleInventoryIncrease(InventoryIncreaseMessageDTO message, Channel channel, Message rabbitMessage) {
         try {
-            ProductInventory product = productInventoryRepository.findProductByProductName(message.getProductName());
+            ProductInventory product = productInventoryRepository.findProductByProductName(message.productName());
             // 취소된 주문 재고 추가
-            product.increaseQuantity(message.getQuantity());
-            product.decreasePurchaseParticipantCount(message.getQuantity(), DEFAULT_MAX_PURCHASE_NUM);
+            product.increaseQuantity(message.quantity());
+            product.decreasePurchaseParticipantCount(message.quantity(), DEFAULT_MAX_PURCHASE_NUM);
 
             // 메시지 처리 성공 시 ack
             channel.basicAck(rabbitMessage.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
-            restoreMessage("increase", message.getProductName(), message.getQuantity(), channel, rabbitMessage);
+            restoreMessage("increase", message.productName(), message.quantity(), channel, rabbitMessage);
         }
     }
 
