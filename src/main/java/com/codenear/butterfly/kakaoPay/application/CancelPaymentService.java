@@ -10,12 +10,12 @@ import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
-import com.codenear.butterfly.kakaoPay.util.KakaoPayRabbitMQProducer;
 import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +29,8 @@ public class CancelPaymentService {
     private final OrderDetailsRepository orderDetailsRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
-    private final KakaoPayRabbitMQProducer rabbitMQProducer;
     private final PointRepository pointRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
 
@@ -52,7 +52,7 @@ public class CancelPaymentService {
 
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(orderDetails.getProductName(), orderDetails.getQuantity());
-        rabbitMQProducer.sendMessage(message);
+        applicationEventPublisher.publishEvent(message);
     }
 
     public void increaseUsePoint(Member member, int usePoint) {
