@@ -1,11 +1,20 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
-import jakarta.persistence.*;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
@@ -39,8 +48,8 @@ public class SinglePayment {
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
 
     @Builder
-    public SinglePayment (ApproveResponseDTO approveResponseDTO) {
-        this.aid = Objects.requireNonNull(approveResponseDTO).getAid();
+    public SinglePayment(ApproveResponseDTO approveResponseDTO) {
+        this.aid = approveResponseDTO.getAid();
         this.tid = approveResponseDTO.getTid();
         this.cid = approveResponseDTO.getCid();
         this.sid = approveResponseDTO.getSid();
@@ -53,6 +62,17 @@ public class SinglePayment {
         this.createdAt = approveResponseDTO.getCreated_at();
         this.approvedAt = approveResponseDTO.getApproved_at();
         this.payload = approveResponseDTO.getPayload();
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public SinglePayment(String partnerOrderId, Long partnerUserId, BasePaymentRequestDTO basePaymentRequestDTO) {
+        this.partnerOrderId = partnerOrderId;
+        this.partnerUserId = String.valueOf(partnerUserId);
+        this.paymentMethodType = PaymentMethod.MONEY;
+        this.itemName = basePaymentRequestDTO.getProductName();
+        this.quantity = basePaymentRequestDTO.getQuantity();
+        this.createdAt = String.valueOf(LocalDateTime.now());
+        this.approvedAt = String.valueOf(LocalDateTime.now());
     }
 
     public void addAmount(Amount amount) {

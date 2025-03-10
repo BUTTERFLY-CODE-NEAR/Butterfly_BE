@@ -1,11 +1,14 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
-import jakarta.persistence.*;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -24,11 +27,20 @@ public class Amount {
     private SinglePayment singlePayment;
 
     @Builder
-    public Amount (ApproveResponseDTO approveResponseDTO) {
-        this.total = Objects.requireNonNull(approveResponseDTO).getAmount().getTotal();
+    public Amount(ApproveResponseDTO approveResponseDTO) {
+        this.total = approveResponseDTO.getAmount().getTotal();
         this.taxFree = approveResponseDTO.getAmount().getTax_free();
         this.vat = approveResponseDTO.getAmount().getVat();
         this.point = approveResponseDTO.getAmount().getPoint();
         this.discount = approveResponseDTO.getAmount().getDiscount();
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public Amount(BasePaymentRequestDTO basePaymentRequestDTO) {
+        this.total = basePaymentRequestDTO.getTotal();
+        this.taxFree = 0;
+        this.vat = 0;
+        this.point = 0;
+        this.discount = 0;
     }
 }
