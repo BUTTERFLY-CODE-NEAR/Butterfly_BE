@@ -4,6 +4,7 @@ import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderType;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.product.domain.Product;
 import jakarta.persistence.Column;
@@ -82,6 +83,21 @@ public class OrderDetails {
         this.orderStatus = OrderStatus.READY;
         this.point = point;
 
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public OrderDetails(Member member, OrderType orderType, BasePaymentRequestDTO basePaymentRequestDTO, Product product) {
+        this.member = member;
+        this.orderType = orderType;
+        this.orderCode = generateOrderCode();
+        this.createdAt = LocalDateTime.now();
+        this.total = basePaymentRequestDTO.getTotal();
+        this.productName = basePaymentRequestDTO.getProductName();
+        this.productImage = product.getProductImage();
+        this.optionName = basePaymentRequestDTO.getOptionName();
+        this.quantity = basePaymentRequestDTO.getQuantity();
+        this.orderStatus = OrderStatus.READY;
+        this.point = basePaymentRequestDTO.getPoint();
     }
 
     public void addOrderTypeByPickup(String pickupPlace, LocalDate pickupDate, LocalTime pickupTime) {
