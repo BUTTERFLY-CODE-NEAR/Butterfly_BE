@@ -23,7 +23,8 @@ public class KakaoPaymentRedisRepository {
     private static final String PAYMENT_HASH_KEY_PREFIX = "pay:";
     private static final String REMAINDER_PRODUCT_KEY_PREFIX = "remainder:product:";
     private static final String RESERVE_PRODUCT_AND_QUANTITY_KEY_PREFIX = "reserve:product:%s:quantity:%s:orderId:%s";
-    private static final int TIME_TO_LIVE_MINUTE = 15;
+    private static final int PAYMENT_TIME_TO_LIVE_MINUTE = 15;
+    private static final int RESERVE_TIME_TO_LIVE_MINUTE = 5;
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -36,7 +37,7 @@ public class KakaoPaymentRedisRepository {
         String key = PAYMENT_HASH_KEY_PREFIX + memberId;
         // 여러 값을 한 번에 저장
         redisTemplate.opsForHash().putAll(key, fields);
-        ensureTTL(key);
+        ensureTTL(key, PAYMENT_TIME_TO_LIVE_MINUTE);
     }
 
     /**
@@ -161,14 +162,18 @@ public class KakaoPaymentRedisRepository {
         reserveMap.put(QUANTITY.getFieldName(), String.valueOf(quantity));
 
         redisTemplate.opsForHash().putAll(key, reserveMap);
-        ensureTTL(key);
+        ensureTTL(key, RESERVE_TIME_TO_LIVE_MINUTE);
     }
 
     /**
      * TTL 시간 설정
      */
-    private void ensureTTL(final String key) {
-        // TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
-        redisTemplate.expire(key, TIME_TO_LIVE_MINUTE, TimeUnit.MINUTES);
+    private void ensureTTL(final String key, int ttl) {
+        /**
+         * 1. 결제 : TTL 15분 설정 (kakao pay API가 호출 후 생성되는 tid의 유효기간은 15분 이기에 15분으로 설정)
+         * 2. 재고예약 : TTL 5분 설정 (15분으로 설정 했을 때, 재고는 많이 남아있지만 재고부족 현상이기에 반환시간을 5분으로 설정)
+         */
+
+        redisTemplate.expire(key, ttl, TimeUnit.MINUTES);
     }
 }
