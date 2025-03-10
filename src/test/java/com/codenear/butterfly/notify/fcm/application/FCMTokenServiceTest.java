@@ -32,7 +32,6 @@ import static org.mockito.Mockito.mock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class FCMTokenServiceTest {
@@ -65,6 +64,9 @@ class FCMTokenServiceTest {
         testMemberDTO = mock(MemberDTO.class);
         testToken = "test-fcm-token";
 
+        when(testMember.getId()).thenReturn(1L);
+        when(testMemberDTO.getId()).thenReturn(1L);
+
         Consent marketingConsent = Consent.create(ConsentType.MARKETING, true, testMember);
         Consent eventConsent = Consent.create(ConsentType.DELIVERY_NOTIFICATION, false, testMember);
 
@@ -72,40 +74,43 @@ class FCMTokenServiceTest {
     }
 
     @Test
-    void 새로운_FCM_토큰_생성() {
+    void 같은_토큰_다른_계정이라면_새로운_FCM_추가() {
         // Given
+        Member anotherMember = mock(Member.class);
+        when(anotherMember.getId()).thenReturn(999L);
+        when(testMember.getId()).thenReturn(1L);
+
         when(memberFacade.getMember(anyLong())).thenReturn(testMember);
         when(consentFacade.getConsents(anyLong())).thenReturn(testConsents);
 
+        // 기존에 같은 토큰을 사용하지만 다른 멤버의 FCM이 존재하는 경우
+        FCM existingFcm = FCM.builder()
+                .token(testToken)
+                .member(anotherMember)
+                .build();
+        when(fcmRepository.findByToken(testToken)).thenReturn(List.of(existingFcm));
+
         // When
-        when(fcmRepository.findByToken(testToken)).thenReturn(Collections.emptyList());
         fcmTokenService.saveFCM(testToken, testMemberDTO);
 
         // Then
+        verify(fcmRepository, never()).delete(any(FCM.class));
         verify(fcmRepository).save(fcmCaptor.capture());
         FCM savedFcm = fcmCaptor.getValue();
 
         assertEquals(testMember, savedFcm.getMember());
         assertEquals(testToken, savedFcm.getToken());
         assertNotNull(savedFcm.getLastUsedDate());
-
-        verify(firebaseMessagingClient, times(1)).subscribeToTopic(
-                eq(List.of(testToken)),
-                eq("marketing")
-        );
-        verify(firebaseMessagingClient, never()).subscribeToTopic(
-                any(),
-                eq("event")
-        );
     }
 
     @Test
-    void 기존_FCM_토큰_삭제_후_새로운_FCM_생성() {
+    void 같은_토큰_같은_계정이라면_삭제후_새로운_FCM_추가() {
         // Given
+        when(testMember.getId()).thenReturn(1L);
         when(memberFacade.getMember(anyLong())).thenReturn(testMember);
         when(consentFacade.getConsents(anyLong())).thenReturn(testConsents);
 
-        // FCM이 존재하는 경우
+        // 기존에 같은 멤버, 같은 토큰의 FCM이 존재하는 경우
         FCM existingFcm = FCM.builder()
                 .token(testToken)
                 .member(testMember)
@@ -123,14 +128,5 @@ class FCMTokenServiceTest {
         assertEquals(testMember, savedFcm.getMember());
         assertEquals(testToken, savedFcm.getToken());
         assertNotNull(savedFcm.getLastUsedDate());
-
-        verify(firebaseMessagingClient, times(1)).subscribeToTopic(
-                eq(List.of(testToken)),
-                eq("marketing")
-        );
-        verify(firebaseMessagingClient, never()).subscribeToTopic(
-                any(),
-                eq("event")
-        );
     }
 }

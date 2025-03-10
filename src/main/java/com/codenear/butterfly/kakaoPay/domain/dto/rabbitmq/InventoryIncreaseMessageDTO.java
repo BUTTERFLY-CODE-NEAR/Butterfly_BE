@@ -1,5 +1,11 @@
 package com.codenear.butterfly.kakaoPay.domain.dto.rabbitmq;
 
-public record InventoryIncreaseMessageDTO(String productName,
-                                          int quantity) {
+import lombok.Builder;
+
+public class InventoryIncreaseMessageDTO extends InventoryMessage {
+
+    @Builder
+    public InventoryIncreaseMessageDTO(String productName, int quantity) {
+        super(productName, quantity);
+    }
 }

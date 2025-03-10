@@ -22,7 +22,6 @@ import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisReposi
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.kakaoPay.exception.KakaoPayException;
-import com.codenear.butterfly.kakaoPay.util.KakaoPayRabbitMQProducer;
 import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
@@ -33,6 +32,7 @@ import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,8 +66,8 @@ public class SinglePaymentService {
     private final ProductInventoryRepository productInventoryRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
-    private final KakaoPayRabbitMQProducer rabbitMQProducer;
     private final PointRepository pointRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
         String partnerOrderId = UUID.randomUUID().toString();
@@ -99,7 +99,6 @@ public class SinglePaymentService {
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayApproveParameters(memberId, orderId, transactionId, pgToken);
 
         ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve", parameters, ApproveResponseDTO.class);
-
         ProductInventory product = productInventoryRepository.findProductByProductName(Objects.requireNonNull(approveResponseDTO).getItem_name());
 
         int quantity = approveResponseDTO.getQuantity();
@@ -125,7 +124,7 @@ public class SinglePaymentService {
 
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(product.getProductName(), approveResponseDTO.getQuantity());
-        rabbitMQProducer.sendMessage(message);
+        applicationEventPublisher.publishEvent(message);
     }
 
     public String checkPaymentStatus(Long memberId) {
