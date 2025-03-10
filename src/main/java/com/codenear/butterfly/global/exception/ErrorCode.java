@@ -26,6 +26,7 @@ public enum ErrorCode {
     FILE_SIZE_LIMIT_EXCEEDED(40006, "업로드 파일 크기가 초과되었습니다.", BAD_REQUEST),
     INSUFFICIENT_STOCK(40007, "해당 상품의 재고가 부족합니다.", BAD_REQUEST),
     INVALID_PAYMENT_METHOD(40008, "해당 결제 수단을 사용할 수 없습니다.", BAD_REQUEST),
+    INVALID_APPROVE_DATA_TYPE(40009, "지원하지 않는 데이터 타입 입니다.", BAD_REQUEST),
 
     // 401 (UNAUTHORIZED)
     NULL_JWT_ACCESS_TOKEN(40100, "(Access) 토큰이 존재하지 않습니다.", UNAUTHORIZED),
