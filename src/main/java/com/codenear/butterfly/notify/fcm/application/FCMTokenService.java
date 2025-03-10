@@ -33,7 +33,8 @@ public class FCMTokenService {
         List<FCM> existingFcm = fcmRepository.findByToken(token);
 
         for (FCM fcm : existingFcm) {
-            fcmRepository.delete(fcm);
+            if (fcm.getMember().getId() == loginMember.getId())
+                fcmRepository.delete(fcm);
         }
 
         FCM fcm = createFCM(token, member);
