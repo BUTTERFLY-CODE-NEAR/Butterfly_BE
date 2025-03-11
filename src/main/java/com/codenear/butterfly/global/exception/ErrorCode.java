@@ -27,6 +27,7 @@ public enum ErrorCode {
     INSUFFICIENT_STOCK(40007, "해당 상품의 재고가 부족합니다.", BAD_REQUEST),
     INVALID_PAYMENT_METHOD(40008, "해당 결제 수단을 사용할 수 없습니다.", BAD_REQUEST),
     INVALID_APPROVE_DATA_TYPE(40009, "지원하지 않는 데이터 타입 입니다.", BAD_REQUEST),
+    INVALID_POINT_VALUE(40010, "잔여 포인트보다 사용 포인트가 많습니다.", BAD_REQUEST),
 
     // 401 (UNAUTHORIZED)
     NULL_JWT_ACCESS_TOKEN(40100, "(Access) 토큰이 존재하지 않습니다.", UNAUTHORIZED),
