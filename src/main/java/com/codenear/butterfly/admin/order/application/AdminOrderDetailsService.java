@@ -5,6 +5,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Price;
@@ -18,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
+import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
+
 @Service
 @RequiredArgsConstructor
 public class AdminOrderDetailsService {
@@ -25,6 +29,7 @@ public class AdminOrderDetailsService {
     private final OrderDetailsRepository orderDetailsRepository;
     private final PointRepository pointRepository;
     private final ProductInventoryRepository productInventoryRepository;
+    private final FCMFacade fcmFacade;
 
     public Page<OrderDetails> getAllOrders(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
@@ -42,6 +47,9 @@ public class AdminOrderDetailsService {
         if (newStatus.equals(OrderStatus.COMPLETED)) {
             ProductInventory product = productInventoryRepository.findProductByProductName(order.getProductName());
             increaseRefundPoint(product, order);
+            fcmFacade.sendMessage(PRODUCT_ARRIVAL, order.getMember().getId());
+        } else if (newStatus.equals(OrderStatus.CANCELED)) {
+            fcmFacade.sendMessage(ORDER_CANCELED, order.getMember().getId());
         }
 
     }
