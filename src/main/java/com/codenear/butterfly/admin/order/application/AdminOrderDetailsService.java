@@ -81,7 +81,7 @@ public class AdminOrderDetailsService {
         int currentDiscountPrice = currentDiscountPrice(product);
         // 구매당시 할인가
         int memberPurchasedPrice = getPurchasePriceOfPiece(order);
-        int refundPoint = currentDiscountPrice - memberPurchasedPrice;
+        int refundPoint = memberPurchasedPrice - currentDiscountPrice;
 
         // 현재 할인가격이 구매당시 할인가격보다 저렴할 때 (차액 * 구매개수) 만큼 포인트백, 만약 현재 할인가격이 더 비싸다면 0
         return refundPoint > 0 ? refundPoint * order.getQuantity() : 0;
