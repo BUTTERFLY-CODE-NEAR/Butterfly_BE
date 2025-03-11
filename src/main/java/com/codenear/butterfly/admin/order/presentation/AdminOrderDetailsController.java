@@ -1,16 +1,16 @@
 package com.codenear.butterfly.admin.order.presentation;
 
 import com.codenear.butterfly.admin.order.application.AdminOrderDetailsService;
+import com.codenear.butterfly.global.dto.ResponseDTO;
+import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -42,4 +42,5 @@ public class AdminOrderDetailsController {
         adminOrderDetailsService.updateOrderStatus(orderId, orderStatus);
         return "redirect:/admin/delivery-status";
     }
+
 }
