@@ -1,9 +1,18 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @NoArgsConstructor
@@ -48,7 +57,23 @@ public class CancelPayment {
         this.payload = cancelResponseDTO.getPayload();
     }
 
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public CancelPayment(OrderDetails orderDetails) {
+        this.tid = orderDetails.getTid();
+        this.status = "CANCEL_PAYMENT";
+        this.paymentMethodType = "MONEY";
+        this.itemName = orderDetails.getProductName();
+        this.quantity = orderDetails.getQuantity();
+        this.createdAt = getCurrentDateTimeFormatted();
+        this.approvedAt = getCurrentDateTimeFormatted();
+    }
+
     public void addCanceledAmount(CanceledAmount canceledAmount) {
         this.canceledAmount = canceledAmount;
+    }
+
+    private String getCurrentDateTimeFormatted() {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return LocalDateTime.now().format(formatter);
     }
 }

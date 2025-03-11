@@ -1,10 +1,12 @@
 package com.codenear.butterfly.kakaoPay.application;
 
 import com.codenear.butterfly.kakaoPay.domain.CancelPayment;
-import com.codenear.butterfly.kakaoPay.domain.CanceledAmount;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelFreePaymentHandler;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelHandler;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelPaymentHandler;
 import com.codenear.butterfly.kakaoPay.domain.dto.rabbitmq.InventoryIncreaseMessageDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
@@ -36,22 +38,36 @@ public class CancelPaymentService {
 
         OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
 
-        Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
+        CancelHandler handler;
+        if (orderDetails.getTotal() != 0) {
+            Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
+            CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
 
-        CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
+            handler = new CancelPaymentHandler(cancelResponseDTO);
+        } else {
+            handler = new CancelFreePaymentHandler(orderDetails);
+        }
 
-        CancelPayment cancelPayment = CancelPayment.builder().cancelResponseDTO(cancelResponseDTO).build();
+        processPaymentCancel(handler);
+    }
 
-        CanceledAmount canceledAmount = CanceledAmount.builder().cancelResponseDTO(cancelResponseDTO).build();
-        cancelPayment.addCanceledAmount(canceledAmount);
+    /**
+     * 주문 취소 처리 공통 로직
+     *
+     * @param handler 결제 응답 객체 (CancelResponseDTO 또는 OrderDetails)
+     */
+    private void processPaymentCancel(CancelHandler handler) {
+        CancelPayment cancelPayment = handler.createCancelPayment();
 
-        orderDetails.updateOrderStatus(OrderStatus.CANCELED);
-        kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(orderDetails.getProductName(), orderDetails.getQuantity());
-        increaseUsePoint(orderDetails.getMember(), orderDetails.getPoint());
+        handler.getOrderDetails().updateOrderStatus(OrderStatus.CANCELED);
+
+        kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(handler.getProductName(), handler.getQuantity());
+
+        increaseUsePoint(handler.getOrderDetails().getMember(), handler.getRestorePoint());
+
         cancelPaymentRepository.save(cancelPayment);
 
-        // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
-        InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(orderDetails.getProductName(), orderDetails.getQuantity());
+        InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(handler.getProductName(), handler.getQuantity());
         applicationEventPublisher.publishEvent(message);
     }
 
