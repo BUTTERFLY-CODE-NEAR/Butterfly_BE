@@ -21,11 +21,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
 
 import java.util.Map;
 
-import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
+import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
 
 @Service
 @Transactional
@@ -48,7 +47,7 @@ public class CancelPaymentService {
             Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
             CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
 
-            handler = new CancelPaymentHandler(cancelResponseDTO);
+            handler = new CancelPaymentHandler(cancelResponseDTO, orderDetails);
         } else {
             handler = new CancelFreePaymentHandler(orderDetails);
         }
