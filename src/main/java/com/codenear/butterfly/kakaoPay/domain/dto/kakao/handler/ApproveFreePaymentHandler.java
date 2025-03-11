@@ -1,4 +1,4 @@
-package com.codenear.butterfly.kakaoPay.domain.dto.kakao;
+package com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler;
 
 import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;

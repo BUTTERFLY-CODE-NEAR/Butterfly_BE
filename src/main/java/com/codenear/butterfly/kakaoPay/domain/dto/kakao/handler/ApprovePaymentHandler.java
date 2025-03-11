@@ -1,9 +1,10 @@
-package com.codenear.butterfly.kakaoPay.domain.dto.kakao;
+package com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler;
 
 import com.codenear.butterfly.kakaoPay.domain.Amount;
 import com.codenear.butterfly.kakaoPay.domain.CardInfo;
 import com.codenear.butterfly.kakaoPay.domain.PaymentMethod;
 import com.codenear.butterfly.kakaoPay.domain.SinglePayment;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import lombok.Getter;
 
 import java.util.Optional;
