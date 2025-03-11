@@ -48,10 +48,7 @@ public class AdminOrderDetailsService {
             ProductInventory product = productInventoryRepository.findProductByProductName(order.getProductName());
             increaseRefundPoint(product, order);
             fcmFacade.sendMessage(PRODUCT_ARRIVAL, order.getMember().getId());
-        } else if (newStatus.equals(OrderStatus.CANCELED)) {
-            fcmFacade.sendMessage(ORDER_CANCELED, order.getMember().getId());
         }
-
     }
 
     /**
