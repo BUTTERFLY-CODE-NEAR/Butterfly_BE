@@ -73,6 +73,9 @@ public class SinglePaymentService {
 
     @Transactional
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
+        Member member = loadByMember(memberId);
+        validateRemainingPointForPurchase(member, paymentRequestDTO.getPoint());
+
         String partnerOrderId = UUID.randomUUID().toString();
 
         // 재고 예약
@@ -449,6 +452,23 @@ public class SinglePaymentService {
 
                 orderDetails.addOrderTypeByDeliver(address, deliverDate);
             }
+        }
+    }
+
+    /**
+     * 멤버 가져오기
+     *
+     * @param memberId 사용자 아이디
+     * @return 멤버 객체
+     */
+    private Member loadByMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, null));
+    }
+
+    private void validateRemainingPointForPurchase(Member member, int remainPoint) {
+        if (remainPoint > member.getPoint().getPoint()) {
+            throw new KakaoPayException(ErrorCode.INVALID_POINT_VALUE, "포인트가 부족합니다.");
         }
     }
 }
