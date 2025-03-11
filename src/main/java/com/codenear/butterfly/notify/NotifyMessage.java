@@ -19,7 +19,8 @@ public enum NotifyMessage {
     PRODUCT_DELIVERY_DEPARTURE(3, "배송 시작", "\uD83D\uDE9A 주문하신 상품이 출발했습니다!", "배송이 진행 중이며, 도착 시 다시 알려 드릴게요! \uD83D\uDE0A\n", MARKETING),
     PRODUCT_ARRIVAL(4, "배송 도착", "\uD83D\uDCE6 상품이 도착했습니다!", "고객님의 상품이 배송 완료되었어요. 만족스러운 구매가 되셨길 바랍니다! \uD83D\uDE0A", MARKETING),
     INQUIRY_ANSWERED(5, "QnA 답변", "\uD83D\uDCEC 답변이 도착했습니다!", "문의하신 내용에 답변이 도착했어요. 지금 바로 확인해 보세요. \uD83D\uDCE8", MARKETING),
-    CITATION_PROMOTION(6, "프로모션 적립", "\uD83C\uDF89 전화번호 인증 완료! ", "1,000 포인트가 지급되었어요! 지금 바로 사용해 보세요 \uD83E\uDD29", MARKETING)
+    CITATION_PROMOTION(6, "프로모션 적립", "\uD83C\uDF89 전화번호 인증 완료! ", "1,000 포인트가 지급되었어요! 지금 바로 사용해 보세요 \uD83E\uDD29", MARKETING),
+    ORDER_CANCELED(7, "주문 취소", "\uD83D\uDCEC 주문하신 상품이 취소되었습니다.", "고객님의 주문이 취소되었어요. \uD83D\uDCEC", MARKETING),
     ;
 
     private final int id;
