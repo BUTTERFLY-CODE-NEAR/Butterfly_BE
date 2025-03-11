@@ -54,6 +54,7 @@ public class CancelPaymentService {
         }
 
         processPaymentCancel(handler);
+        fcmFacade.sendMessage(ORDER_CANCELED, orderDetails.getMember().getId());
     }
 
     /**
@@ -71,7 +72,6 @@ public class CancelPaymentService {
         increaseUsePoint(handler.getOrderDetails().getMember(), handler.getRestorePoint());
 
         cancelPaymentRepository.save(cancelPayment);
-        fcmFacade.sendMessage(ORDER_CANCELED, orderDetails.getMember().getId());
 
         InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(handler.getProductName(), handler.getQuantity());
         applicationEventPublisher.publishEvent(message);
