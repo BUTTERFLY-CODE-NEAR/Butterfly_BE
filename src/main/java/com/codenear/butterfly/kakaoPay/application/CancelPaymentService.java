@@ -14,14 +14,18 @@ import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisReposi
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
 
 import java.util.Map;
+
+import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
 
 @Service
 @Transactional
@@ -33,6 +37,7 @@ public class CancelPaymentService {
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
     private final PointRepository pointRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final FCMFacade fcmFacade;
 
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
 
@@ -66,6 +71,7 @@ public class CancelPaymentService {
         increaseUsePoint(handler.getOrderDetails().getMember(), handler.getRestorePoint());
 
         cancelPaymentRepository.save(cancelPayment);
+        fcmFacade.sendMessage(ORDER_CANCELED, orderDetails.getMember().getId());
 
         InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(handler.getProductName(), handler.getQuantity());
         applicationEventPublisher.publishEvent(message);
