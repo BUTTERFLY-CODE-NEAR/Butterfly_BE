@@ -1,7 +1,11 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
@@ -28,5 +32,14 @@ public class CanceledAmount {
         this.vat = cancelResponseDTO.getAmount().getVat();
         this.point = cancelResponseDTO.getAmount().getPoint();
         this.discount = cancelResponseDTO.getAmount().getDiscount();
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public CanceledAmount(OrderDetails orderDetails) {
+        this.total = orderDetails.getTotal();
+        this.taxFree = 0;
+        this.vat = 0;
+        this.point = 0;
+        this.discount = 0;
     }
 }
