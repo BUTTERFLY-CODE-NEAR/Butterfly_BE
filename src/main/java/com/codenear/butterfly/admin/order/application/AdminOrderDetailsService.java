@@ -19,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
 
 @Service
