@@ -85,6 +85,7 @@ public class AdminProductService {
         }
 
         product.update(request);
+        kakaoPaymentRedisRepository.saveStockQuantity(product.getProductName(), request.getStockQuantity());
     }
 
     @Transactional(readOnly = true)

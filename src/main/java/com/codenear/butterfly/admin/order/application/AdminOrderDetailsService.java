@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
+import static com.codenear.butterfly.notify.NotifyMessage.REWARD_POINT;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +68,7 @@ public class AdminOrderDetailsService {
 
         int refundPoint = calculateRefundPoint(product, order);
         point.increasePoint(refundPoint);
+        sendRewordMessage(refundPoint, order.getMember().getId());
     }
 
     /**
@@ -111,5 +113,17 @@ public class AdminOrderDetailsService {
      */
     private int getPurchasePriceOfPiece(OrderDetails order) {
         return order.getTotal() / order.getQuantity();
+    }
+
+    /**
+     * 환급 포인트가 0원 이상이라면 포인트백 지급 알림을 보낸다.
+     *
+     * @param reward   환급액
+     * @param memberId 사용자 아이디
+     */
+    private void sendRewordMessage(int reward, Long memberId) {
+        if (reward > 0) {
+            fcmFacade.sendMessage(REWARD_POINT, memberId);
+        }
     }
 }

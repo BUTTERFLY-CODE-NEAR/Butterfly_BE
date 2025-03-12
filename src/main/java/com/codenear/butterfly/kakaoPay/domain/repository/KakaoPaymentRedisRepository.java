@@ -148,7 +148,17 @@ public class KakaoPaymentRedisRepository {
     }
 
     /**
-     * 사용자가 주문한 재고 저장 (TTL 15분)
+     * 상품 재고 삭제
+     *
+     * @param productName 상품 이름
+     */
+    public void removeRemainderProduct(String productName) {
+        String key = REMAINDER_PRODUCT_KEY_PREFIX + productName;
+        redisTemplate.delete(key);
+    }
+
+    /**
+     * 사용자가 주문한 재고 저장 (TTL 5분)
      *
      * @param productName 상품 이름
      * @param quantity    주문 개수
