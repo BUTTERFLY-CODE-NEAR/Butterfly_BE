@@ -1,14 +1,15 @@
 package com.codenear.butterfly.notify;
 
-import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
-import static com.codenear.butterfly.global.exception.ErrorCode.NOTIFY_MESSAGE_NOT_FOUND;
-
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.notify.exception.NotifyException;
-import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Arrays;
+
+import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.global.exception.ErrorCode.NOTIFY_MESSAGE_NOT_FOUND;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -21,7 +22,7 @@ public enum NotifyMessage {
     INQUIRY_ANSWERED(5, "QnA 답변", "\uD83D\uDCEC 답변이 도착했습니다!", "문의하신 내용에 답변이 도착했어요. 지금 바로 확인해 보세요. \uD83D\uDCE8", MARKETING),
     CITATION_PROMOTION(6, "프로모션 적립", "\uD83C\uDF89 전화번호 인증 완료! ", "1,000 포인트가 지급되었어요! 지금 바로 사용해 보세요 \uD83E\uDD29", MARKETING),
     ORDER_CANCELED(7, "주문 취소", "\uD83D\uDCEC 주문하신 상품이 취소되었습니다.", "고객님의 주문이 취소되었어요. \uD83D\uDCEC", MARKETING),
-    ;
+    ORDER_SUCCESS(8, "결제 완료", "\uD83E\uDD73 결제가 완료되었습니다.", "주문해주셔서 감사합니다. 꼼꼼히 확인해서 준비해드리겠습니다! \uD83D\uDE0A", MARKETING);
 
     private final int id;
     private final String title;
