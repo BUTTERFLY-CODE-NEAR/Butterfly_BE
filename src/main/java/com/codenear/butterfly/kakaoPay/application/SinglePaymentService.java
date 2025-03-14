@@ -27,6 +27,8 @@ import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
+import com.codenear.butterfly.notify.NotifyMessage;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
@@ -70,6 +72,7 @@ public class SinglePaymentService {
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
     private final PointRepository pointRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final FCMFacade fcmFacade;
 
     @Transactional
     public ReadyResponseDTO kakaoPayReady(BasePaymentRequestDTO paymentRequestDTO, Long memberId, String orderType) {
@@ -95,6 +98,7 @@ public class SinglePaymentService {
 
         if (kakaoPayReady == null) {
             approveFreeResponse(memberId, paymentRequestDTO, partnerOrderId);
+            fcmFacade.sendMessage(NotifyMessage.ORDER_SUCCESS, memberId);
         }
 
         return kakaoPayReady;
