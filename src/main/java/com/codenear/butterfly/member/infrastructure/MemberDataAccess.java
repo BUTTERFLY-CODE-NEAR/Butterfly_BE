@@ -26,7 +26,7 @@ public class MemberDataAccess {
         return memberRepository.findByPhoneNumber(phoneNumber);
     }
 
-//    @Cacheable(value = "memberCache", key = "#memberId")
+    @CacheEvict(value = "memberCache", key = "#memberId")
     public Member findByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(SERVER_ERROR, null));

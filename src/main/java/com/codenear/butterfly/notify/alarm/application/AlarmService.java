@@ -32,12 +32,6 @@ public class AlarmService {
     }
 
     public void addSingleAlarm(NotifyMessage message, Member member) {
-//        boolean recentlyNotified = alarmRepository.existsByMemberIdAndNotifyMessageAndCreatedAtAfter(
-//                member.getId(),
-//                message,
-//                LocalDateTime.now().minusMinutes(5)
-//        );
-
         Alarm alarm = Alarm.builder()
                 .notifyMessage(message)
                 .member(member)
