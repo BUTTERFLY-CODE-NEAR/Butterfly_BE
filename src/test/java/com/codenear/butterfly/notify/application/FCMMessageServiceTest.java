@@ -46,11 +46,13 @@ class FCMMessageServiceTest {
         // given
         Long memberId = 1L;
 
-        mockConsent(true, memberId);
+        mockConsent(true, memberId, ConsentType.CUSTOMER_SUPPORT);
         mockFCMRepository(memberId);
 
         // when
         fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
+        System.out.println("Message ConsentType: " + INQUIRY_ANSWERED.getConsentType());
+
 
         // then
         verify(fcmRepository).findByMemberId(memberId);
@@ -62,7 +64,7 @@ class FCMMessageServiceTest {
         // given
         Long memberId = 1L;
 
-        mockConsent(false, memberId);
+        mockConsent(false, memberId, ConsentType.CUSTOMER_SUPPORT);
 
         // when
         fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
@@ -81,12 +83,16 @@ class FCMMessageServiceTest {
                 .thenReturn(List.of(fcm));
     }
 
-    private void mockConsent(boolean isAgreed, Long memberId) {
+    private void mockConsent(boolean isAgreed, Long memberId, ConsentType consentType) {
         Consent consent = Consent.builder()
-                .consentType(ConsentType.MARKETING)
+//                .consentType(ConsentType.MARKETING)
+                .consentType(consentType)
                 .isAgreed(isAgreed)
                 .build();
 
+//        System.out.println("Mocking Consent: " + consent.getConsentType() + ", isAgreed: " + consent.isAgreed());
+
+        System.out.println("Mocking Consent: " + consent);
         when(consentFacade.getConsents(memberId))
                 .thenReturn(List.of(consent));
     }
