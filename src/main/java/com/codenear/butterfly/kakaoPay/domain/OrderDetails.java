@@ -7,6 +7,7 @@ import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.product.domain.Product;
+import com.codenear.butterfly.product.domain.ProductImage;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Entity
 @Getter
@@ -77,7 +79,7 @@ public class OrderDetails {
         this.tid = approveResponseDTO.getTid();
         this.total = approveResponseDTO.getAmount().getTotal();
         this.productName = approveResponseDTO.getItem_name();
-        this.productImage = product.getProductImage().get(0).getImageUrl();
+        this.productImage = getThumbnail(product.getProductImage());
         this.optionName = optionName;
         this.quantity = approveResponseDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
@@ -93,7 +95,7 @@ public class OrderDetails {
         this.createdAt = LocalDateTime.now();
         this.total = basePaymentRequestDTO.getTotal();
         this.productName = basePaymentRequestDTO.getProductName();
-        this.productImage = product.getProductImage().get(0).getImageUrl();
+        this.productImage = getThumbnail(product.getProductImage());
         this.optionName = basePaymentRequestDTO.getOptionName();
         this.quantity = basePaymentRequestDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
@@ -120,5 +122,12 @@ public class OrderDetails {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmssSSSS");
         return now.format(formatter);
+    }
+
+    private String getThumbnail(List<ProductImage> productImage) {
+        return productImage.stream()
+                .findFirst()
+                .map(ProductImage::getImageUrl)
+                .orElse(null);
     }
 }
