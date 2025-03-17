@@ -9,10 +9,10 @@ import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
-import com.codenear.butterfly.product.domain.ProductDescriptionImage;
+import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
-import com.codenear.butterfly.product.domain.repository.ProductDescriptionImageRepository;
+import com.codenear.butterfly.product.domain.repository.ProductImageRepository;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.exception.ProductException;
 import com.codenear.butterfly.s3.application.S3Service;
@@ -36,7 +36,7 @@ public class AdminProductService {
     private final FCMFacade fcmFacade;
     private final ProductInventoryRepository productRepository;
     private final FavoriteRepository favoriteRepository;
-    private final ProductDescriptionImageRepository productDescriptionImageRepository;
+    private final ProductImageRepository productImageRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
 
     @Transactional
@@ -59,8 +59,8 @@ public class AdminProductService {
         productRepository.save(product);
         kakaoPaymentRedisRepository.saveStockQuantity(request.productName(), request.stockQuantity());
         if (request.descriptionImages().get(0) != null && !request.descriptionImages().get(0).isEmpty()) {
-            List<ProductDescriptionImage> descriptionImages = getDescriptionImages(request.descriptionImages(), product);
-            productDescriptionImageRepository.saveAll(descriptionImages);
+            List<ProductImage> descriptionImages = getDescriptionImages(request.descriptionImages(), product);
+            productImageRepository.saveAll(descriptionImages);
         }
     }
 
@@ -150,24 +150,25 @@ public class AdminProductService {
         s3Service.deleteFile(existingFileName, PRODUCT_IMAGE);
     }
 
-    private List<ProductDescriptionImage> getDescriptionImages(List<MultipartFile> images, Product product) {
+    private List<ProductImage> getDescriptionImages(List<MultipartFile> images, Product product) {
         return images.stream()
-                .map(image -> ProductDescriptionImage.builder()
-                        .imgUrl(imageConverter(image))
+                .map(image -> ProductImage.builder()
+                        .imageType(ProductImage.ImageType.DESCRIPTION)
+                        .imageUrl(imageConverter(image))
                         .product(product)
                         .build())
                 .toList();
     }
 
     private void updateDescriptionImages(ProductUpdateRequest request, Product product) {
-        List<ProductDescriptionImage> descriptionImages = productDescriptionImageRepository.findAllByProductId(product.getId());
+        List<ProductImage> descriptionImages = productImageRepository.findAllByProductIdAndImageType(product.getId(), ProductImage.ImageType.DESCRIPTION);
         descriptionImages
                 .forEach(image -> {
                     deleteS3UploadedFile(product);
-                    productDescriptionImageRepository.deleteById(image.getId());
+                    productImageRepository.deleteById(image.getId());
                 });
-        List<ProductDescriptionImage> newDescriptionImages = getDescriptionImages(request.getDescriptionImages(), product);
-        productDescriptionImageRepository.saveAll(newDescriptionImages);
+        List<ProductImage> newDescriptionImages = getDescriptionImages(request.getDescriptionImages(), product);
+        productImageRepository.saveAll(newDescriptionImages);
         product.updateDescriptionImage(newDescriptionImages);
     }
 }

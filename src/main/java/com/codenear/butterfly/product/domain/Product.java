@@ -74,13 +74,13 @@ public abstract class Product {
     private List<Keyword> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ProductDescriptionImage> descriptionImages = new ArrayList<>();
+    private List<ProductImage> descriptionImages = new ArrayList<>();
 
     protected Product(ProductCreateRequest createRequest,
                       String productImage,
                       String deliveryInformation,
                       List<Keyword> keywords,
-                      List<ProductDescriptionImage> descriptionImages) {
+                      List<ProductImage> descriptionImages) {
         this.productName = createRequest.productName();
         this.companyName = createRequest.companyName();
         this.description = createRequest.description();
@@ -94,7 +94,7 @@ public abstract class Product {
         this.descriptionImages = descriptionImages;
     }
 
-    public void updateDescriptionImage(List<ProductDescriptionImage> newDescriptionImages) {
+    public void updateDescriptionImage(List<ProductImage> newDescriptionImages) {
         this.descriptionImages = newDescriptionImages;
     }
 

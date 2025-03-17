@@ -2,7 +2,7 @@ package com.codenear.butterfly.product.util;
 
 import com.codenear.butterfly.product.domain.Option;
 import com.codenear.butterfly.product.domain.Price;
-import com.codenear.butterfly.product.domain.ProductDescriptionImage;
+import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.OptionDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDescriptionImageDTO;
@@ -56,7 +56,7 @@ public class ProductMapper {
      * @param productDescriptionImages
      * @return 상품설명 이미지 DTO 리스트
      */
-    private static List<ProductDescriptionImageDTO> toProductDescriptionImageDTOList(List<ProductDescriptionImage> productDescriptionImages) {
+    private static List<ProductDescriptionImageDTO> toProductDescriptionImageDTOList(List<ProductImage> productDescriptionImages) {
         return productDescriptionImages.stream()
                 .map(descriptionImage -> new ProductDescriptionImageDTO(descriptionImage.getImageUrl()))
                 .toList();

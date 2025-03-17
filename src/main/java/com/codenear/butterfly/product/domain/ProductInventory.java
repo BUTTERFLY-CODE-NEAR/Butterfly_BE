@@ -45,7 +45,7 @@ public class ProductInventory extends Product {
                             String deliveryInformation,
                             List<Keyword> keywords,
                             List<DiscountRate> discountRates,
-                            List<ProductDescriptionImage> descriptionImages) {
+                            List<ProductImage> descriptionImages) {
         super(createRequest, productImage, deliveryInformation, keywords, descriptionImages);
         this.originalPrice = createRequest.originalPrice();
         this.stockQuantity = createRequest.stockQuantity();
