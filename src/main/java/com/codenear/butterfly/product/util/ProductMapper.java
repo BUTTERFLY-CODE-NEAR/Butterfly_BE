@@ -5,8 +5,8 @@ import com.codenear.butterfly.product.domain.Price;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.dto.OptionDTO;
-import com.codenear.butterfly.product.domain.dto.ProductDescriptionImageDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
+import com.codenear.butterfly.product.domain.dto.ProductImageDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -33,8 +33,9 @@ public class ProductMapper {
         List<OptionDTO> optionDTOs = product.getOptions().stream()
                 .map(ProductMapper::toOptionDTO)
                 .toList();
-        List<ProductDescriptionImageDTO> descriptionImageDTOs = toProductDescriptionImageDTOList(product.getDescriptionImages());
-        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs);
+        List<ProductImageDTO> mainImageDTOs = toProductImageDTOList(product.getProductImage());
+        List<ProductImageDTO> descriptionImageDTOs = toProductImageDTOList(product.getDescriptionImages());
+        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs, mainImageDTOs);
     }
 
     private static BigDecimal calculateFinalSaleRate(ProductInventory product) {
@@ -51,14 +52,14 @@ public class ProductMapper {
     }
 
     /**
-     * ProductDescriptionImage를 DTO로 매핑
+     * ProductImage (main, description)를 DTO로 매핑
      *
-     * @param productDescriptionImages
+     * @param images 이미지 리스트 (main, description)
      * @return 상품설명 이미지 DTO 리스트
      */
-    private static List<ProductDescriptionImageDTO> toProductDescriptionImageDTOList(List<ProductImage> productDescriptionImages) {
-        return productDescriptionImages.stream()
-                .map(descriptionImage -> new ProductDescriptionImageDTO(descriptionImage.getImageUrl()))
+    private static List<ProductImageDTO> toProductImageDTOList(List<ProductImage> images) {
+        return images.stream()
+                .map(image -> new ProductImageDTO(image.getImageUrl()))
                 .toList();
     }
 

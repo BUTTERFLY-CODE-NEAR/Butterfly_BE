@@ -29,7 +29,7 @@ public record ProductViewDTO(
                           BigDecimal saleRate,
                           BigDecimal nextSaleRate,
                           Float appliedGauge) {
-        this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
+        this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage().get(0).getImageUrl(),
                 price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, product.isSoldOut(), appliedGauge, product.getDeliveryInformation());
 

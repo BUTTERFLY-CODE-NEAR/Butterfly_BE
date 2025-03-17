@@ -77,7 +77,7 @@ public class OrderDetails {
         this.tid = approveResponseDTO.getTid();
         this.total = approveResponseDTO.getAmount().getTotal();
         this.productName = approveResponseDTO.getItem_name();
-        this.productImage = product.getProductImage();
+        this.productImage = product.getProductImage().get(0).getImageUrl();
         this.optionName = optionName;
         this.quantity = approveResponseDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
@@ -93,7 +93,7 @@ public class OrderDetails {
         this.createdAt = LocalDateTime.now();
         this.total = basePaymentRequestDTO.getTotal();
         this.productName = basePaymentRequestDTO.getProductName();
-        this.productImage = product.getProductImage();
+        this.productImage = product.getProductImage().get(0).getImageUrl();
         this.optionName = basePaymentRequestDTO.getOptionName();
         this.quantity = basePaymentRequestDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
