@@ -20,7 +20,7 @@ import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -44,9 +44,6 @@ public abstract class Product {
 
     @Column(nullable = false)
     private String productName;
-
-    @Setter
-    private String productImage;
 
     @Lob
     private String description;
@@ -74,13 +71,19 @@ public abstract class Product {
     private List<Keyword> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ProductDescriptionImage> descriptionImages = new ArrayList<>();
+    @Where(clause = "image_type = 'DESCRIPTION'")
+    private List<ProductImage> descriptionImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "image_type = 'MAIN'")
+    private List<ProductImage> productImage = new ArrayList<>();
 
     protected Product(ProductCreateRequest createRequest,
-                      String productImage,
+                      List<ProductImage> productImage,
                       String deliveryInformation,
                       List<Keyword> keywords,
-                      List<ProductDescriptionImage> descriptionImages) {
+                      List<ProductImage> descriptionImages) {
+
         this.productName = createRequest.productName();
         this.companyName = createRequest.companyName();
         this.description = createRequest.description();
@@ -94,8 +97,12 @@ public abstract class Product {
         this.descriptionImages = descriptionImages;
     }
 
-    public void updateDescriptionImage(List<ProductDescriptionImage> newDescriptionImages) {
+    public void updateDescriptionImage(List<ProductImage> newDescriptionImages) {
         this.descriptionImages = newDescriptionImages;
+    }
+
+    public void updateMainImage(List<ProductImage> newMainImages) {
+        this.productImage = newMainImages;
     }
 
     protected void updateBasicInfo(ProductUpdateRequest request) {
