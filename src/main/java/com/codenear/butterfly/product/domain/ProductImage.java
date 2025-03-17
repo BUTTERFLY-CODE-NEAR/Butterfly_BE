@@ -1,6 +1,8 @@
 package com.codenear.butterfly.product.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,20 +17,27 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class ProductDescriptionImage {
+public class ProductImage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String imageUrl;
-
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
     @Builder
-    public ProductDescriptionImage(String imgUrl, Product product) {
-        this.imageUrl = imgUrl;
+    public ProductImage(String imageUrl, ImageType imageType, Product product) {
+        this.imageUrl = imageUrl;
+        this.imageType = imageType;
         this.product = product;
+    }
+
+    public enum ImageType {
+        MAIN,        // 상품 대표 이미지
+        DESCRIPTION  // 상품 설명 이미지
     }
 }

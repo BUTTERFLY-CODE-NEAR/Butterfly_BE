@@ -20,7 +20,7 @@ public class ProductUpdateRequest {
     private String description;
     private String productVolume;
     private String expirationDate;
-    private MultipartFile productImage;
+    private List<MultipartFile> productImage;
     private String existingProductImageUrl;
     private Integer originalPrice;
     private BigDecimal saleRate;
