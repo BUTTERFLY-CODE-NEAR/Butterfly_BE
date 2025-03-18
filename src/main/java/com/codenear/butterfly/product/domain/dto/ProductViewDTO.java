@@ -1,12 +1,10 @@
 package com.codenear.butterfly.product.domain.dto;
 
 import com.codenear.butterfly.product.domain.Price;
-import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Schema(title = "상품 정보 JSON", description = "상품 정보 요청 시 반환되는 응답 JSON 데이터 입니다.")
 public record ProductViewDTO(
@@ -31,15 +29,9 @@ public record ProductViewDTO(
                           BigDecimal saleRate,
                           BigDecimal nextSaleRate,
                           Float appliedGauge) {
-        this(product.getId(), product.getCompanyName(), product.getProductName(), getThumbnail(product.getProductImage()),
+        this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
                 price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, product.isSoldOut(), appliedGauge, product.getDeliveryInformation());
-    }
 
-    private static String getThumbnail(List<ProductImage> productImage) {
-        return productImage.stream()
-                .findFirst()
-                .map(ProductImage::getImageUrl)
-                .orElse(null); // 기본 URL 넣어도 됨
     }
 }

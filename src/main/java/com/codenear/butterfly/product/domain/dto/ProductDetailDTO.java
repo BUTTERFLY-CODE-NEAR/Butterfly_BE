@@ -12,7 +12,7 @@ public record ProductDetailDTO(
         @Schema(description = "상품 ID") Long productId,
         @Schema(description = "상품 제조사 및 판매처") String companyName,
         @Schema(description = "상품 이름") String productName,
-        @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") List<ProductImageDTO> productImage,
+        @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") String productImage,
         @Schema(description = "상품 원가") Integer originalPrice,
         @Schema(description = "할인률 (%)") BigDecimal saleRate,
         @Schema(description = "다음 할인율 (%)") BigDecimal nextSaleRate,
@@ -27,7 +27,7 @@ public record ProductDetailDTO(
         @Schema(description = "신청 게이지") Float appliedGauge,
         @Schema(description = "배송 정보") String deliveryInformation,
         @Schema(description = "품절 여부") Boolean isSoldOut,
-        @Schema(description = "상품 설명 이미지 리스트") List<ProductImageDTO> descriptionImages
+        @Schema(description = "상품 설명 이미지 리스트") List<ProductDescriptionImageDTO> descriptionImages
 ) {
     public ProductDetailDTO(ProductInventory product,
                             Price price,
@@ -36,9 +36,8 @@ public record ProductDetailDTO(
                             BigDecimal nextSaleRate,
                             Float appliedGauge,
                             List<OptionDTO> option,
-                            List<ProductImageDTO> descriptionImages,
-                            List<ProductImageDTO> mainImages) {
-        this(product.getId(), product.getCompanyName(), product.getProductName(), mainImages,
+                            List<ProductDescriptionImageDTO> descriptionImages) {
+        this(product.getId(), product.getCompanyName(), product.getProductName(), product.getProductImage(),
                 price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getProductVolume(),
                 product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), product.isSoldOut(),
