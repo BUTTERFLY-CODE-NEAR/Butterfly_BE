@@ -77,7 +77,7 @@ public class CredentialServiceTest {
             Member mockMember = Mockito.mock(Member.class);
 
             CertifyRequest certifyRequest = new CertifyRequest(phoneNumber, null, "123456");
-            when(memberRepository.findByPhoneNumberAndPlatform(phoneNumber, platform)).thenReturn(Optional.of(mockMember));
+            when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(mockMember));
             when(mockMember.getEmail()).thenReturn(email);
 
             doNothing().when(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
@@ -87,7 +87,7 @@ public class CredentialServiceTest {
             assertThat(returnEmail).isEqualTo(email);
 
             verify(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
-            verify(memberRepository).findByPhoneNumberAndPlatform(phoneNumber,platform);
+            verify(memberRepository).findByPhoneNumber(phoneNumber);
         }
 
         @Test
@@ -96,7 +96,7 @@ public class CredentialServiceTest {
 
             doNothing().when(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
 
-            when(memberRepository.findByPhoneNumberAndPlatform(phoneNumber, platform)).thenReturn(Optional.empty());
+            when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
             assertThrows(MemberException.class,
                     () -> credentialService.findEmail(certifyRequest),
@@ -104,7 +104,7 @@ public class CredentialServiceTest {
             );
 
             verify(certifyService).checkCertifyCode(certifyRequest, CertifyType.CERTIFY_PHONE);
-            verify(memberRepository).findByPhoneNumberAndPlatform(phoneNumber, platform);
+            verify(memberRepository).findByPhoneNumber(phoneNumber);
         }
 
     }
@@ -124,7 +124,7 @@ public class CredentialServiceTest {
 
         @Test
         void 비밀번호재설정_핸드폰_없는유저(){
-            when(memberRepository.findByPhoneNumberAndPlatform(phoneNumber, platform)).thenReturn(Optional.empty());
+            when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
 
             assertThrows(MemberException.class,
                     () -> credentialService.resetPassword(new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword)),
@@ -135,7 +135,7 @@ public class CredentialServiceTest {
         @Test
         void 비밀번호재설정_핸드폰_성공(){
             Member mockMember = Member.builder().id(1L).phoneNumber(phoneNumber).build();
-            when(memberRepository.findByPhoneNumberAndPlatform(phoneNumber, platform)).thenReturn(Optional.of(mockMember));
+            when(memberRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(mockMember));
             when(passwordEncoder.encode(newPassword)).thenReturn("encoded_1q2w3e,./");
 
             ResetPasswordRequestDTO request = new ResetPasswordRequestDTO(phoneNumber, VerificationType.PHONE, newPassword);
