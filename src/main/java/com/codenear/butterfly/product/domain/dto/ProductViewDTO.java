@@ -1,7 +1,6 @@
 package com.codenear.butterfly.product.domain.dto;
 
 import com.codenear.butterfly.product.domain.Price;
-import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -13,7 +12,7 @@ public record ProductViewDTO(
         @Schema(description = "상품 ID") Long productId,
         @Schema(description = "상품 제조사 및 판매처") String companyName,
         @Schema(description = "상품 이름") String productName,
-        @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") String productImage,
+        @Schema(description = "상품 이미지") List<ProductImageDTO> productImage,
         @Schema(description = "상품 원가") Integer originalPrice,
         @Schema(description = "할인률 (%)") BigDecimal saleRate,
         @Schema(description = "다음 할인율 (%)") BigDecimal nextSaleRate,
@@ -30,16 +29,10 @@ public record ProductViewDTO(
                           boolean isFavorite,
                           BigDecimal saleRate,
                           BigDecimal nextSaleRate,
-                          Float appliedGauge) {
-        this(product.getId(), product.getCompanyName(), product.getProductName(), getThumbnail(product.getProductImage()),
+                          Float appliedGauge,
+                          List<ProductImageDTO> productImages) {
+        this(product.getId(), product.getCompanyName(), product.getProductName(), productImages,
                 price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, product.isSoldOut(), appliedGauge, product.getDeliveryInformation());
-    }
-
-    private static String getThumbnail(List<ProductImage> productImage) {
-        return productImage.stream()
-                .findFirst()
-                .map(ProductImage::getImageUrl)
-                .orElse(null); // 기본 URL 넣어도 됨
     }
 }

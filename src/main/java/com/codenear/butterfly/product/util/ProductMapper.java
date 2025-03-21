@@ -24,8 +24,8 @@ public class ProductMapper {
                 product.getSaleRate(),
                 product.getCurrentDiscountRate()
         );
-
-        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge);
+        List<ProductImageDTO> mainImageDTOs = toProductImageDTOList(product.getProductImage());
+        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, mainImageDTOs);
     }
 
     public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
