@@ -7,7 +7,12 @@ import com.codenear.butterfly.search.application.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,8 +43,7 @@ public class SearchController implements SearchControllerSwagger {
     }
 
     @GetMapping("/{keyword}")
-    public ResponseEntity<ResponseDTO> testSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO) {
-        searchService.addSearchLog(keyword, memberDTO);
-        return ResponseUtil.createSuccessResponse(null);
+    public ResponseEntity<ResponseDTO> search(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(searchService.search(keyword, memberDTO));
     }
 }
