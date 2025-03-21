@@ -90,7 +90,7 @@ public class CredentialService {
     }
 
     private Member loadMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumberAndPlatform(phoneNumber, Platform.CODENEAR)
+        return memberRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND_BY_PHONE, null));
     }
 
