@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.codenear.butterfly.product.application.KeywordService.KEYWORDS_PREFIX;
+import static com.codenear.butterfly.product.domain.repository.KeywordRedisRepository.KEYWORDS_PREFIX;
 
 @Service
 @RequiredArgsConstructor
