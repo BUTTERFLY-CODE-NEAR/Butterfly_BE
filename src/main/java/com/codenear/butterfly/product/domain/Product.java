@@ -66,7 +66,7 @@ public abstract class Product {
     @JoinColumn(name = "product_id")
     private List<Option> options = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "product_id")
     private List<Keyword> keywords = new ArrayList<>();
 
