@@ -12,11 +12,14 @@ import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
+import com.codenear.butterfly.product.domain.repository.KeywordRedisRepository;
+import com.codenear.butterfly.product.domain.repository.KeywordRepository;
 import com.codenear.butterfly.product.domain.repository.ProductImageRepository;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.exception.ProductException;
 import com.codenear.butterfly.s3.application.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +34,7 @@ import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminProductService {
     private final S3Service s3Service;
     private final FCMFacade fcmFacade;
@@ -38,6 +42,8 @@ public class AdminProductService {
     private final FavoriteRepository favoriteRepository;
     private final ProductImageRepository productImageRepository;
     private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
+    private final KeywordRedisRepository keywordRedisRepository;
+    private final KeywordRepository keywordRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
@@ -60,6 +66,7 @@ public class AdminProductService {
 
         saveImage(request.productImage(), product, ProductImage.ImageType.MAIN);
         saveImage(request.descriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
+        saveKeywordForRedis(keywords);
     }
 
     public List<ProductInventory> loadAllProducts() {
@@ -73,7 +80,14 @@ public class AdminProductService {
         updateImage(request.getProductImage(), product, ProductImage.ImageType.MAIN);
         updateImage(request.getDescriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
 
+        List<Keyword> existingKeywords = keywordRepository.findAllByProductId(id);
         product.update(request);
+
+        List<Keyword> newKeywords = request.getKeywords().stream()
+                .map(Keyword::new)
+                .toList();
+
+        keywordRedisRepository.updateKeywords(newKeywords, existingKeywords);
         kakaoPaymentRedisRepository.saveStockQuantity(product.getProductName(), request.getStockQuantity());
     }
 
@@ -166,6 +180,12 @@ public class AdminProductService {
                 case MAIN -> product.updateMainImage(newImages);
                 case DESCRIPTION -> product.updateDescriptionImage(newImages);
             }
+        }
+    }
+
+    private void saveKeywordForRedis(List<Keyword> keywords) {
+        if (!keywords.isEmpty()) {
+            keywordRedisRepository.saveKeyword(keywords);
         }
     }
 }

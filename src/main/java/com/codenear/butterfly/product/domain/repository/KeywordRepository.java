@@ -15,4 +15,8 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
     @Query(value = "SELECT product_id FROM keyword WHERE keyword = :keyword", nativeQuery = true)
     List<Long> findAllProductIdByKeyword(@Param("keyword") String keyword);
+
+    @Query(value = "SELECT * FROM keyword WHERE product_id = :productId", nativeQuery = true)
+    List<Keyword> findAllByProductId(@Param("productId") Long productId);
+
 }
