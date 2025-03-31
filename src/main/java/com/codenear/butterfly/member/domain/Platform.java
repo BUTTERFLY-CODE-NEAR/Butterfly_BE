@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum Platform {
     KAKAO,
     GOOGLE,
-    CODENEAR;
+    CODENEAR,
+    APPLE;
 
     @JsonCreator // Json -> Java
     public static Platform fromString(String key) {
