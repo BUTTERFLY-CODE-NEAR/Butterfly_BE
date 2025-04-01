@@ -5,15 +5,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Schema(title = "소셜 로그인 JSON", description = "소셜 로그인 시 정의되는 JSON 데이터 입니다.")
 @Getter
 public class OauthDTO {
 
-    @Schema(description = "이메일", example = "codenear@naver.com")
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "올바른 이메일 형식이 아닙니다.")
+    @Schema(description = "이메일", example = "codenear@naver.com (APPLE 제외)")
     @NotNull(message = "이메일은 필수 입력 항목입니다.")
     private String email;
 
