@@ -44,19 +44,24 @@ public class AuthService {
     }
 
     public void handleWithdraw(MemberDTO loginMember, HttpServletResponse response) {
+        loginMember.getPlatform();
         memberDataAccess.evictMemberCache(loginMember.getId());
 
         Member member = memberDataAccess.findByMemberId(loginMember.getId());
 
-        Set<Member> linkedAccounts = memberDataAccess.getLinkedAccounts(member);
+        member.withdraw();
+        DeletedMember deletedMember = DeletedMember.createDeletedMember(member);
+        deletedMemberRepository.save(deletedMember);
+        memberDataAccess.save(member);
 
-        for (Member linkedMember : linkedAccounts) {
-            linkedMember.withdraw();
-            DeletedMember deletedMember = DeletedMember.createDeletedMember(linkedMember);
-            deletedMemberRepository.save(deletedMember);
-            memberDataAccess.save(linkedMember);
-            memberDataAccess.evictMemberCache(linkedMember.getId());
-        }
+//        Set<Member> linkedAccounts = memberDataAccess.getLinkedAccounts(member);
+//        for (Member linkedMember : linkedAccounts) {
+//            linkedMember.withdraw();
+//            DeletedMember deletedMember = DeletedMember.createDeletedMember(linkedMember);
+//            deletedMemberRepository.save(deletedMember);
+//            memberDataAccess.save(linkedMember);
+//            memberDataAccess.evictMemberCache(linkedMember.getId());
+//        }
 
         // 쿠키 제거
         Cookie refreshCookie = new Cookie("Refresh", null);
