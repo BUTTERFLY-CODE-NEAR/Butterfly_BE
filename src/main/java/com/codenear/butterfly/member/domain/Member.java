@@ -8,8 +8,10 @@ import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -64,11 +66,11 @@ public class Member extends BaseEntity {
     private List<Favorite> favorites = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Alarm> alarms = new ArrayList<>();
 
+    @JsonProperty("deleted")
     private boolean isDeleted;
-
-    private LocalDateTime withdrawalDate;
 
     public void setPoint(Point point) {
         this.point = point;
@@ -95,19 +97,9 @@ public class Member extends BaseEntity {
 
     public void withdraw() {
         this.isDeleted = true;
-        this.withdrawalDate = LocalDateTime.now();
     }
 
     public void restore() {
         this.isDeleted = false;
-        this.withdrawalDate = null;
-    }
-
-    public boolean isRecentlyWithdrawn() {
-        if (this.withdrawalDate == null) {
-            return false;
-        }
-
-        return ChronoUnit.MONTHS.between(this.withdrawalDate, LocalDateTime.now()) < 2;
     }
 }

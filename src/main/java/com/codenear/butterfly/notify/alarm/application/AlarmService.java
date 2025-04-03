@@ -37,7 +37,8 @@ public class AlarmService {
                 .member(member)
                 .isNew(true)
                 .build();
-        alarmRepository.save(alarm);
+//        alarmRepository.save(alarm);
+        member.getAlarms().add(alarm);
     }
 
     public void addConsentBasedAlarms(NotifyMessage message) {
