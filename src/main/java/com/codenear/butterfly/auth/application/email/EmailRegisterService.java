@@ -8,7 +8,9 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
+import com.codenear.butterfly.member.domain.repository.member.DeletedMemberRepository;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
+import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
 import com.codenear.butterfly.point.domain.Point;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmailRegisterService {
     private final MemberRepository memberRepository;
+    private final MemberDataAccess memberDataAccess;
     private final ConsentFacade consentFacade;
     private final PasswordEncoder passwordEncoder;
     private final ForbiddenWordFilter forbiddenWordFilter;
+    private final DeletedMemberRepository deletedMemberRepository;
 
     public Member emailRegister(AuthRegisterDTO authRegisterDTO) {
         String email = authRegisterDTO.getEmail();
         if (hasMember(email)) {
             if (isWithdrawn(email)) {
-                return memberRepository.save(restoreId(email));
+                deletedMemberRepository.deleteByMember_Email(email);
+                return memberDataAccess.save(restoreId(email));
             }
             throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
         }
@@ -39,7 +44,7 @@ public class EmailRegisterService {
         Member newMember = register(authRegisterDTO);
 
         consentFacade.saveConsent(ConsentType.MARKETING, authRegisterDTO.isMarketingAgreed(), newMember);
-        return memberRepository.save(newMember);
+        return memberDataAccess.save(newMember);
     }
 
     private void validateNickname(String nickname) {

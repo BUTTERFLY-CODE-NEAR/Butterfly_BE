@@ -37,8 +37,11 @@ public class PhoneRegistrationService {
         pointPromotionService.processPromotion(member);
     }
 
+    @Transactional(readOnly = true)
     private Member getMemberById(Long memberId) {
-        return memberDataAccess.findByMemberId(memberId);
+        Member member =  memberDataAccess.findByMemberId(memberId);
+
+        return member;
     }
 
     private void updatePhoneNumber(String phoneNumber, Member member) {

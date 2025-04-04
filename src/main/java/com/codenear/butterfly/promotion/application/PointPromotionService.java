@@ -24,7 +24,7 @@ public class PointPromotionService {
     private final RecipientRepository recipientRepository;
     private final FCMFacade fcmFacade;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void processPromotion(Member member) {
         PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
         if (!isPromotionApplicable(member.getPhoneNumber(), promotion)) return;

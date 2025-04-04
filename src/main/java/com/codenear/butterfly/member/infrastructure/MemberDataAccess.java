@@ -12,6 +12,8 @@ import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +28,15 @@ public class MemberDataAccess {
         return memberRepository.findByPhoneNumber(phoneNumber);
     }
 
-    @CacheEvict(value = "memberCache", key = "#memberId")
+    @Cacheable(value = "memberCache", key = "#p0")
     public Member findByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(SERVER_ERROR, null));
     }
 
-//    @CacheEvict(value = "userCache, memberCache", key = "#member.id")
-    @CacheEvict(cacheNames = {"userCache", "memberCache"}, key = "#member.id")
-    public void save(Member member) {
-        memberRepository.save(member);
+    @CachePut(cacheNames = {"userCache", "memberCache"}, key = "#result.id")
+    public Member save(Member member) {
+        return memberRepository.save(member);
     }
 
     public Set<Member> getLinkedAccounts(Member member) {
@@ -47,4 +48,7 @@ public class MemberDataAccess {
 
         return linkedAccounts;
     }
+
+    @CacheEvict(cacheNames = {"userCache", "memberCache"}, key = "#p0")
+    public void evictMemberCache(Long memberId) {}
 }

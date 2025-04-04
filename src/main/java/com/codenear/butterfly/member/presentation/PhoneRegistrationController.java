@@ -24,7 +24,8 @@ public class PhoneRegistrationController implements PhoneRegistrationControllerS
     private final PhoneRegistrationService phoneRegistrationService;
 
     @PostMapping("/{phoneNumber}")
-    public ResponseEntity<ResponseDTO> sendRegistrationCode(@PathVariable String phoneNumber) {
+    public ResponseEntity<ResponseDTO> sendRegistrationCode(@PathVariable("phoneNumber") String phoneNumber) {
+        System.out.println(phoneNumber);
         phoneRegistrationService.sendRegistrationCode(phoneNumber);
         return ResponseUtil.createSuccessResponse(null);
     }
