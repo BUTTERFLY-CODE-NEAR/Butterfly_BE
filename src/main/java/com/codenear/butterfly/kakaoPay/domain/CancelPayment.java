@@ -61,6 +61,7 @@ public class CancelPayment {
     public CancelPayment(OrderDetails orderDetails) {
         this.tid = orderDetails.getTid();
         this.status = "CANCEL_PAYMENT";
+        this.partnerUserId = String.valueOf(orderDetails.getMember().getId());
         this.paymentMethodType = "MONEY";
         this.itemName = orderDetails.getProductName();
         this.quantity = orderDetails.getQuantity();
