@@ -18,6 +18,22 @@
         <div id="content">
             <div class="container-fluid pt-3">
                 <h1 class="h3 mb-4 text-gray-800">주문 목록</h1>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">주문 관리</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="statusFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-filter"></i> 상태 필터: <span id="currentFilter" th:text="${param.status != null ? T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).valueOf(param.status).getStatus() : '전체'}">전체</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterDropdown">
+                            <a class="dropdown-item filter-status" href="#" data-status="ALL">전체</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="READY">배송 준비 중</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="DELIVERY">배송 중</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="COMPLETED">배송 완료</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="CANCELED">주문 취소</a>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="card shadow mb-4">
                     <div class="card-body">
@@ -95,6 +111,7 @@
             <form th:action="@{/admin/delivery-status}" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="orderId" id="orderId">
+                    <input type="hidden" name="currentFilter" id="hiddenCurrentFilter" th:value="${param.status != null ? param.status : 'ALL'}">
                     <div class="form-group">
                         <label for="orderStatus">새 상태 선택</label>
                         <select class="form-control" id="orderStatus" name="orderStatus">
@@ -133,6 +150,21 @@
                 Array.from(orderStatusSelect.options).forEach(option => {
                     option.disabled = (option.value === currentStatus);
                 });
+            });
+        });
+
+        const filterStatusLinks = document.querySelectorAll('.filter-status');
+        filterStatusLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const status = this.getAttribute('data-status');
+
+                // 필터링 적용
+                if (status === 'ALL') {
+                    window.location.href = '/admin/delivery-status';
+                } else {
+                    window.location.href = '/admin/delivery-status?status=' + status;
+                }
             });
         });
     });
