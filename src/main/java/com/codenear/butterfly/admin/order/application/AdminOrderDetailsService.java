@@ -36,6 +36,11 @@ public class AdminOrderDetailsService {
         return orderDetailsRepository.findAll(pageable);
     }
 
+    public Page<OrderDetails> getOrdersByStatus(OrderStatus status, int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        return orderDetailsRepository.findByOrderStatus(status, pageable);
+    }
+
     @Transactional
     public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
         OrderDetails order = orderDetailsRepository.findById(orderId)

@@ -22,9 +22,17 @@ public class AdminOrderDetailsController {
     @GetMapping("/delivery-status")
     public String orderListPage(
             @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String status,
             Model model
     ) {
-        Page<OrderDetails> orders = adminOrderDetailsService.getAllOrders(page);
+        Page<OrderDetails> orders;
+
+        if (status != null && !status.equals("ALL")) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status);
+            orders = adminOrderDetailsService.getOrdersByStatus(orderStatus, page);
+        } else {
+            orders = adminOrderDetailsService.getAllOrders(page);
+        }
 
         model.addAttribute("orders", orders);
         model.addAttribute("currentPage", orders.getNumber());
@@ -37,9 +45,14 @@ public class AdminOrderDetailsController {
     @PostMapping("/delivery-status")
     public String updateOrderStatus(
             @RequestParam Long orderId,
-            @RequestParam OrderStatus orderStatus
+            @RequestParam OrderStatus orderStatus,
+            @RequestParam(required = false) String currentFilter
     ) {
         adminOrderDetailsService.updateOrderStatus(orderId, orderStatus);
+
+        if (currentFilter != null && !currentFilter.equals("ALL")) {
+            return "redirect:/admin/delivery-status?status=" + currentFilter;
+        }
         return "redirect:/admin/delivery-status";
     }
 
