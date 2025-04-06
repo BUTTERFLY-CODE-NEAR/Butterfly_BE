@@ -6,8 +6,19 @@ import com.codenear.butterfly.payment.exception.PaymentException;
 import java.util.Arrays;
 
 public enum PaymentMethod {
+    // KakaoMethod
     CARD,
-    MONEY;
+    MONEY,
+
+    // TossMethod
+    카드,
+    가상계좌,
+    간편결제,
+    휴대폰,
+    계좌이체,
+    문화상품권,
+    도서문화상품권,
+    게임문화상품권;
 
     /**
      * String 값을 기반으로 Enum 값을 반환하는 메서드
