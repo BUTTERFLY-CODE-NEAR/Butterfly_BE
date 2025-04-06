@@ -2,13 +2,18 @@ package com.codenear.butterfly.payment.domain;
 
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.Builder;
@@ -18,16 +23,21 @@ import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "provider", discriminatorType = DiscriminatorType.STRING)
 public class SinglePayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String aid; // 요청 고유 번호
     private String tid; // 결제 고유 번호
-    private String cid; // 가맹점 코드
-    private String sid; // 정기 결제용 ID
-    private String partnerOrderId; // 가맹점 주문번호
-    private String partnerUserId; // 가맹점 회원 id
+    private String orderId; // 가맹점 주문번호
+    private String productName; // 상품 이름
+    private String productCode; // 상품 코드
+    private Integer quantity; // 상품 수량
+    private String requestedAt; // 결제 준비 요청 시간
+    private String approvedAt; // 결제 승인 시간
+    private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
+    private Long memberId;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethodType; // 결제 수단(CARD 또는 MONEY)
@@ -40,38 +50,41 @@ public class SinglePayment {
     @JoinColumn(name = "card_info_id")
     private CardInfo cardInfo;
 
-    private String itemName; // 상품 이름
-    private String itemCode; // 상품 코드
-    private Integer quantity; // 상품 수량
-    private String createdAt; // 결제 준비 요청 시간
-    private String approvedAt; // 결제 승인 시간
-    private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
-
     @Builder
-    public SinglePayment(ApproveResponseDTO approveResponseDTO) {
-        this.aid = approveResponseDTO.getAid();
+    public SinglePayment(ApproveResponseDTO approveResponseDTO, Long memberId) {
         this.tid = approveResponseDTO.getTid();
-        this.cid = approveResponseDTO.getCid();
-        this.sid = approveResponseDTO.getSid();
-        this.partnerOrderId = approveResponseDTO.getPartner_order_id();
-        this.partnerUserId = approveResponseDTO.getPartner_user_id();
+        this.orderId = approveResponseDTO.getPartner_order_id();
+        this.memberId = memberId;
         this.paymentMethodType = PaymentMethod.fromString(approveResponseDTO.getPayment_method_type());
-        this.itemName = approveResponseDTO.getItem_name();
-        this.itemCode = approveResponseDTO.getItem_code();
+        this.productName = approveResponseDTO.getItem_name();
+        this.productCode = approveResponseDTO.getItem_code();
         this.quantity = approveResponseDTO.getQuantity();
-        this.createdAt = approveResponseDTO.getCreated_at();
+        this.requestedAt = approveResponseDTO.getCreated_at();
         this.approvedAt = approveResponseDTO.getApproved_at();
         this.payload = approveResponseDTO.getPayload();
     }
 
+    @Builder
+    public SinglePayment(ConfirmResponseDTO confirmResponseDTO, Long memberId, Integer quantity) {
+        this.tid = confirmResponseDTO.getPaymentKey();
+        this.orderId = confirmResponseDTO.getOrderId();
+        this.memberId = memberId;
+        this.paymentMethodType = PaymentMethod.fromString(confirmResponseDTO.getMethod());
+        this.productName = confirmResponseDTO.getOrderName();
+        this.quantity = quantity;
+        this.requestedAt = confirmResponseDTO.getRequestedAt();
+        this.approvedAt = confirmResponseDTO.getApprovedAt();
+        this.payload = confirmResponseDTO.getPayload();
+    }
+
     @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
-    public SinglePayment(String partnerOrderId, Long partnerUserId, BasePaymentRequestDTO basePaymentRequestDTO) {
-        this.partnerOrderId = partnerOrderId;
-        this.partnerUserId = String.valueOf(partnerUserId);
+    public SinglePayment(String orderId, Long memberId, BasePaymentRequestDTO basePaymentRequestDTO) {
+        this.orderId = orderId;
+        this.memberId = memberId;
         this.paymentMethodType = PaymentMethod.MONEY;
-        this.itemName = basePaymentRequestDTO.getProductName();
+        this.productName = basePaymentRequestDTO.getProductName();
         this.quantity = basePaymentRequestDTO.getQuantity();
-        this.createdAt = String.valueOf(LocalDateTime.now());
+        this.requestedAt = String.valueOf(LocalDateTime.now());
         this.approvedAt = String.valueOf(LocalDateTime.now());
     }
 

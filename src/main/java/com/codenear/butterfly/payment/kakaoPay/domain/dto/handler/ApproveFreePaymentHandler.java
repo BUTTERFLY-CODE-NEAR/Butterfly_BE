@@ -24,8 +24,8 @@ public class ApproveFreePaymentHandler extends ApproveHandler {
     @Override
     public SinglePayment createSinglePayment() {
         return SinglePayment.freeOrderBuilder()
-                .partnerOrderId(orderId)
-                .partnerUserId(memberId)
+                .orderId(orderId)
+                .memberId(memberId)
                 .basePaymentRequestDTO(basePaymentRequestDTO)
                 .buildFreeOrder();
     }
