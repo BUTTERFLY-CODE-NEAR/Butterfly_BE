@@ -19,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
 import static com.codenear.butterfly.notify.NotifyMessage.REWARD_POINT;
 
@@ -130,5 +133,24 @@ public class AdminOrderDetailsService {
         if (reward > 0) {
             fcmFacade.sendMessage(REWARD_POINT, memberId);
         }
+    }
+
+    @Transactional
+    public int bulkCompleteOrders(List<Long> orderIds) {
+        List<OrderDetails> orders = orderDetailsRepository.findAllById(orderIds).stream()
+                .filter(order -> OrderStatus.DELIVERY.equals(order.getOrderStatus()))
+                .collect(Collectors.toList());
+
+        for (OrderDetails order : orders) {
+            order.updateOrderStatus(OrderStatus.COMPLETED);
+            orderDetailsRepository.save(order);
+
+            // 포인트백 처리 및 알림 발송
+            ProductInventory product = productInventoryRepository.findProductByProductName(order.getProductName());
+            increaseRefundPoint(product, order);
+            fcmFacade.sendMessage(PRODUCT_ARRIVAL, order.getMember().getId());
+        }
+
+        return orders.size();
     }
 }
