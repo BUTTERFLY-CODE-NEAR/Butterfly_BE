@@ -35,13 +35,13 @@ public class SinglePayController implements SinglePayControllerSwagger {
     @PostMapping("/ready/pickup")
     public ResponseEntity<ResponseDTO> pickupPaymentRequest(@RequestBody PickupPaymentRequestDTO paymentRequestDTO,
                                                             @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(singlePaymentService.kakaoPayReady(paymentRequestDTO, memberDTO.getId(), "pickup"));
+        return ResponseUtil.createSuccessResponse(singlePaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "pickup"));
     }
 
     @PostMapping("/ready/delivery")
     public ResponseEntity<ResponseDTO> deliveryPaymentRequest(@RequestBody DeliveryPaymentRequestDTO paymentRequestDTO,
                                                               @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(singlePaymentService.kakaoPayReady(paymentRequestDTO, memberDTO.getId(), "deliver"));
+        return ResponseUtil.createSuccessResponse(singlePaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "deliver"));
     }
 
     @GetMapping("/success")
@@ -49,7 +49,7 @@ public class SinglePayController implements SinglePayControllerSwagger {
             @RequestParam("pg_token") String pgToken,
             @RequestParam("memberId") Long memberId,
             HttpServletResponse response) {
-        singlePaymentService.approveResponse(pgToken, memberId);
+        singlePaymentService.paymentApprove(pgToken, memberId);
 
         try {
             response.sendRedirect("butterfly://kakaopay/success");
