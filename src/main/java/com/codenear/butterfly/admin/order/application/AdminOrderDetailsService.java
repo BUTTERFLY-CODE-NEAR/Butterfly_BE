@@ -19,7 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
@@ -75,7 +75,9 @@ public class AdminOrderDetailsService {
                 });
 
         int refundPoint = calculateRefundPoint(product, order);
-        point.increasePoint(refundPoint);
+        if (refundPoint > 0){
+            point.increasePoint(refundPoint);
+        }
         sendRewordMessage(refundPoint, order.getMember().getId());
     }
 
@@ -137,20 +139,69 @@ public class AdminOrderDetailsService {
 
     @Transactional
     public int bulkCompleteOrders(List<Long> orderIds) {
-        List<OrderDetails> orders = orderDetailsRepository.findAllById(orderIds).stream()
-                .filter(order -> OrderStatus.DELIVERY.equals(order.getOrderStatus()))
-                .collect(Collectors.toList());
+        int updatedCnt = orderDetailsRepository.updateOrderStatusInBulk(
+                orderIds, OrderStatus.DELIVERY, OrderStatus.COMPLETED);
 
-        for (OrderDetails order : orders) {
-            order.updateOrderStatus(OrderStatus.COMPLETED);
-            orderDetailsRepository.save(order);
+        if (updatedCnt > 0) {
+            List<OrderDetails> updatedOrders = orderDetailsRepository.findAllById(orderIds).stream()
+                    .filter(order -> OrderStatus.COMPLETED.equals(order.getOrderStatus()))
+                    .collect(Collectors.toList());
 
-            // 포인트백 처리 및 알림 발송
-            ProductInventory product = productInventoryRepository.findProductByProductName(order.getProductName());
-            increaseRefundPoint(product, order);
-            fcmFacade.sendMessage(PRODUCT_ARRIVAL, order.getMember().getId());
+            processPointsAndNotificationsBatch(updatedOrders);
         }
 
-        return orders.size();
+        return updatedCnt;
+    }
+    private void processPointsAndNotificationsBatch(List<OrderDetails> orders) {
+        // 관련 상품 정보 한 번에 조회
+        Set<String> productNames = new HashSet<>();
+        for (OrderDetails order : orders){
+            productNames.add(order.getProductName());
+        }
+
+        List<ProductInventory> products = productInventoryRepository.findAllByProductNameIn(productNames);
+        Map<String, ProductInventory> productMap = new HashMap<>();
+        for (ProductInventory product : products){
+            productMap.put(product.getProductName(), product);
+        }
+
+        // 회원별 포인트 그룹화
+        Map<Long, Integer> memberPointMap = new HashMap<>();
+        Set<Long> membersToNotify = new HashSet<>();
+
+        // 주문별 포인트 계산
+        for (OrderDetails order : orders) {
+            ProductInventory product = productMap.get(order.getProductName());
+            if (product != null) {
+                int refundPoint = calculateRefundPoint(product, order);
+
+                // 회원별 포인트 누적
+                Long memberId = order.getMember().getId();
+                memberPointMap.merge(memberId, refundPoint, Integer::sum); //cf.containsKey
+
+                // 알림 대상 회원 추가
+                membersToNotify.add(memberId);
+            }
+        }
+
+        // 회원별로 포인트 한 번에 업데이트
+        // cf.keySet,get
+        for (Map.Entry<Long, Integer> entry : memberPointMap.entrySet()) {
+            Long memberId = entry.getKey();
+            Integer totalPoints = entry.getValue();
+
+            if (totalPoints > 0) {
+                pointRepository.increasePointByMemberId(memberId, totalPoints);
+            }
+        }
+
+        // 한 번에 알림 발송
+        for (Long memberId : membersToNotify) {
+            fcmFacade.sendMessage(PRODUCT_ARRIVAL, memberId);
+            // getOrDefault : 키 존재하지 않을 때 기본값 반환
+            if (memberPointMap.getOrDefault(memberId, 0) > 0) {
+                fcmFacade.sendMessage(REWARD_POINT, memberId);
+            }
+        }
     }
 }
