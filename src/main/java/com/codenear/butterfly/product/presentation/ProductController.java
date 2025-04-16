@@ -10,7 +10,13 @@ import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -32,16 +38,16 @@ public class ProductController implements ProductControllerSwagger {
     public ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam(value = "category", required = false) String category,
                                                              @AuthenticationPrincipal MemberDTO memberDTO) {
         if (category == null || category.isEmpty()) {
-            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(memberDTO.getId()));
+            return ResponseUtil.createSuccessResponse(productViewService.getAllProducts(memberDTO));
         } else {
-            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO.getId()));
+            return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO));
         }
     }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> productDetail(@PathVariable(value = "productId") Long productId,
                                                      @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, memberDTO.getId()));
+        return ResponseUtil.createSuccessResponse(productViewService.getProductDetail(productId, memberDTO));
     }
 
     @GetMapping("/favorites")
@@ -54,7 +60,7 @@ public class ProductController implements ProductControllerSwagger {
     @GetMapping("/favorites/{productId}")
     public ResponseEntity<ResponseDTO> isFavorite(@PathVariable(value = "productId") Long productId,
                                                   @AuthenticationPrincipal MemberDTO memberDTO) {
-        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(memberDTO.getId(), productId));
+        return ResponseUtil.createSuccessResponse(productViewService.isProductFavorite(memberDTO, productId));
     }
 
     @PostMapping("/favorites/{productId}")
