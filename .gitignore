@@ -29,6 +29,7 @@ out/
 **/application-secret.properties
 **/application-local.properties
 **/application-build.properties
+**/application-test.properties
 **/messages.properties
 **/data.sql
 
@@ -38,3 +39,5 @@ out/
 ### resources
 **/src/main/resources/firebase/**
 **/src/main/resources/static/sb-admin/**
+**/src/main/resources/static/.well-known/**
+**/src/main/resources/static/terms/**

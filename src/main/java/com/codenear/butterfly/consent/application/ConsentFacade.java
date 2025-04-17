@@ -2,6 +2,7 @@ package com.codenear.butterfly.consent.application;
 
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
+import com.codenear.butterfly.consent.infrastructure.ConsentDataAccess;
 import com.codenear.butterfly.member.domain.Member;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

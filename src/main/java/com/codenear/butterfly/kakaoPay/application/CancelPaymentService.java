@@ -1,102 +1,90 @@
 package com.codenear.butterfly.kakaoPay.application;
 
 import com.codenear.butterfly.kakaoPay.domain.CancelPayment;
-import com.codenear.butterfly.kakaoPay.domain.CanceledAmount;
 import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
 import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
-import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelFreePaymentHandler;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelHandler;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.handler.CancelPaymentHandler;
+import com.codenear.butterfly.kakaoPay.domain.dto.rabbitmq.InventoryIncreaseMessageDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.kakaoPay.domain.repository.CancelPaymentRepository;
+import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
+import com.codenear.butterfly.kakaoPay.util.KakaoPaymentUtil;
+import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.point.domain.Point;
+import com.codenear.butterfly.point.domain.PointRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
+import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CancelPaymentService {
-
-    @Value("${kakao.payment.cid}")
-    private String CID;
-
-    @Value("${kakao.payment.secret-key-dev}")
-    private String secretKey;
-
-    @Value("${kakao.payment.host}")
-    private String host;
-
     private final CancelPaymentRepository cancelPaymentRepository;
     private final OrderDetailsRepository orderDetailsRepository;
+    private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
+    private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
+    private final PointRepository pointRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final FCMFacade fcmFacade;
 
     public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
 
         OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("cid", CID);
-        parameters.put("tid", orderDetails.getTid());
-        parameters.put("cancel_amount", cancelRequestDTO.getCancelAmount());
-        parameters.put("cancel_tax_free_amount", 0);
+        CancelHandler handler;
+        if (orderDetails.getTotal() != 0) {
+            Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
+            CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
 
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
-        RestTemplate restTemplate = new RestTemplate();
+            handler = new CancelPaymentHandler(cancelResponseDTO, orderDetails);
+        } else {
+            handler = new CancelFreePaymentHandler(orderDetails);
+        }
 
-        CancelResponseDTO cancelResponseDTO = restTemplate.postForObject(
-                host+"/cancel",
-                requestEntity,
-                CancelResponseDTO.class);
+        processPaymentCancel(handler);
+        fcmFacade.sendMessage(ORDER_CANCELED, orderDetails.getMember().getId());
+    }
 
-        CancelPayment cancelPayment = createCancelPayment(cancelResponseDTO);
+    /**
+     * 주문 취소 처리 공통 로직
+     *
+     * @param handler 결제 응답 객체 (CancelResponseDTO 또는 OrderDetails)
+     */
+    private void processPaymentCancel(CancelHandler handler) {
+        CancelPayment cancelPayment = handler.createCancelPayment();
 
-        CanceledAmount canceledAmount = createApprovedCancelAmount(cancelResponseDTO);
-        cancelPayment.setCanceledAmount(canceledAmount);
+        handler.getOrderDetails().updateOrderStatus(OrderStatus.CANCELED);
 
-        orderDetails.setOrderStatus(OrderStatus.CANCELED);
+        kakaoPaymentRedisRepository.restoreStockOnOrderCancellation(handler.getProductName(), handler.getQuantity());
+
+        increaseUsePoint(handler.getOrderDetails().getMember(), handler.getRestorePoint());
+
         cancelPaymentRepository.save(cancelPayment);
+
+        InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(handler.getProductName(), handler.getQuantity());
+        applicationEventPublisher.publishEvent(message);
     }
 
-    private CancelPayment createCancelPayment(CancelResponseDTO cancelResponseDTO) {
-        CancelPayment cancelPayment = new CancelPayment();
-        cancelPayment.setAid(Objects.requireNonNull(cancelResponseDTO).getAid());
-        cancelPayment.setTid(cancelResponseDTO.getTid());
-        cancelPayment.setCid(cancelResponseDTO.getCid());
-        cancelPayment.setStatus(cancelResponseDTO.getStatus());
-        cancelPayment.setPartnerOrderId(cancelResponseDTO.getPartner_order_id());
-        cancelPayment.setPartnerUserId(cancelResponseDTO.getPartner_user_id());
-        cancelPayment.setPaymentMethodType(cancelResponseDTO.getPayment_method_type());
-        cancelPayment.setItemName(cancelResponseDTO.getItem_name());
-        cancelPayment.setItemCode(cancelResponseDTO.getItem_code());
-        cancelPayment.setQuantity(cancelResponseDTO.getQuantity());
-        cancelPayment.setCreatedAt(cancelResponseDTO.getCreated_at());
-        cancelPayment.setApprovedAt(cancelResponseDTO.getApproved_at());
-        cancelPayment.setPayload(cancelResponseDTO.getPayload());
-        return cancelPayment;
-    }
+    public void increaseUsePoint(Member member, int usePoint) {
+        Point point = pointRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Point newPoint = Point.createPoint()
+                            .member(member)
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
 
-    private CanceledAmount createApprovedCancelAmount(CancelResponseDTO cancelResponseDTO) {
-        CanceledAmount canceledAmount = new CanceledAmount();
-        canceledAmount.setTotal(Objects.requireNonNull(cancelResponseDTO).getAmount().getTotal());
-        canceledAmount.setTaxFree(cancelResponseDTO.getAmount().getTax_free());
-        canceledAmount.setVat(cancelResponseDTO.getAmount().getVat());
-        canceledAmount.setPoint(cancelResponseDTO.getAmount().getPoint());
-        canceledAmount.setDiscount(cancelResponseDTO.getAmount().getDiscount());
-        return canceledAmount;
-    }
-
-    // 카카오가 요구한 헤더값
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("Authorization", "SECRET_KEY " + secretKey);
-        return headers;
+        point.increasePoint(usePoint);
     }
 }

@@ -1,5 +1,6 @@
 package com.codenear.butterfly.kakaoPay.domain.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -14,8 +15,10 @@ public class PickupPaymentRequestDTO extends BasePaymentRequestDTO {
     private String pickupPlace;
 
     @Schema(description = "픽업 날짜", example = "2024-10-21")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDate pickupDate;
 
     @Schema(description = "픽업 시간", example = "14:30")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm", timezone = "Asia/Seoul")
     private LocalTime pickupTime;
 }

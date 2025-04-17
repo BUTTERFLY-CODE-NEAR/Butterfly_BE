@@ -20,7 +20,7 @@ public class ProductUpdateRequest {
     private String description;
     private String productVolume;
     private String expirationDate;
-    private MultipartFile productImage;
+    private List<MultipartFile> productImage;
     private String existingProductImageUrl;
     private Integer originalPrice;
     private BigDecimal saleRate;
@@ -29,8 +29,10 @@ public class ProductUpdateRequest {
     private Integer purchaseParticipantCount;
     private Integer maxPurchaseCount;
     private Integer stockQuantity;
+    private String deliveryInformation;
     private List<String> keywords;
     private List<DiscountRateRequest> discountRates;
+    private List<MultipartFile> descriptionImages;
 
     public Category getCategory() {
         return Category.fromValue(category);

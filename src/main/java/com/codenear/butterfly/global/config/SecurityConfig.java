@@ -24,7 +24,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
 
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class SecurityConfig {
 
             CorsConfiguration configuration = new CorsConfiguration();
 
-            configuration.setAllowedOrigins(Collections.singletonList("*")); // todo : 추후 FE 서버 아이피 변경
+            configuration.setAllowedOrigins(securityProperties.getAllowedOrigins()); // todo : 추후 FE 서버 아이피 변경
             configuration.setAllowedMethods(Collections.singletonList("*")); // todo : 요청 메서드 전체 허용을 추후에 변경 보안상 변경
             configuration.setAllowCredentials(true);
             configuration.setAllowedHeaders(Collections.singletonList("*"));

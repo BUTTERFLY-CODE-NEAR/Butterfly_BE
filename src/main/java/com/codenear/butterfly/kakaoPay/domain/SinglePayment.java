@@ -1,11 +1,22 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
-import jakarta.persistence.*;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.ApproveResponseDTO;
+import com.codenear.butterfly.kakaoPay.domain.dto.request.BasePaymentRequestDTO;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Setter
 @NoArgsConstructor
 public class SinglePayment {
     @Id
@@ -17,7 +28,9 @@ public class SinglePayment {
     private String sid; // 정기 결제용 ID
     private String partnerOrderId; // 가맹점 주문번호
     private String partnerUserId; // 가맹점 회원 id
-    private String paymentMethodType; // 결제 수단(CARD 또는 MONEY)
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethodType; // 결제 수단(CARD 또는 MONEY)
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "amount_id")
@@ -34,4 +47,39 @@ public class SinglePayment {
     private String approvedAt; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
 
+    @Builder
+    public SinglePayment(ApproveResponseDTO approveResponseDTO) {
+        this.aid = approveResponseDTO.getAid();
+        this.tid = approveResponseDTO.getTid();
+        this.cid = approveResponseDTO.getCid();
+        this.sid = approveResponseDTO.getSid();
+        this.partnerOrderId = approveResponseDTO.getPartner_order_id();
+        this.partnerUserId = approveResponseDTO.getPartner_user_id();
+        this.paymentMethodType = PaymentMethod.fromString(approveResponseDTO.getPayment_method_type());
+        this.itemName = approveResponseDTO.getItem_name();
+        this.itemCode = approveResponseDTO.getItem_code();
+        this.quantity = approveResponseDTO.getQuantity();
+        this.createdAt = approveResponseDTO.getCreated_at();
+        this.approvedAt = approveResponseDTO.getApproved_at();
+        this.payload = approveResponseDTO.getPayload();
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public SinglePayment(String partnerOrderId, Long partnerUserId, BasePaymentRequestDTO basePaymentRequestDTO) {
+        this.partnerOrderId = partnerOrderId;
+        this.partnerUserId = String.valueOf(partnerUserId);
+        this.paymentMethodType = PaymentMethod.MONEY;
+        this.itemName = basePaymentRequestDTO.getProductName();
+        this.quantity = basePaymentRequestDTO.getQuantity();
+        this.createdAt = String.valueOf(LocalDateTime.now());
+        this.approvedAt = String.valueOf(LocalDateTime.now());
+    }
+
+    public void addAmount(Amount amount) {
+        this.amount = amount;
+    }
+
+    public void addCardInfo(CardInfo cardInfo) {
+        this.cardInfo = cardInfo;
+    }
 }

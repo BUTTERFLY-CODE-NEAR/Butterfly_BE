@@ -10,6 +10,8 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +30,15 @@ public class FCMTokenService {
         Member member = memberFacade.getMember(loginMember.getId());
         List<Consent> consents = consentFacade.getConsents(member.getId());
 
+        List<FCM> existingFcm = fcmRepository.findByToken(token);
+
+        for (FCM fcm : existingFcm) {
+            if (fcm.getMember().getId() == loginMember.getId())
+                fcmRepository.delete(fcm);
+        }
+
         FCM fcm = createFCM(token, member);
         subscribeToConsentedTopics(token, consents);
-
         fcmRepository.save(fcm);
     }
 

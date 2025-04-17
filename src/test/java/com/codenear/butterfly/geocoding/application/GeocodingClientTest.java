@@ -1,7 +1,5 @@
 package com.codenear.butterfly.geocoding.application;
 
-import static com.codenear.butterfly.geocoding.domain.DepartureAddress.BASIC;
-
 import com.codenear.butterfly.geocoding.domain.Address;
 import com.codenear.butterfly.geocoding.domain.dto.GeocodingResponse;
 import com.codenear.butterfly.geocoding.exception.GeocodingException;
@@ -11,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import static com.codenear.butterfly.geocoding.domain.DepartureAddress.BASIC;
+
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles("test")
 class GeocodingClientTest {
 
     @Autowired

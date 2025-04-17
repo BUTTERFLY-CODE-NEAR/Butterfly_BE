@@ -1,10 +1,26 @@
 package com.codenear.butterfly.product.domain;
 
-import com.codenear.butterfly.admin.products.dto.DiscountRateRequest;
+import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.product.util.CategoryConverter;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,11 +30,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "product_type")
 @Getter
-public class Product {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,18 +45,12 @@ public class Product {
     @Column(nullable = false)
     private String productName;
 
-    @Setter
-    private String productImage;
-
     @Lob
     private String description;
 
     private String productVolume;
 
     private String expirationDate;
-
-    @Column(nullable = false)
-    private Integer originalPrice;
 
     @Column(nullable = false, precision = 4, scale = 1)
     private BigDecimal saleRate;
@@ -49,81 +59,65 @@ public class Product {
     @Column(nullable = false)
     private Category category;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private List<Option> options;
-
-    //공동구매 신청현황(인원)
-    @Column(nullable = false)
-    private Integer purchaseParticipantCount;
-
-    @Column(nullable = false)
-    private Integer maxPurchaseCount;
-
-    //재고수량
-    @Column(nullable = false)
-    private Integer stockQuantity;
+    @Column
+    private String deliveryInformation;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    private List<Keyword> keywords;
+    private List<Option> options = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DiscountRate> discountRates = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "product_id")
+    private List<Keyword> keywords = new ArrayList<>();
 
-    @Builder
-    public Product(
-            String productName,
-            String companyName,
-            String description,
-            String productImage,
-            Integer originalPrice,
-            BigDecimal saleRate,
-            Category category,
-            Integer stockQuantity,
-            Integer purchaseParticipantCount,
-            Integer maxPurchaseCount,
-            List<Keyword> keywords,
-            List<DiscountRate> discountRates
-    ) {
-        this.productName = productName;
-        this.companyName = companyName;
-        this.description = description;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "image_type = 'DESCRIPTION'")
+    private List<ProductImage> descriptionImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Where(clause = "image_type = 'MAIN'")
+    private List<ProductImage> productImage = new ArrayList<>();
+
+    protected Product(ProductCreateRequest createRequest,
+                      List<ProductImage> productImage,
+                      String deliveryInformation,
+                      List<Keyword> keywords,
+                      List<ProductImage> descriptionImages) {
+
+        this.productName = createRequest.productName();
+        this.companyName = createRequest.companyName();
+        this.description = createRequest.description();
         this.productImage = productImage;
-        this.originalPrice = originalPrice;
-        this.saleRate = saleRate;
-        this.category = category;
-        this.stockQuantity = stockQuantity;
-        this.purchaseParticipantCount = purchaseParticipantCount;
-        this.maxPurchaseCount = maxPurchaseCount;
-
-        this.keywords = keywords != null
-                ? new ArrayList<>(keywords)
-                : new ArrayList<>();
-
-        this.discountRates = discountRates != null
-                ? new ArrayList<>(discountRates)
-                : new ArrayList<>();
+        this.saleRate = createRequest.saleRate();
+        this.category = Category.fromValue(createRequest.category());
+        if (keywords != null) {
+            this.keywords.addAll(keywords);
+        }
+        this.deliveryInformation = deliveryInformation;
+        this.descriptionImages = descriptionImages;
     }
 
-    public void update(ProductUpdateRequest request) {
+    public void updateDescriptionImage(List<ProductImage> newDescriptionImages) {
+        this.descriptionImages = newDescriptionImages;
+    }
+
+    public void updateMainImage(List<ProductImage> newMainImages) {
+        this.productImage = newMainImages;
+    }
+
+    protected void updateBasicInfo(ProductUpdateRequest request) {
         this.productName = request.getProductName();
         this.companyName = request.getCompanyName();
         this.description = request.getDescription();
-        this.originalPrice = request.getOriginalPrice();
         this.saleRate = request.getSaleRate();
         this.category = request.getCategory();
-        this.stockQuantity = request.getStockQuantity();
-        this.purchaseParticipantCount = request.getPurchaseParticipantCount();
-        this.maxPurchaseCount = request.getMaxPurchaseCount();
         this.productVolume = request.getProductVolume();
         this.expirationDate = request.getExpirationDate();
-
+        this.deliveryInformation = request.getDeliveryInformation();
         updateKeywordsIfPresent(request.getKeywords());
-        updateDiscountRatesIfPresent(request.getDiscountRates());
     }
 
-    private void updateKeywordsIfPresent(List<String> newKeywordValues) {
+    protected void updateKeywordsIfPresent(List<String> newKeywordValues) {
         if (newKeywordValues == null || newKeywordValues.isEmpty()) {
             return;
         }
@@ -144,82 +138,5 @@ public class Product {
         keywords.addAll(keywordsToAdd);
     }
 
-    private void updateDiscountRatesIfPresent(List<DiscountRateRequest> newRates) {
-        if (newRates == null) {
-            return;
-        }
-
-        discountRates.clear();
-        List<DiscountRate> rates = newRates.stream()
-                .map(request -> new DiscountRate(
-                        this,
-                        request.getMinParticipationRate(),
-                        request.getMaxParticipationRate(),
-                        request.getDiscountRate()
-                ))
-                .toList();
-
-        discountRates.addAll(rates);
-    }
-
-    public BigDecimal getCurrentDiscountRate() {
-        double participationRate = calculateParticipationRate();
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
-    }
-
-    private double calculateParticipationRate() {
-        return maxPurchaseCount == 0 ? 0 :
-                ((double) purchaseParticipantCount / maxPurchaseCount) * 100;
-    }
-
-    public boolean isSoldOut() {
-        return stockQuantity.equals(0);
-    }
-
-    public void decreaseQuantity(int stockQuantity) {
-        this.stockQuantity -= stockQuantity;
-    }
-
-    public void increasePurchaseParticipantCount(int quantity) {
-        this.purchaseParticipantCount += quantity;
-        if (this.purchaseParticipantCount > this.maxPurchaseCount) {
-            this.purchaseParticipantCount %= this.maxPurchaseCount;
-        }
-    }
-
-    public int calculatePointRefund(int quantity) {
-        int currentParticipantCount = (this.purchaseParticipantCount + quantity) % this.maxPurchaseCount;
-        double participationRate = ((double) currentParticipantCount / this.maxPurchaseCount) * 100;
-        BigDecimal nextDiscountRate = getDiscountRateForParticipationRate(participationRate);
-
-        int sectionCount = calculateSectionCount();
-        int discountQuantity = currentParticipantCount % sectionCount;
-        int totalAmount = this.originalPrice * discountQuantity;
-        int nextDiscountAmount = totalAmount * nextDiscountRate.intValue() / 100;
-        int currentDiscountAmount = totalAmount * getCurrentDiscountRate().intValue() / 100;
-        int pointRefundAmount = nextDiscountAmount - currentDiscountAmount;
-
-        return Math.max(pointRefundAmount, 0);
-    }
-
-    private int calculateSectionCount() {
-        return discountRates.stream()
-                .findFirst()
-                .map(rate -> (int) (this.maxPurchaseCount * (rate.getMaxParticipationRate() / 100)))
-                .orElse(0);
-    }
-
-    private BigDecimal getDiscountRateForParticipationRate(double participationRate) {
-        return discountRates.stream()
-                .filter(rate -> participationRate > rate.getMinParticipationRate()
-                        && participationRate <= rate.getMaxParticipationRate())
-                .findFirst()
-                .map(DiscountRate::getDiscountRate)
-                .orElse(BigDecimal.ZERO);
-    }
+    public abstract void update(ProductUpdateRequest request);
 }

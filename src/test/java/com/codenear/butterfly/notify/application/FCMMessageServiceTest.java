@@ -1,25 +1,27 @@
 package com.codenear.butterfly.notify.application;
 
-import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.codenear.butterfly.consent.application.ConsentFacade;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.consent.domain.ConsentType;
+import com.codenear.butterfly.notify.alarm.application.AlarmService;
 import com.codenear.butterfly.notify.fcm.application.FCMMessageService;
-import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.codenear.butterfly.notify.fcm.domain.FCM;
 import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
+import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FCMMessageServiceTest {
@@ -33,6 +35,9 @@ class FCMMessageServiceTest {
     @Mock
     private FirebaseMessagingClient firebaseMessagingClient;
 
+    @Mock
+    private AlarmService alarmService;
+
     @InjectMocks
     private FCMMessageService fcmMessageService;
 
@@ -41,11 +46,13 @@ class FCMMessageServiceTest {
         // given
         Long memberId = 1L;
 
-        mockConsent(true, memberId);
+        mockConsent(true, memberId, ConsentType.CUSTOMER_SUPPORT);
         mockFCMRepository(memberId);
 
         // when
-        fcmMessageService.send(INQUIRY_ANSWERED, memberId);
+        fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
+        System.out.println("Message ConsentType: " + INQUIRY_ANSWERED.getConsentType());
+
 
         // then
         verify(fcmRepository).findByMemberId(memberId);
@@ -57,10 +64,10 @@ class FCMMessageServiceTest {
         // given
         Long memberId = 1L;
 
-        mockConsent(false, memberId);
+        mockConsent(false, memberId, ConsentType.CUSTOMER_SUPPORT);
 
         // when
-        fcmMessageService.send(INQUIRY_ANSWERED, memberId);
+        fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
 
         // then
         verify(fcmRepository, never()).findByMemberId(memberId);
@@ -76,12 +83,16 @@ class FCMMessageServiceTest {
                 .thenReturn(List.of(fcm));
     }
 
-    private void mockConsent(boolean isAgreed, Long memberId) {
+    private void mockConsent(boolean isAgreed, Long memberId, ConsentType consentType) {
         Consent consent = Consent.builder()
-                .consentType(ConsentType.MARKETING)
+//                .consentType(ConsentType.MARKETING)
+                .consentType(consentType)
                 .isAgreed(isAgreed)
                 .build();
 
+//        System.out.println("Mocking Consent: " + consent.getConsentType() + ", isAgreed: " + consent.isAgreed());
+
+        System.out.println("Mocking Consent: " + consent);
         when(consentFacade.getConsents(memberId))
                 .thenReturn(List.of(consent));
     }

@@ -24,7 +24,7 @@ public interface SearchControllerSwagger {
     @Operation(summary = "최근 검색어 선택 삭제", description = "최근 검색어 목록 선택 삭제 API")
     ResponseEntity<ResponseDTO> deleteSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
-    @Operation(summary = "테스트 검색 데이터 추가", description = "테스트 검색 데이터 추가 API")
-    ResponseEntity<ResponseDTO> testSearchLog(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
+    @Operation(summary = "상품 검색", description = "상품 검색 및 검색어 저장 API")
+    ResponseEntity<ResponseDTO> search(@PathVariable("keyword") String keyword, @AuthenticationPrincipal MemberDTO memberDTO);
 
 }

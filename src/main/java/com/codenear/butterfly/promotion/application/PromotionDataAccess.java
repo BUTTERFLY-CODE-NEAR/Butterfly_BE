@@ -15,8 +15,10 @@ public class PromotionDataAccess {
 
     private final PointPromotionRepository pointPromotionRepository;
 
-    @Cacheable(value = "pointPromotion", key = "#promotionId")
+//    @Cacheable(value = "pointPromotion", key = "#promotionId")
+    @Cacheable(value = "pointPromotion", key = "#promotion?.id", condition = "#result != null")
     public PointPromotion findPointPromotion(Long promotionId) {
+        System.out.println("데이터베이스에서 조회: " + promotionId);
         return pointPromotionRepository.findById(promotionId)
                 .orElseThrow(() -> new PromotionException(SERVER_ERROR, null));
     }

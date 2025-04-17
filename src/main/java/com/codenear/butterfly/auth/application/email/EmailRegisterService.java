@@ -3,13 +3,14 @@ package com.codenear.butterfly.auth.application.email;
 import com.codenear.butterfly.auth.domain.dto.AuthRegisterDTO;
 import com.codenear.butterfly.auth.exception.AuthException;
 import com.codenear.butterfly.consent.application.ConsentFacade;
-import com.codenear.butterfly.consent.application.ConsentService;
 import com.codenear.butterfly.consent.domain.ConsentType;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Grade;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.Platform;
+import com.codenear.butterfly.member.domain.repository.member.DeletedMemberRepository;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
+import com.codenear.butterfly.member.infrastructure.MemberDataAccess;
 import com.codenear.butterfly.member.util.ForbiddenWordFilter;
 import com.codenear.butterfly.point.domain.Point;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +23,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmailRegisterService {
     private final MemberRepository memberRepository;
+    private final MemberDataAccess memberDataAccess;
     private final ConsentFacade consentFacade;
     private final PasswordEncoder passwordEncoder;
     private final ForbiddenWordFilter forbiddenWordFilter;
+    private final DeletedMemberRepository deletedMemberRepository;
 
     public Member emailRegister(AuthRegisterDTO authRegisterDTO) {
-        if (hasMember(authRegisterDTO.getEmail())) {
+        String email = authRegisterDTO.getEmail();
+        if (hasMember(email)) {
+            if (isWithdrawn(email)) {
+                deletedMemberRepository.deleteByMember_Email(email);
+                return memberDataAccess.save(restoreId(email));
+            }
             throw new AuthException(ErrorCode.EMAIL_ALREADY_IN_USE, authRegisterDTO.getEmail());
         }
 
@@ -36,7 +44,7 @@ public class EmailRegisterService {
         Member newMember = register(authRegisterDTO);
 
         consentFacade.saveConsent(ConsentType.MARKETING, authRegisterDTO.isMarketingAgreed(), newMember);
-        return memberRepository.save(newMember);
+        return memberDataAccess.save(newMember);
     }
 
     private void validateNickname(String nickname) {
@@ -49,6 +57,16 @@ public class EmailRegisterService {
         return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).isPresent();
     }
 
+    private boolean isWithdrawn(String email) {
+        return memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).get().isDeleted();
+    }
+
+    private Member restoreId(String email){
+        Member member = memberRepository.findByEmailAndPlatform(email, Platform.CODENEAR).get();
+        member.restore();
+        return member;
+    }
+
     private Member register(AuthRegisterDTO requestDTO) {
         Member member = Member.builder()
                 .email(requestDTO.getEmail())
@@ -58,8 +76,8 @@ public class EmailRegisterService {
                 .platform(Platform.CODENEAR)
                 .build();
 
-        Point point = Point.builder()
-                .point(0)
+        Point point = Point.createPoint()
+                .member(member)
                 .build();
 
         member.setPoint(point);

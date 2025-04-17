@@ -10,5 +10,6 @@ public record MemberInfoDTO(
         @Schema(description = "프로필 이미지 URL", example = "http://example.com/profile.jpg") String profileImage,
         @Schema(description = "쿠폰 갯수") Integer coupon,
         @Schema(description = "회원 등급") Integer grade,
-        @Schema(description = "회원 포인트") Integer point) {
+        @Schema(description = "회원 포인트") Integer point,
+        @Schema(description = "새로운 알림") boolean isNewAlarm) {
 }

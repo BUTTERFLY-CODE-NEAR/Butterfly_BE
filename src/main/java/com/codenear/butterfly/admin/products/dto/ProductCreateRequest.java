@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record ProductCreateRequest(
-        MultipartFile productImage,
+        List<MultipartFile> productImage,
         String productName,
         String companyName,
         String description,
@@ -19,7 +19,9 @@ public record ProductCreateRequest(
         Integer purchaseParticipantCount,
         Integer maxPurchaseCount,
         Integer stockQuantity,
-        List<String> keywords
+        List<String> keywords,
+        String deliveryInformation,
+        List<MultipartFile> descriptionImages
 ) {
 
 }

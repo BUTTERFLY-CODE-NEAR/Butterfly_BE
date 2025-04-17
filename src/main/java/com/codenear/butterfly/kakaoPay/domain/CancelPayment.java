@@ -1,11 +1,20 @@
 package com.codenear.butterfly.kakaoPay.domain;
 
-import jakarta.persistence.*;
+import com.codenear.butterfly.kakaoPay.domain.dto.kakao.CancelResponseDTO;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
-@Setter
 @NoArgsConstructor
 public class CancelPayment {
 
@@ -30,4 +39,41 @@ public class CancelPayment {
     private String createdAt; // 결제 준비 요청 시간
     private String approvedAt; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
+
+    @Builder
+    public CancelPayment(CancelResponseDTO cancelResponseDTO) {
+        this.aid = cancelResponseDTO.getAid();
+        this.tid = cancelResponseDTO.getTid();
+        this.cid = cancelResponseDTO.getCid();
+        this.status = cancelResponseDTO.getStatus();
+        this.partnerOrderId = cancelResponseDTO.getPartner_order_id();
+        this.partnerUserId = cancelResponseDTO.getPartner_user_id();
+        this.paymentMethodType = cancelResponseDTO.getPayment_method_type();
+        this.itemName = cancelResponseDTO.getItem_name();
+        this.itemCode = cancelResponseDTO.getItem_code();
+        this.quantity = cancelResponseDTO.getQuantity();
+        this.createdAt = cancelResponseDTO.getCreated_at();
+        this.approvedAt = cancelResponseDTO.getApproved_at();
+        this.payload = cancelResponseDTO.getPayload();
+    }
+
+    @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
+    public CancelPayment(OrderDetails orderDetails) {
+        this.tid = orderDetails.getTid();
+        this.status = "CANCEL_PAYMENT";
+        this.paymentMethodType = "MONEY";
+        this.itemName = orderDetails.getProductName();
+        this.quantity = orderDetails.getQuantity();
+        this.createdAt = getCurrentDateTimeFormatted();
+        this.approvedAt = getCurrentDateTimeFormatted();
+    }
+
+    public void addCanceledAmount(CanceledAmount canceledAmount) {
+        this.canceledAmount = canceledAmount;
+    }
+
+    private String getCurrentDateTimeFormatted() {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        return LocalDateTime.now().format(formatter);
+    }
 }
