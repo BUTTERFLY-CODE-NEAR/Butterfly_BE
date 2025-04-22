@@ -1,7 +1,7 @@
 package com.codenear.butterfly.product.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.product.domain.Category;
@@ -26,29 +26,29 @@ public class ProductViewService {
     private final FavoriteRepository favoriteRepository;
     private final MemberRepository memberRepository;
 
-    public List<ProductViewDTO> getAllProducts(Long memberId) {
+    public List<ProductViewDTO> getAllProducts(MemberDTO member) {
         List<ProductInventory> products = ProductInventoryRepository.findAll();
         validateProducts(products);
         return products.stream()
                 .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
-                .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(memberId, product.getId()), product.calculateGauge()))
+                .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(member, product.getId()), product.calculateGauge()))
                 .toList();
     }
 
-    public List<ProductViewDTO> getProductsByCategory(String categoryValue, Long memberId) {
+    public List<ProductViewDTO> getProductsByCategory(String categoryValue, MemberDTO member) {
         Category category = Category.fromValue(categoryValue);
         List<ProductInventory> products = ProductInventoryRepository.findProductByCategory(category);
         validateProducts(products);
         return products.stream()
                 .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
-                .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(memberId, product.getId()), product.calculateGauge()))
+                .map(product -> ProductMapper.toProductViewDTO(product, isProductFavorite(member, product.getId()), product.calculateGauge()))
                 .toList();
     }
 
-    public ProductDetailDTO getProductDetail(Long productId, Long memberId) {
+    public ProductDetailDTO getProductDetail(Long productId, MemberDTO member) {
         ProductInventory product = ProductInventoryRepository.findById(productId)
                 .orElseThrow(() -> new MemberException(ErrorCode.PRODUCT_NOT_FOUND, null));
-        return ProductMapper.toProductDetailDTO(product, isProductFavorite(memberId, productId), product.calculateGauge());
+        return ProductMapper.toProductDetailDTO(product, isProductFavorite(member, productId), product.calculateGauge());
     }
 
     private void validateProducts(List<ProductInventory> products) {
@@ -57,9 +57,8 @@ public class ProductViewService {
         }
     }
 
-    public boolean isProductFavorite(Long memberId, Long productId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
+    public boolean isProductFavorite(MemberDTO member, Long productId) {
+        if (member == null) return false;
         return favoriteRepository.existsByMemberIdAndProductId(member.getId(), productId);
     }
 }

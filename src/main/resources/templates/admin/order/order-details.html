@@ -18,13 +18,45 @@
         <div id="content">
             <div class="container-fluid pt-3">
                 <h1 class="h3 mb-4 text-gray-800">주문 목록</h1>
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">주문 관리</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="statusFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-filter"></i> 상태 필터: <span id="currentFilter" th:text="${param.status != null ? T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).valueOf(param.status).getStatus() : '전체'}">전체</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterDropdown">
+                            <a class="dropdown-item filter-status" href="#" data-status="ALL">전체</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="READY">배송 준비 중</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="DELIVERY">배송 중</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="COMPLETED">배송 완료</a>
+                            <a class="dropdown-item filter-status" href="#" data-status="CANCELED">주문 취소</a>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="card shadow mb-4">
                     <div class="card-body">
+                        <!--배송 중 일괄 배송 완료 -->
+                        <div class="mb-3" id="bulkActionContainer" th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
+                            <div class="d-flex align-items-center">
+                                <div class="custom-control custom-checkbox mr-2">
+                                    <input type="checkbox" class="custom-control-input" id="selectAll">
+                                    <label class="custom-control-label" for="selectAll">전체 선택</label>
+                                </div>
+                                <button id="bulkCompleteBtn" class="btn btn-success btn-sm ml-2" disabled>
+                                    <i class="fas fa-check"></i> 선택 항목 일괄 배송 완료
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-bordered" id="orderTable">
                                 <thead>
                                 <tr>
+                                    <th th:if="${param.status != null && param.status[0] == 'DELIVERY'}" width="5%">
+                                        <span class="sr-only">선택</span>
+                                    </th>
                                     <th>주문일</th>
                                     <th>주문자</th>
                                     <th>상품명</th>
@@ -36,6 +68,17 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="order : ${orders}">
+                                    <td th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input order-checkbox"
+                                                   th:id="'order-' + ${order.id}"
+                                                   th:data-order-id="${order.id}">
+                                            <label class="custom-control-label" th:for="'order-' + ${order.id}">
+                                                <span class="sr-only">선택</span>
+                                            </label>
+                                        </div>
+                                    </td>
+
                                     <td th:text="${#temporals.format(order.createdAt, 'yyyy년 MM월 dd일 HH:mm')}"></td>
                                     <td th:text="${order.member.nickname}"></td>
                                     <td th:text="${order.productName}"></td>
@@ -95,6 +138,7 @@
             <form th:action="@{/admin/delivery-status}" method="post">
                 <div class="modal-body">
                     <input type="hidden" name="orderId" id="orderId">
+                    <input type="hidden" name="currentFilter" id="hiddenCurrentFilter" th:value="${param.status != null ? param.status : 'ALL'}">
                     <div class="form-group">
                         <label for="orderStatus">새 상태 선택</label>
                         <select class="form-control" id="orderStatus" name="orderStatus">
@@ -111,6 +155,28 @@
                     <button type="submit" class="btn btn-primary">상태 변경</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- 일괄 처리 확인 모달 -->
+<div class="modal fade" id="bulkCompleteModal" tabindex="-1" role="dialog" aria-labelledby="bulkCompleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkCompleteModalLabel">일괄 배송 완료 처리</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><span id="selectedCount">0</span>개의 주문을 배송 완료 처리하시겠습니까?</p>
+                <p class="text-danger">이 작업은 취소할 수 없으며, 각 주문에 포인트 적립이 발생할 수 있습니다.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-success" id="confirmBulkComplete">확인</button>
+            </div>
         </div>
     </div>
 </div>
@@ -135,6 +201,103 @@
                 });
             });
         });
+
+        const filterStatusLinks = document.querySelectorAll('.filter-status');
+        filterStatusLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const status = this.getAttribute('data-status');
+
+                // 필터링 적용
+                if (status === 'ALL') {
+                    window.location.href = '/admin/delivery-status';
+                } else {
+                    window.location.href = '/admin/delivery-status?status=' + status;
+                }
+            });
+        });
+
+        const currentStatus = [[${param.status != null ? param.status[0] : null}]];
+        console.log(currentStatus)
+        if (currentStatus === 'DELIVERY') {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+            const bulkCompleteBtn = document.getElementById('bulkCompleteBtn');
+            const selectedCountSpan = document.getElementById('selectedCount');
+            const confirmBulkCompleteBtn = document.getElementById('confirmBulkComplete');
+
+            // 전체 선택/해제
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                orderCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateBulkButtonState();
+            });
+
+            // 개별 체크박스 이벤트
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateBulkButtonState();
+
+                    // 모든 체크박스가 선택되었는지 확인하여 전체 선택 체크박스 상태 업데이트
+                    const allChecked = Array.from(orderCheckboxes).every(box => box.checked);
+                    selectAllCheckbox.checked = allChecked;
+                });
+            });
+
+            // 일괄 처리 버튼 상태 업데이트
+            function updateBulkButtonState() {
+                const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+                bulkCompleteBtn.disabled = checkedCount === 0;
+                selectedCountSpan.textContent = checkedCount;
+            }
+
+            // 일괄 처리 버튼 클릭 이벤트
+            bulkCompleteBtn.addEventListener('click', function() {
+                const checkedCount = document.querySelectorAll('.order-checkbox:checked').length;
+                if (checkedCount > 0) {
+                    selectedCountSpan.textContent = checkedCount;
+                    $('#bulkCompleteModal').modal('show');
+                }
+            });
+
+            // 일괄 처리 확인 버튼 클릭 이벤트
+            confirmBulkCompleteBtn.addEventListener('click', function() {
+                const selectedOrderIds = Array.from(document.querySelectorAll('.order-checkbox:checked'))
+                    .map(checkbox => checkbox.getAttribute('data-order-id'));
+
+                // AJAX 요청으로 일괄 처리
+                fetch('/admin/bulk-complete-orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+                    },
+                    body: JSON.stringify({orderIds: selectedOrderIds})
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('일괄 처리 중 오류가 발생했습니다.');
+                })
+                .then(data => {
+                    if (data.success) {
+                        // 성공 시 페이지 새로고침
+                        window.location.reload();
+                    } else {
+                        alert('일괄 처리 중 오류가 발생했습니다: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert(error.message);
+                })
+                .finally(() => {
+                    $('#bulkCompleteModal').modal('hide');
+                });
+            });
+        }
     });
 </script>
 </body>

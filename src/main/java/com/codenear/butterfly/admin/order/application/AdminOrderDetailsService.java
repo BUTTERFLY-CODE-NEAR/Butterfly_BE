@@ -19,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
 import static com.codenear.butterfly.notify.NotifyMessage.REWARD_POINT;
 
@@ -34,6 +37,11 @@ public class AdminOrderDetailsService {
     public Page<OrderDetails> getAllOrders(int page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
         return orderDetailsRepository.findAll(pageable);
+    }
+
+    public Page<OrderDetails> getOrdersByStatus(OrderStatus status, int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        return orderDetailsRepository.findByOrderStatus(status, pageable);
     }
 
     @Transactional
@@ -67,7 +75,9 @@ public class AdminOrderDetailsService {
                 });
 
         int refundPoint = calculateRefundPoint(product, order);
-        point.increasePoint(refundPoint);
+        if (refundPoint > 0){
+            point.increasePoint(refundPoint);
+        }
         sendRewordMessage(refundPoint, order.getMember().getId());
     }
 
@@ -124,6 +134,74 @@ public class AdminOrderDetailsService {
     private void sendRewordMessage(int reward, Long memberId) {
         if (reward > 0) {
             fcmFacade.sendMessage(REWARD_POINT, memberId);
+        }
+    }
+
+    @Transactional
+    public int bulkCompleteOrders(List<Long> orderIds) {
+        int updatedCnt = orderDetailsRepository.updateOrderStatusInBulk(
+                orderIds, OrderStatus.DELIVERY, OrderStatus.COMPLETED);
+
+        if (updatedCnt > 0) {
+            List<OrderDetails> updatedOrders = orderDetailsRepository.findAllById(orderIds).stream()
+                    .filter(order -> OrderStatus.COMPLETED.equals(order.getOrderStatus()))
+                    .collect(Collectors.toList());
+
+            processPointsAndNotificationsBatch(updatedOrders);
+        }
+
+        return updatedCnt;
+    }
+    private void processPointsAndNotificationsBatch(List<OrderDetails> orders) {
+        // 관련 상품 정보 한 번에 조회
+        Set<String> productNames = new HashSet<>();
+        for (OrderDetails order : orders){
+            productNames.add(order.getProductName());
+        }
+
+        List<ProductInventory> products = productInventoryRepository.findAllByProductNameIn(productNames);
+        Map<String, ProductInventory> productMap = new HashMap<>();
+        for (ProductInventory product : products){
+            productMap.put(product.getProductName(), product);
+        }
+
+        // 회원별 포인트 그룹화
+        Map<Long, Integer> memberPointMap = new HashMap<>();
+        Set<Long> membersToNotify = new HashSet<>();
+
+        // 주문별 포인트 계산
+        for (OrderDetails order : orders) {
+            ProductInventory product = productMap.get(order.getProductName());
+            if (product != null) {
+                int refundPoint = calculateRefundPoint(product, order);
+
+                // 회원별 포인트 누적
+                Long memberId = order.getMember().getId();
+                memberPointMap.merge(memberId, refundPoint, Integer::sum); //cf.containsKey
+
+                // 알림 대상 회원 추가
+                membersToNotify.add(memberId);
+            }
+        }
+
+        // 회원별로 포인트 한 번에 업데이트
+        // cf.keySet,get
+        for (Map.Entry<Long, Integer> entry : memberPointMap.entrySet()) {
+            Long memberId = entry.getKey();
+            Integer totalPoints = entry.getValue();
+
+            if (totalPoints > 0) {
+                pointRepository.increasePointByMemberId(memberId, totalPoints);
+            }
+        }
+
+        // 한 번에 알림 발송
+        for (Long memberId : membersToNotify) {
+            fcmFacade.sendMessage(PRODUCT_ARRIVAL, memberId);
+            // getOrDefault : 키 존재하지 않을 때 기본값 반환
+            if (memberPointMap.getOrDefault(memberId, 0) > 0) {
+                fcmFacade.sendMessage(REWARD_POINT, memberId);
+            }
         }
     }
 }

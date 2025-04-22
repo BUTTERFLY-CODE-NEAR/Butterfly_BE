@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class SearchService {
     }
 
     /**
-     * keyword에 포함되는 상품을 검색하고, 사용자 검색로그에 저장한다.
+     * keyword에 포함되는 상품을 검색하고, 사용자 검색로그에 저장한다. (비회원은 로그를 저장하지 않는다.)
      *
      * @param keyword   검색어
      * @param memberDTO 사용자
@@ -57,23 +58,32 @@ public class SearchService {
     @Transactional(readOnly = true)
     public List<ProductViewDTO> search(String keyword, MemberDTO memberDTO) {
         List<String> relatedKeywords = getRelatedKeywords(keyword);
-        List<Long> favoriteProductIds = favoriteRepository.findAllProductIdByMemberId(memberDTO.getId());
-        Set<Long> favoriteProductIdSet = new HashSet<>(favoriteProductIds);
+        Set<Long> favoriteProductIdSet = Optional.ofNullable(memberDTO)
+                .map(MemberDTO::getId)
+                .map(favoriteRepository::findAllProductIdByMemberId)
+                .map(HashSet::new)
+                .orElse(null);
 
         List<ProductViewDTO> searchProduct = relatedKeywords.stream()
                 .flatMap(relateKeyword -> {
                     List<ProductInventory> products = findKeywordByProductList(relateKeyword);
 
                     return products.stream()
-                            .sorted((p1, p2) -> Boolean.compare(p1.isSoldOut(), p2.isSoldOut()))
-                            .map(product -> ProductMapper.toProductViewDTO(product,
-                                    favoriteProductIdSet.contains(product.getId()),
-                                    product.calculateGauge()));
+                            .sorted(Comparator.comparing(ProductInventory::isSoldOut)) // 더 깔끔하게 정렬
+                            .map(product -> {
+                                boolean isFavorite = favoriteProductIdSet != null && favoriteProductIdSet.contains(product.getId());
+                                return ProductMapper.toProductViewDTO(product,
+                                        isFavorite,
+                                        product.calculateGauge());
+
+                            });
                 })
                 .distinct()
                 .toList();
 
-        addSearchLog(keyword, memberDTO);
+        if (memberDTO != null) {
+            addSearchLog(keyword, memberDTO);
+        }
         return searchProduct;
     }
 
