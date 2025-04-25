@@ -3,6 +3,7 @@ package com.codenear.butterfly.payment.application;
 import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.address.domain.AddressRepository;
 import com.codenear.butterfly.global.exception.ErrorCode;
+import com.codenear.butterfly.global.util.HashMapUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
@@ -17,6 +18,8 @@ import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.order.OrderDTO;
 import com.codenear.butterfly.payment.domain.dto.rabbitmq.InventoryDecreaseMessageDTO;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
+import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
+import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -169,34 +173,6 @@ public class PaymentService {
         }
     }
 
-    /**
-     * 주문 상세 정보를 생성하고 저장한다.
-     *
-     * @param orderType   주문 타입 (PICKUP, DELIVERY)
-     * @param addressId   배송지 ID
-     * @param responseDTO 결제 응답 객체 (ApproveResponseDTO 또는 BasePaymentRequestDTO)
-     * @param optionName  상품 옵션명
-     * @param memberId    사용자 아이디
-     * @param point       사용 포인트
-     * @param product     상품 정보
-     */
-
-    protected <T> void saveOrderDetails(OrderType orderType,
-                                        Long addressId,
-                                        T responseDTO,
-                                        String optionName,
-                                        Long memberId,
-                                        int point,
-                                        Product product) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
-
-        OrderDetails orderDetails = createOrderDetails(orderType, responseDTO, member, product, optionName, point);
-        addOrderTypeDetails(orderDetails, orderType, memberId, addressId);
-
-        orderDetailsRepository.save(orderDetails);
-    }
-
     protected void decreaseUsePoint(Long memberId, int usePoint) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
@@ -250,6 +226,73 @@ public class PaymentService {
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(handler.getProductName(), handler.getQuantity());
         applicationEventPublisher.publishEvent(message);
+    }
+
+    /**
+     * 결제 준비 단계에서 Redis에 저장할 필드를 생성
+     *
+     * @param partnerOrderId    파트너사 주문 ID
+     * @param orderType         주문 타입
+     * @param tid               카카오페이 트랜잭션 ID
+     * @param paymentRequestDTO 결제 요청 정보를 담고 있는 객체 (BasePaymentRequestDTO 타입)
+     * @return Redis에 저장할 필드 값들을 키-값 쌍으로 담고 있는 Map 객체
+     */
+
+    protected Map<String, String> getPayReadyRedisFields(
+            final String partnerOrderId,
+            final String orderType,
+            final String tid,
+            final BasePaymentRequestDTO paymentRequestDTO) {
+
+        Map<String, String> fields = new HashMapUtil<>();
+        fields.put(PaymentRedisField.ORDER_ID.getFieldName(), partnerOrderId);
+        fields.put(PaymentRedisField.TRANSACTION_ID.getFieldName(), tid);
+        fields.put(PaymentRedisField.ORDER_TYPE.getFieldName(), orderType);
+        fields.put(PaymentRedisField.OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
+        fields.put(PaymentRedisField.POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
+
+        if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
+            fields.put(PaymentRedisField.ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
+            fields.put(PaymentRedisField.DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
+        }
+
+        if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupPaymentRequestDTO) {
+            String pickupDate = pickupPaymentRequestDTO.getPickupDate().toString();
+            String pickupTime = pickupPaymentRequestDTO.getPickupTime().toString();
+
+            fields.put(PaymentRedisField.PICKUP_PLACE.getFieldName(), pickupPaymentRequestDTO.getPickupPlace());
+            fields.put(PaymentRedisField.PICKUP_DATE.getFieldName(), pickupDate);
+            fields.put(PaymentRedisField.PICKUP_TIME.getFieldName(), pickupTime);
+        }
+        return fields;
+    }
+
+    /**
+     * 주문 상세 정보를 생성하고 저장한다.
+     *
+     * @param orderType   주문 타입 (PICKUP, DELIVERY)
+     * @param addressId   배송지 ID
+     * @param responseDTO 결제 응답 객체 (ApproveResponseDTO 또는 BasePaymentRequestDTO)
+     * @param optionName  상품 옵션명
+     * @param memberId    사용자 아이디
+     * @param point       사용 포인트
+     * @param product     상품 정보
+     */
+
+    private <T> void saveOrderDetails(OrderType orderType,
+                                      Long addressId,
+                                      T responseDTO,
+                                      String optionName,
+                                      Long memberId,
+                                      int point,
+                                      Product product) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage()));
+
+        OrderDetails orderDetails = createOrderDetails(orderType, responseDTO, member, product, optionName, point);
+        addOrderTypeDetails(orderDetails, orderType, memberId, addressId);
+
+        orderDetailsRepository.save(orderDetails);
     }
 
     /**

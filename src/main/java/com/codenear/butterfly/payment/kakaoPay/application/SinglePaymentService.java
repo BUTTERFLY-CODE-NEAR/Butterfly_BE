@@ -1,7 +1,6 @@
 package com.codenear.butterfly.payment.kakaoPay.application;
 
 import com.codenear.butterfly.address.domain.AddressRepository;
-import com.codenear.butterfly.global.util.HashMapUtil;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
@@ -10,8 +9,6 @@ import com.codenear.butterfly.payment.domain.PaymentRedisField;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
-import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
-import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
@@ -69,7 +66,7 @@ public class SinglePaymentService extends PaymentService implements KakaoPayment
 
         String tid = kakaoPayReady != null ? kakaoPayReady.getTid() : null;
 
-        Map<String, String> fields = getKakaoPayReadyRedisFields(partnerOrderId, orderType, tid, paymentRequestDTO);
+        Map<String, String> fields = super.getPayReadyRedisFields(partnerOrderId, orderType, tid, paymentRequestDTO);
         kakaoPaymentRedisRepository.addMultipleToHashSet(memberId, fields);
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.READY.name());
 
@@ -111,44 +108,5 @@ public class SinglePaymentService extends PaymentService implements KakaoPayment
         super.restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName()));
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
-    }
-
-    /**
-     * 카카오페이 결제 준비 단계에서 Redis에 저장할 필드를 생성
-     *
-     * @param partnerOrderId    파트너사 주문 ID
-     * @param orderType         주문 타입
-     * @param tid               카카오페이 트랜잭션 ID
-     * @param paymentRequestDTO 결제 요청 정보를 담고 있는 객체 (BasePaymentRequestDTO 타입)
-     * @return Redis에 저장할 필드 값들을 키-값 쌍으로 담고 있는 Map 객체
-     */
-
-    private Map<String, String> getKakaoPayReadyRedisFields(
-            final String partnerOrderId,
-            final String orderType,
-            final String tid,
-            final BasePaymentRequestDTO paymentRequestDTO) {
-
-        Map<String, String> fields = new HashMapUtil<>();
-        fields.put(PaymentRedisField.ORDER_ID.getFieldName(), partnerOrderId);
-        fields.put(PaymentRedisField.TRANSACTION_ID.getFieldName(), tid);
-        fields.put(PaymentRedisField.ORDER_TYPE.getFieldName(), orderType);
-        fields.put(PaymentRedisField.OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
-        fields.put(PaymentRedisField.POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
-
-        if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
-            fields.put(PaymentRedisField.ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
-            fields.put(PaymentRedisField.DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
-        }
-
-        if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupPaymentRequestDTO) {
-            String pickupDate = pickupPaymentRequestDTO.getPickupDate().toString();
-            String pickupTime = pickupPaymentRequestDTO.getPickupTime().toString();
-
-            fields.put(PaymentRedisField.PICKUP_PLACE.getFieldName(), pickupPaymentRequestDTO.getPickupPlace());
-            fields.put(PaymentRedisField.PICKUP_DATE.getFieldName(), pickupDate);
-            fields.put(PaymentRedisField.PICKUP_TIME.getFieldName(), pickupTime);
-        }
-        return fields;
     }
 }
