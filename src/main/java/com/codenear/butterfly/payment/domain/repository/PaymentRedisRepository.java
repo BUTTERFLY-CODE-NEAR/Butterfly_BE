@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.codenear.butterfly.payment.domain.KakaoPayRedisField.PAYMENT_STATUS;
-import static com.codenear.butterfly.payment.domain.KakaoPayRedisField.PRODUCT_NAME;
-import static com.codenear.butterfly.payment.domain.KakaoPayRedisField.QUANTITY;
+import static com.codenear.butterfly.payment.domain.PaymentRedisField.PAYMENT_STATUS;
+import static com.codenear.butterfly.payment.domain.PaymentRedisField.PRODUCT_NAME;
+import static com.codenear.butterfly.payment.domain.PaymentRedisField.QUANTITY;
 
 @Repository
 @RequiredArgsConstructor

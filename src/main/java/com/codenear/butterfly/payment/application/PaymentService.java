@@ -9,8 +9,8 @@ import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.domain.Amount;
-import com.codenear.butterfly.payment.domain.KakaoPayRedisField;
 import com.codenear.butterfly.payment.domain.OrderDetails;
+import com.codenear.butterfly.payment.domain.PaymentRedisField;
 import com.codenear.butterfly.payment.domain.SinglePayment;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
@@ -59,7 +59,7 @@ public class PaymentService {
 
     public void updatePaymentStatus(Long memberId) {
         String status = paymentRedisRepository.getPaymentStatus(memberId);
-        String key = KakaoPayRedisField.PAYMENT_STATUS.getFieldName() + memberId;
+        String key = PaymentRedisField.PAYMENT_STATUS.getFieldName() + memberId;
         if (status == null) {
             paymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.NONE.name());
         } else if (status.equals(PaymentStatus.SUCCESS.name())) {
@@ -140,10 +140,10 @@ public class PaymentService {
      * @param orderId           결제 UUID
      */
     protected void approveFreeResponse(Long memberId, BasePaymentRequestDTO paymentRequestDTO, String orderId) {
-        String orderTypeString = paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.ORDER_TYPE.getFieldName());
+        String orderTypeString = paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_TYPE.getFieldName());
         OrderType orderType = OrderType.fromType(orderTypeString);
-        Long addressId = parsingStringToLong(memberId, KakaoPayRedisField.ADDRESS_ID.getFieldName());
-        String optionName = paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.OPTION_NAME.getFieldName());
+        Long addressId = parsingStringToLong(memberId, PaymentRedisField.ADDRESS_ID.getFieldName());
+        String optionName = paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.OPTION_NAME.getFieldName());
 
         ProductInventory product = productInventoryRepository.findProductByProductName(paymentRequestDTO.getProductName());
 
@@ -336,16 +336,16 @@ public class PaymentService {
 
         switch (orderType) {
             case PICKUP -> {
-                String pickupPlace = paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.PICKUP_PLACE.getFieldName());
-                LocalDate pickupDate = LocalDate.parse(paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.PICKUP_DATE.getFieldName()));
-                LocalTime pickupTime = LocalTime.parse(paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.PICKUP_TIME.getFieldName()));
+                String pickupPlace = paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.PICKUP_PLACE.getFieldName());
+                LocalDate pickupDate = LocalDate.parse(paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.PICKUP_DATE.getFieldName()));
+                LocalTime pickupTime = LocalTime.parse(paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.PICKUP_TIME.getFieldName()));
 
                 orderDetails.addOrderTypeByPickup(pickupPlace, pickupDate, pickupTime);
             }
             case DELIVER -> {
                 Address address = addressRepository.findById(addressId)
                         .orElseThrow(() -> new PaymentException(ErrorCode.ADDRESS_NOT_FOUND, null));
-                LocalDate deliverDate = LocalDate.parse(paymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.DELIVER_DATE.getFieldName()));
+                LocalDate deliverDate = LocalDate.parse(paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.DELIVER_DATE.getFieldName()));
 
                 orderDetails.addOrderTypeByDeliver(address, deliverDate);
             }

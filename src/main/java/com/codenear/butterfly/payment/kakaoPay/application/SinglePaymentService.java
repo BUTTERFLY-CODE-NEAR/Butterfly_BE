@@ -6,7 +6,7 @@ import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.application.PaymentService;
-import com.codenear.butterfly.payment.domain.KakaoPayRedisField;
+import com.codenear.butterfly.payment.domain.PaymentRedisField;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
@@ -83,32 +83,32 @@ public class SinglePaymentService extends PaymentService implements KakaoPayment
     @Transactional
     @Override
     public void paymentApprove(String pgToken, Long memberId) {
-        String orderId = kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.ORDER_ID.getFieldName());
-        String orderTypeString = kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.ORDER_TYPE.getFieldName());
+        String orderId = kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName());
+        String orderTypeString = kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_TYPE.getFieldName());
         OrderType orderType = OrderType.fromType(orderTypeString);
-        Long addressId = super.parsingStringToLong(memberId, KakaoPayRedisField.ADDRESS_ID.getFieldName());
-        String optionName = kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.OPTION_NAME.getFieldName());
+        Long addressId = super.parsingStringToLong(memberId, PaymentRedisField.ADDRESS_ID.getFieldName());
+        String optionName = kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.OPTION_NAME.getFieldName());
 
         Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayApproveParameters(memberId, orderId,
-                kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.TRANSACTION_ID.getFieldName()), pgToken);
+                kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.TRANSACTION_ID.getFieldName()), pgToken);
 
         ApproveResponseDTO approveResponseDTO = kakaoPaymentUtil.sendRequest("/approve", parameters, ApproveResponseDTO.class);
         ProductInventory product = productInventoryRepository.findProductByProductName(approveResponseDTO.getItem_name());
 
-        int usePoint = super.parsingStringToInt(memberId, KakaoPayRedisField.POINT.getFieldName());
+        int usePoint = super.parsingStringToInt(memberId, PaymentRedisField.POINT.getFieldName());
         super.processPaymentSuccess(memberId, orderType, addressId, optionName, product, new ApprovePaymentHandler(approveResponseDTO, usePoint));
     }
 
     @Override
     public void cancelPayment(Long memberId, String productName, int quantity) {
-        super.restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.ORDER_ID.getFieldName()));
+        super.restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName()));
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.CANCEL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
     }
 
     @Override
     public void failPayment(Long memberId, String productName, int quantity) {
-        super.restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, KakaoPayRedisField.ORDER_ID.getFieldName()));
+        super.restoreQuantity(productName, quantity, kakaoPaymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName()));
         kakaoPaymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
         kakaoPaymentRedisRepository.removeHashTableKey(memberId);
     }
@@ -130,24 +130,24 @@ public class SinglePaymentService extends PaymentService implements KakaoPayment
             final BasePaymentRequestDTO paymentRequestDTO) {
 
         Map<String, String> fields = new HashMapUtil<>();
-        fields.put(KakaoPayRedisField.ORDER_ID.getFieldName(), partnerOrderId);
-        fields.put(KakaoPayRedisField.TRANSACTION_ID.getFieldName(), tid);
-        fields.put(KakaoPayRedisField.ORDER_TYPE.getFieldName(), orderType);
-        fields.put(KakaoPayRedisField.OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
-        fields.put(KakaoPayRedisField.POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
+        fields.put(PaymentRedisField.ORDER_ID.getFieldName(), partnerOrderId);
+        fields.put(PaymentRedisField.TRANSACTION_ID.getFieldName(), tid);
+        fields.put(PaymentRedisField.ORDER_TYPE.getFieldName(), orderType);
+        fields.put(PaymentRedisField.OPTION_NAME.getFieldName(), paymentRequestDTO.getOptionName());
+        fields.put(PaymentRedisField.POINT.getFieldName(), String.valueOf(paymentRequestDTO.getPoint()));
 
         if (paymentRequestDTO instanceof DeliveryPaymentRequestDTO deliveryPaymentRequestDTO) {
-            fields.put(KakaoPayRedisField.ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
-            fields.put(KakaoPayRedisField.DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
+            fields.put(PaymentRedisField.ADDRESS_ID.getFieldName(), deliveryPaymentRequestDTO.getAddressId().toString());
+            fields.put(PaymentRedisField.DELIVER_DATE.getFieldName(), deliveryPaymentRequestDTO.deliverDateFormat());
         }
 
         if (paymentRequestDTO instanceof PickupPaymentRequestDTO pickupPaymentRequestDTO) {
             String pickupDate = pickupPaymentRequestDTO.getPickupDate().toString();
             String pickupTime = pickupPaymentRequestDTO.getPickupTime().toString();
 
-            fields.put(KakaoPayRedisField.PICKUP_PLACE.getFieldName(), pickupPaymentRequestDTO.getPickupPlace());
-            fields.put(KakaoPayRedisField.PICKUP_DATE.getFieldName(), pickupDate);
-            fields.put(KakaoPayRedisField.PICKUP_TIME.getFieldName(), pickupTime);
+            fields.put(PaymentRedisField.PICKUP_PLACE.getFieldName(), pickupPaymentRequestDTO.getPickupPlace());
+            fields.put(PaymentRedisField.PICKUP_DATE.getFieldName(), pickupDate);
+            fields.put(PaymentRedisField.PICKUP_TIME.getFieldName(), pickupTime);
         }
         return fields;
     }
