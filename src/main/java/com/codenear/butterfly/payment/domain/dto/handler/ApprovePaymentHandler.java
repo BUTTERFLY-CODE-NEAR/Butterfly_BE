@@ -1,25 +1,33 @@
-package com.codenear.butterfly.payment.kakaoPay.domain.dto.handler;
+package com.codenear.butterfly.payment.domain.dto.handler;
 
 import com.codenear.butterfly.payment.domain.Amount;
 import com.codenear.butterfly.payment.domain.CardInfo;
 import com.codenear.butterfly.payment.domain.PaymentMethod;
 import com.codenear.butterfly.payment.domain.SinglePayment;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import lombok.Getter;
 
 import java.util.Optional;
 
 @Getter
-public class ApprovePaymentHandler extends ApproveHandler {
-    private final ApproveResponseDTO approveResponseDTO;
+public class ApprovePaymentHandler<T> extends ApproveHandler {
+    private final T approveResponseDTO;
 
-    public ApprovePaymentHandler(ApproveResponseDTO approveResponseDTO, int point) {
-        super(
-                approveResponseDTO.getPartner_order_id(),
-                approveResponseDTO.getItem_name(),
-                approveResponseDTO.getQuantity(),
-                point
-        );
+    public ApprovePaymentHandler(T approveResponseDTO, int point) {
+        String orderId = "";
+        String productName = "";
+        int quantity = 0;
+        if (approveResponseDTO instanceof ApproveResponseDTO kakaoApprove) {
+            orderId = kakaoApprove.getPartner_order_id();
+            productName = kakaoApprove.getItem_name();
+            quantity = kakaoApprove.getQuantity();
+        } else if (approveResponseDTO instanceof ConfirmResponseDTO tossApprove) {
+            orderId = tossApprove.getOrderId();
+            productName = tossApprove.getOrderName();
+            quantity = tossApprove.getQuantity();
+        }
+        super(orderId, productName, quantity, point);
         this.approveResponseDTO = approveResponseDTO;
     }
 
