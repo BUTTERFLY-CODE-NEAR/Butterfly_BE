@@ -41,6 +41,18 @@ public class PaymentRedisRepository {
     }
 
     /**
+     * Redis Hash에 필드 추가
+     *
+     * @param memberId  사용자 아이디
+     * @param fieldName 필드 이름
+     * @param value     필드 값
+     */
+    public void addHashSetField(Long memberId, String fieldName, String value) {
+        String key = PAYMENT_HASH_KEY_PREFIX + memberId;
+        redisTemplate.opsForHash().put(key, fieldName, value);
+    }
+
+    /**
      * Redis Hash에서 특정 필드의 값을 가져오는 메서드
      *
      * @param memberId 멤버 아이디
