@@ -6,6 +6,7 @@ import com.codenear.butterfly.payment.domain.dto.OrderStatus;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import jakarta.persistence.Column;
@@ -25,6 +26,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -70,7 +72,7 @@ public class OrderDetails {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @Builder
+    @Builder(builderMethodName = "kakaoPaymentBuilder", buildMethodName = "buildKakaoPayment")
     public OrderDetails(Member member, OrderType orderType, ApproveResponseDTO approveResponseDTO, Product product, String optionName, int point) {
         this.member = member;
         this.orderType = orderType;
@@ -84,7 +86,22 @@ public class OrderDetails {
         this.quantity = approveResponseDTO.getQuantity();
         this.orderStatus = OrderStatus.READY;
         this.point = point;
+    }
 
+    @Builder(builderMethodName = "tossPaymentBuilder", buildMethodName = "buildTossPayment")
+    public OrderDetails(Member member, OrderType orderType, ConfirmResponseDTO confirmResponseDTO, Product product, String optionName, int point) {
+        this.member = member;
+        this.orderType = orderType;
+        this.orderCode = generateOrderCode();
+        this.createdAt = OffsetDateTime.parse(confirmResponseDTO.getRequestedAt(), DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+        this.tid = confirmResponseDTO.getPaymentKey();
+        this.total = confirmResponseDTO.getTotalAmount();
+        this.productName = confirmResponseDTO.getOrderName();
+        this.productImage = getThumbnail(product.getProductImage());
+        this.optionName = optionName;
+        this.quantity = confirmResponseDTO.getQuantity();
+        this.orderStatus = OrderStatus.READY;
+        this.point = point;
     }
 
     @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")

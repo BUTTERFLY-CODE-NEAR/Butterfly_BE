@@ -1,6 +1,7 @@
 package com.codenear.butterfly.payment.domain;
 
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,7 +35,7 @@ public class CardInfo {
     @OneToOne(mappedBy = "cardInfo")
     private SinglePayment singlePayment;
 
-    @Builder
+    @Builder(builderMethodName = "kakaoPaymentBuilder", buildMethodName = "buildKakaoPayment")
     public CardInfo(ApproveResponseDTO approveResponseDTO) {
         this.approvedId = approveResponseDTO.getCard_info().getApproved_id();
         this.bin = approveResponseDTO.getCard_info().getBin();
@@ -48,5 +49,18 @@ public class CardInfo {
         this.kakaopayPurchaseCorpCode = approveResponseDTO.getCard_info().getKakaopay_purchase_corp_code();
         this.kakaopayIssuerCorp = approveResponseDTO.getCard_info().getKakaopay_issuer_corp();
         this.kakaopayIssuerCorpCode = approveResponseDTO.getCard_info().getKakaopay_issuer_corp_code();
+    }
+
+    @Builder(builderMethodName = "tossPaymentBuilder", buildMethodName = "buildTossPayment")
+    public CardInfo(ConfirmResponseDTO confirmResponseDTO) {
+        ConfirmResponseDTO.Card card = confirmResponseDTO.getCard();
+
+        this.approvedId = card.getApproveNo();
+        this.bin = card.getNumber();
+        this.cardType = card.getCardType();
+        this.installMonth = String.valueOf(card.getInstallmentPlanMonths());
+        this.interestFreeInstall = card.getInstallmentPlanMonths() == 0 ? "Y" : "N";
+        this.kakaopayIssuerCorpCode = card.getIssuerCode();
+        this.kakaopayPurchaseCorpCode = card.getAcquirerCode();
     }
 }

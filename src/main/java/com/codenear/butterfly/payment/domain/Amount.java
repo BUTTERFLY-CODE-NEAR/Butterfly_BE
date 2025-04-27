@@ -2,6 +2,7 @@ package com.codenear.butterfly.payment.domain;
 
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,13 +27,22 @@ public class Amount {
     @OneToOne(mappedBy = "amount")
     private SinglePayment singlePayment;
 
-    @Builder
+    @Builder(builderMethodName = "kakaoPaymentBuilder", buildMethodName = "buildKakaoPayment")
     public Amount(ApproveResponseDTO approveResponseDTO) {
         this.total = approveResponseDTO.getAmount().getTotal();
         this.taxFree = approveResponseDTO.getAmount().getTax_free();
         this.vat = approveResponseDTO.getAmount().getVat();
         this.point = approveResponseDTO.getAmount().getPoint();
         this.discount = approveResponseDTO.getAmount().getDiscount();
+    }
+
+    @Builder(builderMethodName = "tossPaymentBuilder", buildMethodName = "buildTossPayment")
+    public Amount(ConfirmResponseDTO confirmResponseDTO) {
+        this.total = confirmResponseDTO.getTotalAmount();
+        this.taxFree = confirmResponseDTO.getTaxFreeAmount();
+        this.vat = confirmResponseDTO.getVat();
+        this.point = 0;
+        this.discount = confirmResponseDTO.getEasyPay().getDiscountAmount();
     }
 
     @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
