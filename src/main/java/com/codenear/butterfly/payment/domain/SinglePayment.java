@@ -50,7 +50,6 @@ public class SinglePayment {
     @JoinColumn(name = "card_info_id")
     private CardInfo cardInfo;
 
-    @Builder
     public SinglePayment(ApproveResponseDTO approveResponseDTO, Long memberId) {
         this.tid = approveResponseDTO.getTid();
         this.orderId = approveResponseDTO.getPartner_order_id();
@@ -64,14 +63,13 @@ public class SinglePayment {
         this.payload = approveResponseDTO.getPayload();
     }
 
-    @Builder
-    public SinglePayment(ConfirmResponseDTO confirmResponseDTO, Long memberId, Integer quantity) {
+    public SinglePayment(ConfirmResponseDTO confirmResponseDTO, Long memberId) {
         this.tid = confirmResponseDTO.getPaymentKey();
         this.orderId = confirmResponseDTO.getOrderId();
         this.memberId = memberId;
         this.paymentMethodType = PaymentMethod.fromString(confirmResponseDTO.getMethod());
         this.productName = confirmResponseDTO.getOrderName();
-        this.quantity = quantity;
+        this.quantity = confirmResponseDTO.getQuantity();
         this.requestedAt = confirmResponseDTO.getRequestedAt();
         this.approvedAt = confirmResponseDTO.getApprovedAt();
         this.payload = confirmResponseDTO.getPayload();

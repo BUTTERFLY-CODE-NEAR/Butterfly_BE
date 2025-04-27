@@ -8,9 +8,8 @@ import lombok.Getter;
 @Getter
 public class ApproveFreePaymentHandler extends ApproveHandler {
     private final BasePaymentRequestDTO basePaymentRequestDTO;
-    private final Long memberId;
 
-    public ApproveFreePaymentHandler(BasePaymentRequestDTO basePaymentRequestDTO, String orderId, Long memberId) {
+    public ApproveFreePaymentHandler(BasePaymentRequestDTO basePaymentRequestDTO, String orderId) {
         super(
                 orderId,
                 basePaymentRequestDTO.getProductName(),
@@ -18,11 +17,10 @@ public class ApproveFreePaymentHandler extends ApproveHandler {
                 basePaymentRequestDTO.getPoint()
         );
         this.basePaymentRequestDTO = basePaymentRequestDTO;
-        this.memberId = memberId;
     }
 
     @Override
-    public SinglePayment createSinglePayment() {
+    public SinglePayment createSinglePayment(Long memberId) {
         return SinglePayment.freeOrderBuilder()
                 .orderId(orderId)
                 .memberId(memberId)

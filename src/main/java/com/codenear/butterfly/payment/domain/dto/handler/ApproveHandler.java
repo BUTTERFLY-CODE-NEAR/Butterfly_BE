@@ -19,7 +19,7 @@ public abstract class ApproveHandler {
     protected int quantity;
     protected int point;
 
-    public abstract SinglePayment createSinglePayment();
+    public abstract SinglePayment createSinglePayment(Long memberId);
 
     public abstract Amount createAmount();
 
