@@ -1,13 +1,19 @@
 package com.codenear.butterfly.payment.kakaoPay.domain.dto;
 
+import com.codenear.butterfly.payment.domain.PaymentApproval;
+import com.codenear.butterfly.payment.domain.PaymentMethod;
+import com.codenear.butterfly.payment.domain.SinglePayment;
+import com.codenear.butterfly.payment.kakaoPay.domain.KakaoPayment;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Optional;
+
 @Getter
 @Setter
 @ToString
-public class ApproveResponseDTO {
+public class ApproveResponseDTO implements PaymentApproval {
 
     private String aid; // 요청 고유 번호
     private String tid; // 결제 고유 번호
@@ -25,6 +31,51 @@ public class ApproveResponseDTO {
     private String created_at; // 결제 요청 시간
     private String approved_at; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달 내용
+
+    @Override
+    public String getOrderId() {
+        return partner_order_id;
+    }
+
+    @Override
+    public String getProductName() {
+        return item_name;
+    }
+
+    @Override
+    public int getQuantity() {
+        return quantity;
+    }
+
+    @Override
+    public String getPaymentMethod() {
+        return payment_method_type;
+    }
+
+    @Override
+    public SinglePayment toSinglePayment(Long memberId) {
+        return KakaoPayment.kakaoPaymentBuilder()
+                .approveResponseDTO(this)
+                .memberId(memberId)
+                .buildKakaoPayment();
+    }
+
+    @Override
+    public com.codenear.butterfly.payment.domain.Amount toAmount() {
+        return com.codenear.butterfly.payment.domain.Amount.kakaoPaymentBuilder()
+                .approveResponseDTO(this)
+                .buildKakaoPayment();
+    }
+
+    @Override
+    public Optional<com.codenear.butterfly.payment.domain.CardInfo> toCardInfo() {
+        if (this.getPaymentMethod().equals(PaymentMethod.CARD.name())) {
+            return Optional.of(com.codenear.butterfly.payment.domain.CardInfo.kakaoPaymentBuilder()
+                    .approveResponseDTO(this)
+                    .buildKakaoPayment());
+        }
+        return Optional.empty();
+    }
 
     @Getter
     public static class Amount {
