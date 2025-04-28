@@ -11,6 +11,7 @@ import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.handler.ApprovePaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
+import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
@@ -93,20 +94,31 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
     }
 
     @Override
-    public void cancelPayment(Long memberId, String productName, int quantity) {
+    public void cancelPayment(CancelRequestDTO cancelRequestDTO) {
+        
+    }
 
+    @Override
+    public void failPayment(Long memberId, String productName, int quantity) {
+        super.restoreQuantity(productName, quantity, paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName()));
+        paymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.FAIL.name());
+        paymentRedisRepository.removeHashTableKey(memberId);
     }
 
     /**
      * 토스 결제 승인 API 요청을 보내기 전, 사용자 주문 금액과 주문 번호가 서버가 가지고 있는 값과 일치하는지 확인
      *
-     * @param memberId
-     * @param amount
+     * @param memberId 사용자 아이디
+     * @param amount   가격
+     * @param orderId  주문 아이디
      */
     private void verifyPayment(Long memberId, int amount, String orderId) {
         int storeAmount = super.parsingStringToInt(memberId, PaymentRedisField.TOTAL_AMOUNT.getFieldName());
         String storeOrderId = paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.ORDER_ID.getFieldName());
         if (!storeOrderId.equals(orderId) && storeAmount != amount) {
+            String productName = paymentRedisRepository.getHashFieldValue(memberId, PaymentRedisField.PRODUCT_NAME.getFieldName());
+            int quantity = this.parsingStringToInt(memberId, PaymentRedisField.QUANTITY.getFieldName());
+            failPayment(memberId, productName, quantity);
             throw new PaymentException(ErrorCode.PAY_FAILED, "유효한 주문이 아닙니다. 다시 확인해주세요.");
         }
     }

@@ -5,6 +5,7 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -29,4 +30,11 @@ public interface TossPaymentControllerSwagger {
                             @RequestParam("orderId") String orderId,
                             @RequestParam("amount") int amount,
                             HttpServletResponse response);
+
+    @Operation(summary = "결제 실패", description = "결제 실패 API")
+    @ApiResponse(responseCode = "402", description = "결제 실패")
+    void tossPaymentFail(@RequestParam("memberId") Long memberId,
+                         @RequestParam("productName") String productName,
+                         @RequestParam("quantity") int quantity,
+                         HttpServletResponse response);
 }

@@ -55,4 +55,18 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
             throw new PaymentException(ErrorCode.PAYMENT_REDIRECT_FAILED, null);
         }
     }
+
+    @GetMapping("/fail")
+    public void tossPaymentFail(@RequestParam("memberId") Long memberId,
+                                @RequestParam("productName") String productName,
+                                @RequestParam("quantity") int quantity,
+                                HttpServletResponse response) {
+        tossPaymentService.failPayment(memberId, productName, quantity);
+
+        try {
+            response.sendRedirect("butterfly://kakaopay/fail");
+        } catch (IOException e) {
+            throw new PaymentException(ErrorCode.PAYMENT_REDIRECT_FAILED, null);
+        }
+    }
 }
