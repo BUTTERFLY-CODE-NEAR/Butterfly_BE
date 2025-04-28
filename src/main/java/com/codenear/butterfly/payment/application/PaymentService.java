@@ -27,6 +27,7 @@ import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
 import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Product;
@@ -152,7 +153,7 @@ public class PaymentService {
         ProductInventory product = productInventoryRepository.findProductByProductName(paymentRequestDTO.getProductName());
 
         processPaymentSuccess(memberId, orderType, addressId, optionName, product,
-                new ApproveFreePaymentHandler(paymentRequestDTO, orderId, memberId));
+                new ApproveFreePaymentHandler(paymentRequestDTO, orderId));
         fcmFacade.sendMessage(NotifyMessage.ORDER_SUCCESS, memberId);
     }
 
@@ -205,7 +206,7 @@ public class PaymentService {
                                          ProductInventory product,
                                          ApproveHandler handler) {
 
-        SinglePayment singlePayment = handler.createSinglePayment();
+        SinglePayment singlePayment = handler.createSinglePayment(memberId);
         Amount amount = handler.createAmount();
 
         singlePayment.addAmount(amount);
@@ -319,14 +320,19 @@ public class PaymentService {
             return createApproveOrderDetails(orderType, approveResponseDTO, member, product, optionName, point);
         }
 
+        if (responseDTO instanceof ConfirmResponseDTO confirmResponseDTO) {
+            return createTossOrderDetails(orderType, confirmResponseDTO, member, product, optionName, point);
+        }
+
         if (responseDTO instanceof BasePaymentRequestDTO basePaymentRequestDTO) {
             return createFreeOrderDetails(orderType, basePaymentRequestDTO, member, product);
         }
+
         throw new PaymentException(ErrorCode.INVALID_APPROVE_DATA_TYPE, "지원하지 않는 주문 정보 타입 입니다.");
     }
 
     /**
-     * 승인 결제(ApproveResponseDTO) 주문 상세 생성
+     * 승인 결제(ApproveResponseDTO) 주문 상세 생성 - KAKAO
      */
     private OrderDetails createApproveOrderDetails(OrderType orderType,
                                                    ApproveResponseDTO dto,
@@ -335,14 +341,34 @@ public class PaymentService {
                                                    String optionName,
                                                    int point) {
 
-        return OrderDetails.builder()
+        return OrderDetails.kakaoPaymentBuilder()
                 .member(member)
                 .orderType(orderType)
                 .approveResponseDTO(dto)
                 .product(product)
                 .optionName(optionName)
                 .point(point)
-                .build();
+                .buildKakaoPayment();
+    }
+
+    /**
+     * 승인 결제(confirmResponseDTO) 주문 상세 생성 - TOSS
+     */
+
+    private OrderDetails createTossOrderDetails(OrderType orderType,
+                                                ConfirmResponseDTO dto,
+                                                Member member,
+                                                Product product,
+                                                String optionName,
+                                                int point) {
+        return OrderDetails.tossPaymentBuilder()
+                .member(member)
+                .orderType(orderType)
+                .confirmResponseDTO(dto)
+                .product(product)
+                .optionName(optionName)
+                .point(point)
+                .buildTossPayment();
     }
 
     /**
