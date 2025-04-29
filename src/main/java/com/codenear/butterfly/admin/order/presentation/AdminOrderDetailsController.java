@@ -4,14 +4,19 @@ import com.codenear.butterfly.admin.order.application.AdminOrderDetailsService;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
-import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
-import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
+import com.codenear.butterfly.payment.domain.OrderDetails;
+import com.codenear.butterfly.payment.domain.dto.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +71,7 @@ public class AdminOrderDetailsController {
         List<Long> orderIds = requestBody.get("orderIds");
 
         if (orderIds == null || orderIds.isEmpty()) {
-            return ResponseUtil.createErrorResponse(ErrorCode.PRODUCT_NOT_SELECTED,null);
+            return ResponseUtil.createErrorResponse(ErrorCode.PRODUCT_NOT_SELECTED, null);
         }
 
         try {

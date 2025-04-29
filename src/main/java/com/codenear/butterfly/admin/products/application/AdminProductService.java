@@ -4,8 +4,8 @@ import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
@@ -41,7 +41,7 @@ public class AdminProductService {
     private final ProductInventoryRepository productRepository;
     private final FavoriteRepository favoriteRepository;
     private final ProductImageRepository productImageRepository;
-    private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
+    private final PaymentRedisRepository kakaoPaymentRedisRepository;
     private final KeywordRedisRepository keywordRedisRepository;
     private final KeywordRepository keywordRepository;
 

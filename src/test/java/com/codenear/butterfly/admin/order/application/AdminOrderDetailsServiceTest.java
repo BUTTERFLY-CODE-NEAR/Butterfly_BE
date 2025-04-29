@@ -1,17 +1,17 @@
 package com.codenear.butterfly.admin.order.application;
 
-import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
-import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
-import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.domain.OrderDetails;
+import com.codenear.butterfly.payment.domain.dto.OrderStatus;
+import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -25,12 +25,19 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

@@ -2,10 +2,10 @@ package com.codenear.butterfly.admin.order.application;
 
 import com.codenear.butterfly.admin.order.exception.OrderException;
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.kakaoPay.domain.OrderDetails;
-import com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus;
-import com.codenear.butterfly.kakaoPay.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.domain.OrderDetails;
+import com.codenear.butterfly.payment.domain.dto.OrderStatus;
+import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.Price;
