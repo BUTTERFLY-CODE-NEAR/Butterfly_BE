@@ -10,15 +10,19 @@ import com.codenear.butterfly.member.exception.MemberException;
 import com.codenear.butterfly.notify.NotifyMessage;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.domain.Amount;
+import com.codenear.butterfly.payment.domain.CancelPayment;
 import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.PaymentRedisField;
 import com.codenear.butterfly.payment.domain.SinglePayment;
+import com.codenear.butterfly.payment.domain.dto.OrderStatus;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.handler.ApproveFreePaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.handler.ApproveHandler;
+import com.codenear.butterfly.payment.domain.dto.handler.CancelHandler;
 import com.codenear.butterfly.payment.domain.dto.order.OrderDTO;
 import com.codenear.butterfly.payment.domain.dto.rabbitmq.InventoryDecreaseMessageDTO;
+import com.codenear.butterfly.payment.domain.dto.rabbitmq.InventoryIncreaseMessageDTO;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
@@ -26,6 +30,7 @@ import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
+import com.codenear.butterfly.payment.kakaoPay.domain.repository.CancelPaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import com.codenear.butterfly.point.domain.Point;
@@ -41,6 +46,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Map;
 
+import static com.codenear.butterfly.notify.NotifyMessage.ORDER_CANCELED;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -53,6 +60,7 @@ public class PaymentService {
     private final PointRepository pointRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final FCMFacade fcmFacade;
+    private final CancelPaymentRepository cancelPaymentRepository;
 
     public String checkPaymentStatus(Long memberId) {
         String status = paymentRedisRepository.getPaymentStatus(memberId);
@@ -269,6 +277,28 @@ public class PaymentService {
     }
 
     /**
+     * 주문 취소 처리 공통 로직
+     *
+     * @param handler 결제 응답 객체 (CancelResponseDTO 또는 OrderDetails)
+     */
+    protected void processPaymentCancel(CancelHandler handler, Long memberId) {
+        CancelPayment cancelPayment = handler.createCancelPayment(memberId);
+
+        handler.getOrderDetails().updateOrderStatus(OrderStatus.CANCELED);
+
+        paymentRedisRepository.restoreStockOnOrderCancellation(handler.getProductName(), handler.getQuantity());
+
+        increaseUsePoint(handler.getOrderDetails().getMember(), handler.getRestorePoint());
+
+        cancelPaymentRepository.save(cancelPayment);
+
+        InventoryIncreaseMessageDTO message = new InventoryIncreaseMessageDTO(handler.getProductName(), handler.getQuantity());
+        applicationEventPublisher.publishEvent(message);
+
+        fcmFacade.sendMessage(ORDER_CANCELED, handler.getOrderDetails().getMember().getId());
+    }
+
+    /**
      * 주문 상세 정보를 생성하고 저장한다.
      *
      * @param orderType   주문 타입 (PICKUP, DELIVERY)
@@ -419,5 +449,17 @@ public class PaymentService {
                 orderDetails.addOrderTypeByDeliver(address, deliverDate);
             }
         }
+    }
+
+    private void increaseUsePoint(Member member, int usePoint) {
+        Point point = pointRepository.findByMember(member)
+                .orElseGet(() -> {
+                    Point newPoint = Point.createPoint()
+                            .member(member)
+                            .build();
+                    return pointRepository.save(newPoint);
+                });
+
+        point.increasePoint(usePoint);
     }
 }
