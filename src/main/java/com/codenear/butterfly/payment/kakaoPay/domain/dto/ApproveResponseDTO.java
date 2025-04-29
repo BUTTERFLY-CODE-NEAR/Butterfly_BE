@@ -6,13 +6,11 @@ import com.codenear.butterfly.payment.domain.SinglePayment;
 import com.codenear.butterfly.payment.kakaoPay.domain.KakaoPayment;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Optional;
 
 @Getter
 @Setter
-@ToString
 public class ApproveResponseDTO implements PaymentApproval {
 
     private String aid; // 요청 고유 번호
