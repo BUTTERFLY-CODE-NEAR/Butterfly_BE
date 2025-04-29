@@ -1,7 +1,10 @@
 package com.codenear.butterfly.payment.domain;
 
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.CancelResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO.CancelDetail;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,14 +19,13 @@ import java.time.format.DateTimeFormatter;
 
 @Entity
 @NoArgsConstructor
+@DiscriminatorColumn(name = "provider", discriminatorType = DiscriminatorType.STRING)
 public class CancelPayment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String aid; // 요청 고유 번호
-    private String tid; // 결제 고유 번호
-    private String cid; // 가맹점 코드
+    private String tid;
     private String status;
     private String partnerOrderId; // 가맹점 주문번호
     private String partnerUserId; // 가맹점 회원 id
@@ -34,27 +36,35 @@ public class CancelPayment {
     private CanceledAmount canceledAmount;
 
     private String itemName; // 상품 이름
-    private String itemCode; // 상품 코드
     private Integer quantity; // 상품 수량
     private String createdAt; // 결제 준비 요청 시간
     private String approvedAt; // 결제 승인 시간
-    private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달된 내용
 
-    @Builder
     public CancelPayment(CancelResponseDTO cancelResponseDTO) {
-        this.aid = cancelResponseDTO.getAid();
         this.tid = cancelResponseDTO.getTid();
-        this.cid = cancelResponseDTO.getCid();
         this.status = cancelResponseDTO.getStatus();
         this.partnerOrderId = cancelResponseDTO.getPartner_order_id();
         this.partnerUserId = cancelResponseDTO.getPartner_user_id();
         this.paymentMethodType = cancelResponseDTO.getPayment_method_type();
         this.itemName = cancelResponseDTO.getItem_name();
-        this.itemCode = cancelResponseDTO.getItem_code();
         this.quantity = cancelResponseDTO.getQuantity();
         this.createdAt = cancelResponseDTO.getCreated_at();
         this.approvedAt = cancelResponseDTO.getApproved_at();
-        this.payload = cancelResponseDTO.getPayload();
+    }
+
+    public CancelPayment(com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO cancelResponseDTO, Long memberId) {
+        for (CancelDetail cancel : cancelResponseDTO.getCancels()) {
+            this.tid = cancel.getTransactionKey();
+            this.status = cancel.getCancelStatus();
+            this.partnerOrderId = cancelResponseDTO.getOrderId();
+            this.partnerUserId = String.valueOf(memberId);
+            this.paymentMethodType = cancelResponseDTO.getMethod();
+            this.itemName = cancelResponseDTO.getOrderName();
+            this.quantity = cancelResponseDTO.getQuantity();
+            this.createdAt = cancelResponseDTO.getRequestedAt();
+            this.approvedAt = cancel.getCanceledAt();
+        }
+
     }
 
     @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")
