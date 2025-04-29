@@ -37,6 +37,13 @@ public class TossPaymentUtil<T> {
         return parameters;
     }
 
+    public Map<String, Object> cancelParameter(String cancelReason) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("cancelReason", cancelReason);
+
+        return parameters;
+    }
+
     public Map<String, String> preConfirmParameter(int quantity, int totalAmount) {
         Map<String, String> parameters = new HashMap<>();
         parameters.put(PaymentRedisField.QUANTITY.getFieldName(), String.valueOf(quantity));

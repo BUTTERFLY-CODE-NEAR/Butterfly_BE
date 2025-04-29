@@ -14,6 +14,7 @@ import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ApproveResponseDTO;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.ReadyResponseDTO;
+import com.codenear.butterfly.payment.kakaoPay.domain.repository.CancelPaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.point.domain.PointRepository;
@@ -42,8 +43,9 @@ public class SinglePaymentService extends PaymentService implements KakaoPayment
                                 PointRepository pointRepository,
                                 ApplicationEventPublisher applicationEventPublisher,
                                 KakaoPaymentUtil<Object> kakaoPaymentUtil,
-                                FCMFacade fcmFacade) {
-        super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, kakaoPaymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade);
+                                FCMFacade fcmFacade,
+                                CancelPaymentRepository cancelPaymentRepository) {
+        super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, kakaoPaymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade, cancelPaymentRepository);
         this.kakaoPaymentUtil = kakaoPaymentUtil;
         this.kakaoPaymentRedisRepository = kakaoPaymentRedisRepository;
         this.productInventoryRepository = productInventoryRepository;

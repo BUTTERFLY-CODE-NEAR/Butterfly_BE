@@ -8,6 +8,7 @@ import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestD
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.exception.PaymentException;
 import com.codenear.butterfly.payment.tossPay.application.TossPaymentService;
+import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.presentation.swagger.TossPaymentControllerSwagger;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,8 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
 
     @PostMapping("/ready/pickup")
     public ResponseEntity<ResponseDTO> pickupPaymentRequest(@RequestBody PickupPaymentRequestDTO paymentRequestDTO,
-                                                            @AuthenticationPrincipal MemberDTO memberDTO) {
+                                                            @AuthenticationPrincipal MemberDTO memberDTO
+    ) {
         tossPaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "pickup");
         return ResponseUtil.createSuccessResponse(null);
     }
@@ -68,5 +70,11 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
         } catch (IOException e) {
             throw new PaymentException(ErrorCode.PAYMENT_REDIRECT_FAILED, null);
         }
+    }
+
+    @PostMapping("/cancel")
+    public void tossPaymentCancel(@RequestBody TossPaymentCancelRequestDTO cancelRequestDTO,
+                                  @AuthenticationPrincipal MemberDTO memberDTO) {
+        tossPaymentService.cancelPayment(cancelRequestDTO);
     }
 }

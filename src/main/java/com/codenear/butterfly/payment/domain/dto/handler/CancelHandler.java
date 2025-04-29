@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public abstract class CancelHandler {
     protected OrderDetails orderDetails;
 
-    public abstract CancelPayment createCancelPayment();
+    public abstract CancelPayment createCancelPayment(Long memberId);
 
     public int getRestorePoint() {
         return orderDetails.getPoint();

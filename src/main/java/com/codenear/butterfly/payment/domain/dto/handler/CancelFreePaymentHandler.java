@@ -10,7 +10,7 @@ public class CancelFreePaymentHandler extends CancelHandler {
     }
 
     @Override
-    public CancelPayment createCancelPayment() {
+    public CancelPayment createCancelPayment(Long memberId) {
         CancelPayment cancelPayment = CancelPayment.freeOrderBuilder()
                 .orderDetails(orderDetails)
                 .buildFreeOrder();

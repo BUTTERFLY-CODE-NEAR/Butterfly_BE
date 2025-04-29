@@ -8,6 +8,7 @@ import com.codenear.butterfly.payment.domain.SinglePayment;
 import com.codenear.butterfly.payment.tossPay.domain.TossPayment;
 import com.codenear.butterfly.payment.tossPay.domain.TossPaymentType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Optional;
@@ -42,9 +43,6 @@ public class ConfirmResponseDTO implements PaymentApproval {
 
     @Override
     public String getPaymentMethod() {
-        if (method.equals(PaymentMethod.카드.name())) {
-            return "CARD";
-        }
         return method;
     }
 
@@ -74,7 +72,8 @@ public class ConfirmResponseDTO implements PaymentApproval {
     }
 
     @Getter
-    public class Card {
+    @NoArgsConstructor
+    public static class Card {
         private String issuerCode; // 카드 발급사 코드 (두자리)
         private String acquirerCode; // 카드 매입사 코드 (두자리)
         private String number; // 카드번호
@@ -88,7 +87,8 @@ public class ConfirmResponseDTO implements PaymentApproval {
     }
 
     @Getter
-    public class EasyPay {
+    @NoArgsConstructor
+    public static class EasyPay {
         private String provider;
         private int amount;
         private int discountAmount;

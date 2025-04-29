@@ -6,17 +6,23 @@ import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.application.PaymentService;
+import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.PaymentRedisField;
 import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.dto.PaymentStatus;
 import com.codenear.butterfly.payment.domain.dto.handler.ApprovePaymentHandler;
+import com.codenear.butterfly.payment.domain.dto.handler.CancelFreePaymentHandler;
+import com.codenear.butterfly.payment.domain.dto.handler.CancelHandler;
+import com.codenear.butterfly.payment.domain.dto.handler.CancelPaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
-import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
+import com.codenear.butterfly.payment.kakaoPay.domain.repository.CancelPaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
+import com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.util.TossPaymentUtil;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.ProductInventory;
@@ -34,13 +40,24 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
     private final PaymentRedisRepository paymentRedisRepository;
     private final TossPaymentUtil<Object> tossPaymentUtil;
     private final ProductInventoryRepository productInventoryRepository;
+    private final OrderDetailsRepository orderDetailsRepository;
 
-    public TossPaymentServiceImpl(SinglePaymentRepository singlePaymentRepository, AddressRepository addressRepository, OrderDetailsRepository orderDetailsRepository, MemberRepository memberRepository, ProductInventoryRepository productInventoryRepository, PaymentRedisRepository kakaoPaymentRedisRepository, PointRepository pointRepository, ApplicationEventPublisher applicationEventPublisher, FCMFacade fcmFacade, TossPaymentUtil<Object> tossPaymentUtil) {
-        super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, kakaoPaymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade);
+    public TossPaymentServiceImpl(SinglePaymentRepository singlePaymentRepository,
+                                  AddressRepository addressRepository,
+                                  OrderDetailsRepository orderDetailsRepository,
+                                  MemberRepository memberRepository,
+                                  ProductInventoryRepository productInventoryRepository,
+                                  PaymentRedisRepository kakaoPaymentRedisRepository,
+                                  PointRepository pointRepository,
+                                  ApplicationEventPublisher applicationEventPublisher,
+                                  FCMFacade fcmFacade,
+                                  TossPaymentUtil<Object> tossPaymentUtil,
+                                  CancelPaymentRepository cancelPaymentRepository) {
+        super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, kakaoPaymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade, cancelPaymentRepository);
         this.paymentRedisRepository = kakaoPaymentRedisRepository;
         this.tossPaymentUtil = tossPaymentUtil;
         this.productInventoryRepository = productInventoryRepository;
-
+        this.orderDetailsRepository = orderDetailsRepository;
     }
 
     /**
@@ -94,8 +111,19 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
     }
 
     @Override
-    public void cancelPayment(CancelRequestDTO cancelRequestDTO) {
-        
+    public void cancelPayment(TossPaymentCancelRequestDTO cancelRequestDTO) {
+        OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
+
+        CancelHandler handler;
+        if (orderDetails.getTotal() != 0) {
+            Map<String, Object> parameters = tossPaymentUtil.cancelParameter(cancelRequestDTO.getCancelReason());
+            CancelResponseDTO cancelResponseDTO = tossPaymentUtil.sendRequest("/" + orderDetails.getTid() + "/cancel", parameters, CancelResponseDTO.class);
+            cancelResponseDTO.setQuantity(orderDetails.getQuantity());
+            handler = new CancelPaymentHandler<CancelResponseDTO>(cancelResponseDTO, orderDetails);
+        } else {
+            handler = new CancelFreePaymentHandler(orderDetails);
+        }
+        super.processPaymentCancel(handler, orderDetails.getMember().getId());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.codenear.butterfly.payment.domain;
 
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.CancelResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO.CancelDetail;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,13 +26,24 @@ public class CanceledAmount {
     @OneToOne(mappedBy = "canceledAmount")
     private CancelPayment cancelPayment;
 
-    @Builder
-    public CanceledAmount(CancelResponseDTO cancelResponseDTO) {
-        this.total = cancelResponseDTO.getAmount().getTotal();
-        this.taxFree = cancelResponseDTO.getAmount().getTax_free();
-        this.vat = cancelResponseDTO.getAmount().getVat();
-        this.point = cancelResponseDTO.getAmount().getPoint();
-        this.discount = cancelResponseDTO.getAmount().getDiscount();
+    @Builder(builderMethodName = "kakaoPaymentBuilder", buildMethodName = "buildKakaoPayment")
+    public CanceledAmount(CancelResponseDTO kakaoPaymentcancelResponseDTO) {
+        this.total = kakaoPaymentcancelResponseDTO.getAmount().getTotal();
+        this.taxFree = kakaoPaymentcancelResponseDTO.getAmount().getTax_free();
+        this.vat = kakaoPaymentcancelResponseDTO.getAmount().getVat();
+        this.point = kakaoPaymentcancelResponseDTO.getAmount().getPoint();
+        this.discount = kakaoPaymentcancelResponseDTO.getAmount().getDiscount();
+    }
+
+    @Builder(builderMethodName = "tossPaymentBuilder", buildMethodName = "buildTossPayment")
+    public CanceledAmount(com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO tossPaymentcancelResponseDTO) {
+        for (CancelDetail cancel : tossPaymentcancelResponseDTO.getCancels()) {
+            this.total = cancel.getCancelAmount();
+            this.taxFree = cancel.getTaxFreeAmount();
+            this.vat = tossPaymentcancelResponseDTO.getVat();
+            this.point = 0;
+            this.discount = tossPaymentcancelResponseDTO.getEasyPay() != null ? cancel.getEasyPayDiscountAmount() : cancel.getTransferDiscountAmount();
+        }
     }
 
     @Builder(builderMethodName = "freeOrderBuilder", buildMethodName = "buildFreeOrder")

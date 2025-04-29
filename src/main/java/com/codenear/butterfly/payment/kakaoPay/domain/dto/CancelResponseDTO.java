@@ -1,13 +1,15 @@
 package com.codenear.butterfly.payment.kakaoPay.domain.dto;
 
+import com.codenear.butterfly.payment.domain.CancelConvertible;
+import com.codenear.butterfly.payment.domain.CancelPayment;
+import com.codenear.butterfly.payment.domain.CanceledAmount;
+import com.codenear.butterfly.payment.kakaoPay.domain.KakaoPaymentCancel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-public class CancelResponseDTO {
+public class CancelResponseDTO implements CancelConvertible {
 
     private String aid;
     private String tid;
@@ -24,6 +26,21 @@ public class CancelResponseDTO {
     private String created_at; // 결제 요청 시간
     private String approved_at; // 결제 승인 시간
     private String payload; // 결제 승인 요청에 대해 저장 값, 요청 시 전달 내용
+
+    @Override
+    public CancelPayment toCancelPayment(Long memberId) {
+        CancelPayment cancelPayment = KakaoPaymentCancel.kakaoPaymentBuilder()
+                .cancelResponseDTO(this)
+                .buildKakaoPayment();
+
+        CanceledAmount canceledAmount = CanceledAmount.kakaoPaymentBuilder()
+                .kakaoPaymentcancelResponseDTO(this)
+                .buildKakaoPayment();
+
+        cancelPayment.addCanceledAmount(canceledAmount);
+
+        return cancelPayment;
+    }
 
     @Getter
     public static class Amount {
