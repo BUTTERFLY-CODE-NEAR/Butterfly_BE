@@ -38,4 +38,17 @@ public class Restock {
 
     private boolean isNotified;
 
+    private Restock(final Member member, final Product product) {
+        this.member = member;
+        this.product = product;
+        this.isNotified = false;
+    }
+
+    public static Restock of(final Member member, final Product product) {
+        Restock restock = new Restock(member, product);
+        member.addRestock(restock);
+        product.addRestock(restock);
+
+        return restock;
+    }
 }

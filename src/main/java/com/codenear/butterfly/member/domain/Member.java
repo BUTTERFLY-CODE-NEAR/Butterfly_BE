@@ -119,4 +119,8 @@ public class Member extends BaseEntity {
     public void restore() {
         this.isDeleted = false;
     }
+
+    public void addRestock(Restock restock) {
+        this.restocks.add(restock);
+    }
 }

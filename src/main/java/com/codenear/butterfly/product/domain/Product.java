@@ -142,5 +142,9 @@ public abstract class Product {
         keywords.addAll(keywordsToAdd);
     }
 
+    public void addRestock(Restock restock) {
+        this.restocks.add(restock);
+    }
+
     public abstract void update(ProductUpdateRequest request);
 }
