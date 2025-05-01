@@ -2,6 +2,7 @@ package com.codenear.butterfly.product.domain;
 
 import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
+import com.codenear.butterfly.notify.alarm.domain.Restock;
 import com.codenear.butterfly.product.util.CategoryConverter;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -77,6 +78,9 @@ public abstract class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Where(clause = "image_type = 'MAIN'")
     private List<ProductImage> productImage = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Restock> restocks = new ArrayList<>();
 
     protected Product(ProductCreateRequest createRequest,
                       List<ProductImage> productImage,

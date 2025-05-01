@@ -4,13 +4,29 @@ import com.codenear.butterfly.address.domain.Address;
 import com.codenear.butterfly.consent.domain.Consent;
 import com.codenear.butterfly.global.domain.BaseEntity;
 import com.codenear.butterfly.notify.alarm.domain.Alarm;
+import com.codenear.butterfly.notify.alarm.domain.Restock;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.product.domain.Favorite;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
@@ -66,6 +82,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Alarm> alarms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Restock> restocks = new ArrayList<>();
 
     @JsonProperty("deleted")
     private boolean isDeleted;
