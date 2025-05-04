@@ -36,7 +36,7 @@ public class Restock {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private boolean isNotified;
+    private Boolean isNotified;
 
     private Restock(final Member member, final Product product) {
         this.member = member;

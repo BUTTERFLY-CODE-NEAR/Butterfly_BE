@@ -8,6 +8,7 @@ import com.codenear.butterfly.notify.alarm.domain.dto.RestockResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,5 +25,11 @@ public class RestockController implements RestockControllerSwagger {
                                                      @PathVariable(name = "product_id") Long productId) {
         RestockResponseDTO applyRestock = restockService.createRestock(member.getId(), productId);
         return ResponseUtil.createSuccessResponse(applyRestock);
+    }
+
+    @GetMapping("/{product_id}/restock")
+    public ResponseEntity<ResponseDTO> existsRestock(MemberDTO member, Long productId) {
+        boolean isRestock = restockService.existsRestock(member.getId(), productId);
+        return ResponseUtil.createSuccessResponse(isRestock);
     }
 }

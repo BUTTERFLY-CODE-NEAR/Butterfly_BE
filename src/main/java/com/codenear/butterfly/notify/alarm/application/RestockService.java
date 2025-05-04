@@ -46,6 +46,20 @@ public class RestockService {
     }
 
     /**
+     * 재입고 신청 현황
+     *
+     * @param memberId  사용자 아이디
+     * @param productId 상품 아이디
+     * @return boolean
+     */
+    public boolean existsRestock(final Long memberId, final Long productId) {
+        Member member = validateMember(memberId);
+        Product product = validateProduct(productId);
+
+        return restockRepository.existsByMemberAndProductAndIsNotifiedFalse(member, product);
+    }
+
+    /**
      * 등록되어있는 회원 검증
      *
      * @param memberId 사용자 아이디

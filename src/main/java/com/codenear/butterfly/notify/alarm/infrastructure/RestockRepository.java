@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RestockRepository extends JpaRepository<Restock, Long> {
     Restock findByMemberAndProduct(Member member, Product product);
 
-    boolean existsByMemberAndProduct(Member member, Product product);
+    boolean existsByMemberAndProductAndIsNotifiedFalse(Member member, Product product);
 }
