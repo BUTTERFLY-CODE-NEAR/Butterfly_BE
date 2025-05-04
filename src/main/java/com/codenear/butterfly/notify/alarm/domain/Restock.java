@@ -44,11 +44,19 @@ public class Restock {
         this.isNotified = false;
     }
 
-    public static Restock of(final Member member, final Product product) {
+    public static Restock create(final Member member, final Product product) {
         Restock restock = new Restock(member, product);
         member.addRestock(restock);
         product.addRestock(restock);
 
         return restock;
+    }
+
+    public void sendNotification() {
+        this.isNotified = true;
+    }
+
+    public void applyRestockNotification() {
+        this.isNotified = false;
     }
 }
