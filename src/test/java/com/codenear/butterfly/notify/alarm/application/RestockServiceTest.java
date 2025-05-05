@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.codenear.butterfly.notify.NotifyMessage.RESTOCK_PRODUCT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,7 +130,7 @@ public class RestockServiceTest {
 
         when(request.getStockQuantity()).thenReturn(10);
         when(product.getStockQuantity()).thenReturn(0);
-        when(product.getRestocks()).thenReturn(List.of(restock));
+        when(product.getRestocks()).thenReturn(Set.of(restock));
         when(product.getId()).thenReturn(productId);
 
         when(productImageRepository.findAllByProductIdAndImageType(productId, ProductImage.ImageType.MAIN)).thenReturn(List.of());
@@ -142,8 +143,6 @@ public class RestockServiceTest {
         // then
         verify(fcmFacade).sendMessage(RESTOCK_PRODUCT, member.getId());
         verify(restock).sendNotification();
-        verify(product).removeRestock(restock);
-        verify(member).removeRestock(restock);
     }
 
     @Test

@@ -80,7 +80,7 @@ public abstract class Product {
     private List<ProductImage> productImage = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Restock> restocks = new ArrayList<>();
+    private Set<Restock> restocks = new HashSet<>();
 
     protected Product(ProductCreateRequest createRequest,
                       List<ProductImage> productImage,
