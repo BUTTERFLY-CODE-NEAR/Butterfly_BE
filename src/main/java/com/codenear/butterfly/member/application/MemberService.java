@@ -33,7 +33,7 @@ public class MemberService {
                 memberDTO.getNickname(),
                 memberDTO.getProfileImage(),
                 0, // TODO : 추후 쿠폰 시스템 도입 후 수정
-                memberDTO.getGrade().getGrade(),
+                memberDTO.getGrade().getLevel(),
                 pointValue,
                 isNewAlarm
         );
