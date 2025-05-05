@@ -54,9 +54,13 @@ public class Restock {
 
     public void sendNotification() {
         this.isNotified = true;
+        this.member.removeRestock(this);
+        this.product.removeRestock(this);
     }
 
     public void applyRestockNotification() {
         this.isNotified = false;
+        this.member.addRestock(this);
+        this.product.addRestock(this);
     }
 }

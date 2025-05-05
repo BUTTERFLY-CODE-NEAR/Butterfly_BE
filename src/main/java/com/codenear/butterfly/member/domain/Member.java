@@ -30,7 +30,9 @@ import lombok.Setter;
 import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Builder
@@ -52,6 +54,7 @@ public class Member extends BaseEntity {
     @Setter
     private String phoneNumber;
 
+    @Column(columnDefinition = "TEXT")
     private String password;
 
     @Column(unique = true, nullable = false)
@@ -84,7 +87,7 @@ public class Member extends BaseEntity {
     private List<Alarm> alarms = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Restock> restocks = new ArrayList<>();
+    private Set<Restock> restocks = new HashSet<>();
 
     @JsonProperty("deleted")
     private boolean isDeleted;
@@ -125,6 +128,7 @@ public class Member extends BaseEntity {
     }
 
     public void removeRestock(Restock restock) {
+        System.out.println(this.restocks.contains(restock));
         this.restocks.remove(restock);
     }
 }

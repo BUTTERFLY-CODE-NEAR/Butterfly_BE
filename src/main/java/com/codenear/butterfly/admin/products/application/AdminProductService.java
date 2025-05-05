@@ -86,7 +86,6 @@ public class AdminProductService {
             sendRestockNotification(product);
         }
         product.update(request);
-
         List<Keyword> newKeywords = request.getKeywords().stream()
                 .map(Keyword::new)
                 .toList();
@@ -201,11 +200,10 @@ public class AdminProductService {
     private void sendRestockNotification(Product product) {
         product.getRestocks()
                 .forEach(restock -> {
-                    fcmFacade.sendMessage(RESTOCK_PRODUCT, restock.getMember().getId());
-                    restock.sendNotification();
-
-                    product.removeRestock(restock);
-                    restock.getMember().removeRestock(restock);
+                    if (!restock.getIsNotified()) {
+                        fcmFacade.sendMessage(RESTOCK_PRODUCT, restock.getMember().getId());
+                        restock.sendNotification();
+                    }
                 });
     }
 }

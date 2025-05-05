@@ -27,7 +27,7 @@ public interface RestockControllerSwagger {
     ResponseEntity<ResponseDTO> createRestock(@AuthenticationPrincipal MemberDTO member,
                                               @PathVariable(name = "product_id") Long productId);
 
-    @Operation(summary = "재입고 신청 현황", description = "해당 상품에 대한 재입고 신청이 되어있는지 확인")
+    @Operation(summary = "재입고 신청 현황", description = "해당 상품에 대한 재입고 신청 여부 확인")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
                     content = @Content(schema = @Schema(implementation = Boolean.class))),
