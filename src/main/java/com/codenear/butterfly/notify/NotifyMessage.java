@@ -8,9 +8,9 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-import static com.codenear.butterfly.consent.domain.ConsentType.CUSTOMER_SUPPORT;
 import static com.codenear.butterfly.consent.domain.ConsentType.DELIVERY_NOTIFICATION;
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.consent.domain.ConsentType.CUSTOMER_SUPPORT;
 import static com.codenear.butterfly.consent.domain.ConsentType.POINT_BACK;
 import static com.codenear.butterfly.global.exception.ErrorCode.NOTIFY_MESSAGE_NOT_FOUND;
 
@@ -25,8 +25,7 @@ public enum NotifyMessage {
     INQUIRY_ANSWERED(5, "QnA 답변", "\uD83D\uDCEC 답변이 도착했습니다!", "문의하신 내용에 답변이 도착했어요. 지금 바로 확인해 보세요. \uD83D\uDCE8", CUSTOMER_SUPPORT),
     CITATION_PROMOTION(6, "프로모션 적립", "\uD83C\uDF89 전화번호 인증 완료! ", "1,000 포인트가 지급되었어요! 지금 바로 사용해 보세요 \uD83E\uDD29", MARKETING),
     ORDER_CANCELED(7, "주문 취소", "\uD83D\uDCEC 주문하신 상품이 취소되었습니다.", "고객님의 주문이 취소되었어요. \uD83D\uDCEC", MARKETING),
-    ORDER_SUCCESS(8, "결제 완료", "\uD83E\uDD73 결제가 완료되었습니다.", "주문해주셔서 감사합니다. 꼼꼼히 확인해서 준비해드리겠습니다! \uD83D\uDE0A", MARKETING),
-    RESTOCK_PRODUCT(9, "상품 재입고", "\uD83C\uDF81 상품이 재입고 되었습니다.", "신청하신 상품이 재입고 되었어요. 지금 확인하고 가장 먼저 만나보세요 \uD83C\uDF1F", MARKETING);
+    ORDER_SUCCESS(8, "결제 완료", "\uD83E\uDD73 결제가 완료되었습니다.", "주문해주셔서 감사합니다. 꼼꼼히 확인해서 준비해드리겠습니다! \uD83D\uDE0A", MARKETING);
 
     private final int id;
     private final String title;

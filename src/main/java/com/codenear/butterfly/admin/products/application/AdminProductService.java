@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
 import static com.codenear.butterfly.notify.NotifyMessage.NEW_PRODUCT;
-import static com.codenear.butterfly.notify.NotifyMessage.RESTOCK_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 @Service
@@ -76,15 +75,12 @@ public class AdminProductService {
 
     @Transactional
     public void updateProduct(Long id, ProductUpdateRequest request) {
-        ProductInventory product = findById(id);
+        Product product = findById(id);
 
         updateImage(request.getProductImage(), product, ProductImage.ImageType.MAIN);
         updateImage(request.getDescriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
 
         List<Keyword> existingKeywords = keywordRepository.findAllByProductId(id);
-        if (product.getStockQuantity() == 0 && request.getStockQuantity() > 0) {
-            sendRestockNotification(product);
-        }
         product.update(request);
 
         List<Keyword> newKeywords = request.getKeywords().stream()
@@ -191,21 +187,5 @@ public class AdminProductService {
         if (!keywords.isEmpty()) {
             keywordRedisRepository.saveKeyword(keywords);
         }
-    }
-
-    /**
-     * 재입고 알림 발송
-     *
-     * @param product 상품
-     */
-    private void sendRestockNotification(Product product) {
-        product.getRestocks()
-                .forEach(restock -> {
-                    fcmFacade.sendMessage(RESTOCK_PRODUCT, restock.getMember().getId());
-                    restock.sendNotification();
-
-                    product.removeRestock(restock);
-                    restock.getMember().removeRestock(restock);
-                });
     }
 }
