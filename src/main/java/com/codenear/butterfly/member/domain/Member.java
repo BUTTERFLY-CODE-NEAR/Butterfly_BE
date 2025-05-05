@@ -123,4 +123,8 @@ public class Member extends BaseEntity {
     public void addRestock(Restock restock) {
         this.restocks.add(restock);
     }
+
+    public void removeRestock(Restock restock) {
+        this.restocks.remove(restock);
+    }
 }

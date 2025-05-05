@@ -146,5 +146,9 @@ public abstract class Product {
         this.restocks.add(restock);
     }
 
+    public void removeRestock(Restock restock) {
+        this.restocks.remove(restock);
+    }
+
     public abstract void update(ProductUpdateRequest request);
 }
