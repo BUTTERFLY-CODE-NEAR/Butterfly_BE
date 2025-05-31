@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
@@ -48,14 +49,13 @@ public class AdminProductService {
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
-        List<Keyword> keywords = request.keywords().stream()
+        List<Keyword> keywords = Optional.ofNullable(request.getKeywords())
+                .orElse(List.of())
+                .stream()
                 .map(Keyword::new)
                 .toList();
 
-        String deliveryInformation = request.deliveryInformation();
-        if (deliveryInformation.isEmpty()) {
-            deliveryInformation = "6시 이후 순차배송";
-        }
+        String deliveryInformation = request.getDeliveryInformation().isEmpty() ? "6시 이후 순차배송" : request.getDeliveryInformation();
 
         ProductInventory product = ProductInventory.builder()
                 .createRequest(request)
@@ -63,10 +63,10 @@ public class AdminProductService {
                 .keywords(keywords)
                 .build();
         productRepository.save(product);
-        kakaoPaymentRedisRepository.saveStockQuantity(request.productName(), request.stockQuantity());
+        kakaoPaymentRedisRepository.saveStockQuantity(request.getProductName(), request.getStockQuantity());
 
-        saveImage(request.productImage(), product, ProductImage.ImageType.MAIN);
-        saveImage(request.descriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
+        saveImage(request.getProductImage(), product, ProductImage.ImageType.MAIN);
+        saveImage(request.getDescriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
         saveKeywordForRedis(keywords);
     }
 
