@@ -88,12 +88,14 @@ public abstract class Product {
                       List<Keyword> keywords,
                       List<ProductImage> descriptionImages) {
 
-        this.productName = createRequest.productName();
-        this.companyName = createRequest.companyName();
-        this.description = createRequest.description();
+        this.productName = createRequest.getProductName();
+        this.companyName = createRequest.getCompanyName();
+        this.productVolume = createRequest.getProductVolume();
+        this.expirationDate = createRequest.getExpirationDate();
+        this.description = createRequest.getDescription();
         this.productImage = productImage;
-        this.saleRate = createRequest.saleRate();
-        this.category = Category.fromValue(createRequest.category());
+        this.saleRate = createRequest.getSaleRate();
+        this.category = Category.fromValue(createRequest.getCategory());
         if (keywords != null) {
             this.keywords.addAll(keywords);
         }

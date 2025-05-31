@@ -110,6 +110,16 @@
                                 <a th:href="@{/admin/products}" class="btn btn-secondary">취소</a>
                                 <button type="submit" class="btn btn-primary">저장</button>
                             </div>
+
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">추가 할인율 구간 설정</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="discountRateContainer"></div>
+                                    <button type="button" class="btn btn-success btn-sm" id="addDiscountRate">구간 추가</button>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -120,4 +130,69 @@
 
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
 </body>
+<script th:inline="javascript">
+    let idx = 0;
+
+    // 구간 할인율 추가
+    document.getElementById("addDiscountRate").addEventListener("click", function () {
+        const container = document.getElementById("discountRateContainer");
+
+        const row = document.createElement("div");
+
+        row.innerHTML = `
+            <div class="discount-rate-row mb-3">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label>최소 참여율 (%)</label>
+                    <input type="number" step="0.1" class="form-control" name="discountRates[${idx}].minParticipationRate" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>최대 참여율 (%)</label>
+                    <input type="number" step="0.1" class="form-control" name="discountRates[${idx}].maxParticipationRate" required>
+                </div>
+                <div class="form-group col-md-3">
+                    <label>할인율 (%)</label>
+                    <input type="number" step="0.1" class="form-control" name="discountRates[${idx}].discountRate" required>
+                </div>
+                <div class="form-group col-md-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-rate" data-is-new="true">삭제</button>
+                </div>
+            </div>
+        </div>
+        `;
+
+        container.appendChild(row);
+        idx++;
+    });
+
+    // 구간 할인율 삭제
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("remove-rate")) {
+            const row = e.target.closest(".discount-rate-row");
+            if (row) {
+                row.remove();
+                updateDiscountRateIndexes(); // 삭제 후 인덱스 재정렬
+            }
+        }
+    });
+
+    // 구간 할인율 삭제 시 재정렬
+    function updateDiscountRateIndexes() {
+        const rows = document.querySelectorAll(".discount-rate-row");
+        rows.forEach((row, newIdx) => {
+            const inputs = row.querySelectorAll("input");
+            inputs.forEach(input => {
+                if (input.name.includes("minParticipationRate")) {
+                    input.name = `discountRates[${newIdx}].minParticipationRate`;
+                } else if (input.name.includes("maxParticipationRate")) {
+                    input.name = `discountRates[${newIdx}].maxParticipationRate`;
+                } else if (input.name.includes("discountRate")) {
+                    input.name = `discountRates[${newIdx}].discountRate`;
+                }
+            });
+        });
+
+        idx = rows.length;
+    }
+</script>
 </html>

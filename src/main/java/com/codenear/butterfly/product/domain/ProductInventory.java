@@ -44,15 +44,14 @@ public class ProductInventory extends Product {
                             String deliveryInformation,
                             List<ProductImage> productImage,
                             List<Keyword> keywords,
-                            List<DiscountRate> discountRates,
                             List<ProductImage> descriptionImages) {
         super(createRequest, productImage, deliveryInformation, keywords, descriptionImages);
-        this.originalPrice = createRequest.originalPrice();
-        this.stockQuantity = createRequest.stockQuantity();
-        this.purchaseParticipantCount = createRequest.purchaseParticipantCount();
-        this.maxPurchaseCount = createRequest.maxPurchaseCount();
-        if (discountRates != null) {
-            this.discountRates.addAll(discountRates);
+        this.originalPrice = createRequest.getOriginalPrice();
+        this.stockQuantity = createRequest.getStockQuantity();
+        this.purchaseParticipantCount = createRequest.getPurchaseParticipantCount();
+        this.maxPurchaseCount = createRequest.getMaxPurchaseCount();
+        if (createRequest.getDiscountRates() != null) {
+            updateDiscountRatesIfPresent(createRequest.getDiscountRates());
         }
     }
 

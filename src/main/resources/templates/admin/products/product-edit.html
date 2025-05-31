@@ -49,12 +49,12 @@
 
                             <div class="form-group">
                                 <label>개별 내용물의 용량(중량)</label>
-                                <input type="text" class="form-control" name="productVolume">
+                                <input type="text" class="form-control" name="productVolume" th:value="${product.productVolume}">
                             </div>
 
                             <div class="form-group">
                                 <label>소비기한</label>
-                                <input type="text" class="form-control" name="expirationDate">
+                                <input type="text" class="form-control" name="expirationDate" th:value="${product.expirationDate}">
                             </div>
 
                             <div class="form-group">
