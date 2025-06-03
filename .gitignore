@@ -41,3 +41,4 @@ out/
 **/src/main/resources/static/sb-admin/**
 **/src/main/resources/static/.well-known/**
 **/src/main/resources/static/terms/**
+**/src/main/resources/static/home/**
