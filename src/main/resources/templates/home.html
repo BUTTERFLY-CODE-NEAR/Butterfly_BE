@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>나비 홈페이지</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Asta+Sans:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/home/css/style.css}" />
+</head>
+<body>
+<header class="main-header">
+    <div class="logo">
+        <img th:src="@{/home/assets/logo_image.png}" alt="나비 로고" />
+        <span class="logo-text">BUTTERFLY</span>
+    </div>
+
+    <nav>
+        <a href="#core-features">BUTTERFLY</a>
+        <a href="#services">SERVICE</a>
+        <a href="#contact" class="header-button">CONTACT</a>
+    </nav>
+</header>
+
+<section class="hero-section">
+    <div class="hero-text">
+        <h1>필요한 만큼 사는<br>소규모 공동구매 나비</h1>
+        <p>공동구매의 새로운 기준</p>
+    </div>
+    <div class="hero-image">
+        <img th:src="@{/home/assets/front-image1.png}" alt="표지 이미지" />
+    </div>
+</section>
+
+<main>
+    <section id="core-features" class="scroll-reveal">
+        <h2>
+            <img th:src="@{/home/assets/logo_image.png}" alt="나비 로고" class="inline-logo" />
+            Why BUTTERFLY?
+            <img th:src="@{/home/assets/logo_image.png}" alt="나비 로고" class="inline-logo" />
+        </h2>
+
+        <ul class="feature-list">
+            <li>✅ 소규모 공동구매로 배송비 절감! – 같은 지역 사람들과 공동구매하여 배송비까지 절감해요.</li>
+            <li>✅ 먼저 구매해도 걱정 NO! – 공동구매 인원이 모이기 전 구매해도, 차액만큼 포인트로 돌려받아요.</li>
+            <li>✅ 소상공인을 위한 맞춤형 홍보 – 지역 주민들에게 효과적으로 상품을 알리고 더 많은 고객을 확보하세요!</li>
+        </ul>
+
+        <div class="feature-note">
+            <p>💛 <strong class="eng-text">We put customer convenience first.</strong><br />
+                공동구매 나비는 새로운 공동구매 경험을 제공하고 지역 경제 활성화에 기여하고자 합니다.</p>
+        </div>
+    </section>
+
+    <section id="services">
+        <h2>Our SERVICE</h2>
+
+        <div class="service-box scroll-reveal">
+            <img th:src="@{/home/assets/explain-1.png}" alt="공동구매 소개 이미지" class="service-img" />
+            <div class="service-text">
+                <h3>“이거 공동구매 할 사람?”</h3>
+                <p>혼자 사기에는 부담스러운 생필품을 공동구매로 저렴하게 구매</p>
+            </div>
+        </div>
+
+        <div class="service-box reverse scroll-reveal">
+            <div class="service-text">
+                <h3>“구매량과 함께 증가하는 할인율”</h3>
+                <p>구매하는 사람이 많아질수록 증가하는 할인율</p>
+            </div>
+            <img th:src="@{/home/assets/explain-2.png}" alt="공동구매 할인 이미지" class="service-img" />
+        </div>
+
+        <div class="service-box scroll-reveal">
+            <img th:src="@{/home/assets/explain-3.png}" alt="공동구매 할인 이미지" class="service-img" />
+            <div class="service-text">
+                <h3>“할인된 만큼 포인트 백!”</h3>
+                <p>할인율 적용 전에 구매한 경우 할인된 금액만큼 포인트로 적립!</p>
+            </div>
+        </div>
+
+        <div class="service-box reverse scroll-reveal">
+            <div class="service-text">
+                <h3>“소규모 공동구매로 픽업 가능!”</h3>
+                <p>소규모 공동구매로 배송비도 절감하고 급하면 픽업까지!</p>
+            </div>
+            <img th:src="@{/home/assets/explain-4.png}" alt="공동구매 할인 이미지" class="service-img" />
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>문의하기</h2>
+        <button onclick="showAlert()">문의하기</button>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p><strong>㈜코드니어</strong><br />
+        Copyright ⓒ CODE NEAR. All Rights Reserved</p>
+    <small>사업자 등록번호 : 설립예정 | 대표 : 송민주</small>
+</footer>
+
+<!-- JS -->
+<script th:src="@{/home/js/script.js}"></script>
+</body>
+</html>
