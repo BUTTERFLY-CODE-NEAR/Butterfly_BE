@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나비 - 소규모 공동구매 플랫폼</title>
+    <link rel="stylesheet" th:href="@{/home/css/style.css}" />
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <div class="logo">
+        <img th:src="@{/home/assets/logo_image.png}" alt="나비 로고" class="logo-img"/>
+        <span>나비</span>
+    </div>
+    <nav>
+        <a href="#about">소개</a>
+        <a href="#services">서비스</a>
+        <a href="#notice">공지</a>
+        <a href="#contact">문의</a>
+    </nav>
+</header>
+
+<section class="hero-full">
+    <h1>필요한 만큼 사는<br>소규모 공동구매, 나비</h1>
+    <p>이웃과 함께, 더 알뜰하게</p>
+    <a href="#services" class="cta-button">나비 서비스 알아보기</a>
+</section>
+
+<section id="services" class="section">
+    <h2>서비스 소개</h2>
+    <div class="service-grid">
+
+        <div class="service-card" data-aos="fade-up">
+            <img th:src="@{/home/assets/explain-1.png}" alt="공동구매 소개">
+            <h3>“이거 공동구매 할 사람?”</h3>
+            <p>혼자 사기엔 부담스러운 생필품을 공동구매로 저렴하게</p>
+        </div>
+
+        <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+            <img th:src="@{/home/assets/explain-2.png}" alt="할인율 증가">
+            <h3>“구매량과 함께 증가하는 할인율”</h3>
+            <p>많이 모일수록 더 커지는 할인 혜택</p>
+        </div>
+
+        <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+            <img th:src="@{/home/assets/explain-3.png}" alt="포인트 적립">
+            <h3>“할인된 만큼 포인트 백!”</h3>
+            <p>선결제해도 할인 적용 후 포인트로 돌려받아요</p>
+        </div>
+
+        <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+            <img th:src="@{/home/assets/explain-4.png}" alt="소규모 픽업">
+            <h3>“소규모 공동구매로 픽업 가능!”</h3>
+            <p>배송비 걱정 없는 소규모 이웃 공동구매</p>
+        </div>
+    </div>
+</section>
+
+<section id="notice" class="section notice-section" style="background-color: #FEF8EA;">
+    <h2>공지사항</h2>
+    <ul class="notice-list" id="noticeList">
+    </ul>
+</section>
+
+<section id="contact" class="section contact-section">
+    <div class="contact-container">
+        <h2>무엇을 도와드릴까요?</h2>
+        <p class="contact-sub">자주 묻는 질문이 없거나, 바로 문의하고 싶다면 아래 이메일로 연락주세요.</p>
+
+        <div class="contact-box">
+            <p class="contact-email-label">이메일 문의</p>
+            <a href="mailto:71gnos@naver.com" class="contact-email">71gnos@naver.com</a>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p><strong>㈜코드니어</strong><br>Copyright ⓒ CODE NEAR. All Rights Reserved<br><small>사업자 등록번호: 설립예정 | 대표: 송민주</small></p>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script th:src="@{/home/js/script.js}"></script>
+<script>
+    AOS.init();
+
+    const notices = [  // ✅ 변수명 수정: notice → notices
+        {id: 1, title:'[법인 설립] 6월 20일 주식회사 코드니어 법인설립 예정', date: '2025.06.17'},
+        {id: 2, title:'[신규 런칭] 나비 서비스 런칭 안내', date: '2025.06.10'}
+    ];
+
+    const noticeList = document.getElementById('noticeList');
+    if (noticeList) {
+        const sortedNotices = notices.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        sortedNotices.forEach(notice => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                    <a href="/home/notice?id=${notice.id}" class="notice-item">
+                        <span class="notice-title">${notice.title}</span>
+                        <span class="notice-date">${notice.date}</span>
+                    </a>`;
+            noticeList.appendChild(li);
+        });
+    }
+</script>
+
+
+</body>
+</html>
