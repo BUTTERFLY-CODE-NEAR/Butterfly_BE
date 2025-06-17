@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class HomeController {
     @GetMapping
     public String home() {
-        return "/home/home";
+        return "home/home";
     }
 
     @GetMapping("/home/notice")
     public String notice(@RequestParam("id") int id, Model model) {
         model.addAttribute("id", id);
-        return "/home/notice";
+        return "home/notice";
     }
 }
