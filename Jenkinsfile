@@ -1,16 +1,10 @@
 pipeline {
     agent any
 
-    environment {
-        BLUE_PORT = '${BLUE_PORT_ENV}'
-        GREEN_PORT = '${GREEN_PORT_ENV}'
-        DEPLOY_DIR = '${DEPLOY_DIR_ENV}'
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git credentialsId: 'github_token', branch: 'main', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE'
+                git credentialsId: 'codenear-butterfly-backend', branch: 'main', url: 'https://github.com/BUTTERFLY-CODE-NEAR/Butterfly_BE'
             }
         }
 
@@ -21,94 +15,75 @@ pipeline {
                         'application-build': 'application-build.properties',
                         'messages': 'messages.properties',
                         'application-secret': 'application-secret.properties',
-                        'application-common': 'application-common.properties'
+                        'application-common': 'application-common.properties',
+                        'application-test' : 'application-test.properties'
                     ]
 
                     configFiles.each { credId, fileName ->
                         withCredentials([file(credentialsId: credId, variable: 'FILE')]) {
                             sh "cp -f \$FILE src/main/resources/${fileName}"
-                            sh "cp -f \$FILE ${DEPLOY_DIR}/${fileName}"
+                        }
+                    }
+
+                    sh "cp -rf /home/ubuntu/ignore/terms src/main/resources/static/"
+                    sh "cp -rf /home/ubuntu/ignore/home src/main/resources/static/"
+                    sh "cp -rf /home/ubuntu/ignore/sb-admin src/main/resources/static/"
+                    sh "cp -rf /home/ubuntu/ignore/.well-known src/main/resources/static/"
+                    sh "cp -rf /home/ubuntu/ignore/firebase src/main/resources/"
+                }
+                echo "파일 복사 완료"
+            }
+
+        }
+
+        stage('Jar Build') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'JAVA_HOME', variable: 'javaHomePath')]) {
+                        // 가져온 'javaHomePath' 변수를 사용하여 JAVA_HOME 환경 변수를 설정합니다.
+                        withEnv(["JAVA_HOME=${javaHomePath}"]) {
+                            sh './gradlew clean build -Dspring.profiles.active=build -Dspring.profiles.include=common,secret'
                         }
                     }
                 }
             }
         }
 
-        stage('Build') {
+        stage('Docker Operations') {
             steps {
-                sh './gradlew clean build -Dspring.profiles.active=build -Dspring.profiles.include=common,secret'
-            }
-        }
+                withCredentials([usernamePassword(credentialsId: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    // Docker Hub Login
+                    sh 'echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin'
 
-        stage('Deploy to Green') {
-            steps {
-                script {
-                    sh "pkill -f 'java.*${GREEN_PORT}' || true"
+                    // Build Docker Image
+                    sh "docker build -t ${DOCKER_USERNAME}/codenear-butterfly ."
 
-                    sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-green.jar"
-
-                    sh """
-                    nohup java -jar ${DEPLOY_DIR}/butterfly-green.jar \
-                    --server.port=${GREEN_PORT} \
-                    --spring.profiles.active=build \
-                    --spring.profiles.include=common,secret \
-                    --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
-                    > ${DEPLOY_DIR}/green.log 2>&1 &
-                    """
+                    // Push Docker Image
+                    sh "docker push ${DOCKER_USERNAME}/codenear-butterfly"
                 }
             }
         }
 
-        stage('Monitor Green') {
+        stage('Deployment Blue Green') {
             steps {
-                script {
-                    sh "sleep 30"
-
-                    sh "curl -f http://localhost:${GREEN_PORT}/actuator/health"
-                }
-            }
-        }
-
-        stage('Update Nginx Configuration') {
-            steps {
-                script {
-                    sh "sudo sed -i 's/proxy_pass http:\\/\\/localhost:${BLUE_PORT};/proxy_pass http:\\/\\/localhost:${GREEN_PORT};/' /etc/nginx/sites-available/default"
-                    sh "sudo nginx -s reload"
-                }
-            }
-        }
-
-        stage('Deploy to Blue') {
-            steps {
-                script {
-                    sh "pkill -f 'java.*${BLUE_PORT}' || true"
-
-                    sh "cp build/libs/butterfly.jar ${DEPLOY_DIR}/butterfly-blue.jar"
-
-                    sh """
-                    nohup java -jar ${DEPLOY_DIR}/butterfly-blue.jar \
-                    --server.port=${BLUE_PORT} \
-                    --spring.profiles.active=build \
-                    --spring.profiles.include=common,secret \
-                    --SECURITY_WHITELIST=${SECURITY_WHITELIST} \
-                    > ${DEPLOY_DIR}/blue.log 2>&1 &
-                    """
-                }
-            }
-        }
-
-        stage('Monitor Blue') {
-            steps {
-                script {
-                    sh "sleep 30"
-
-                    sh "curl -f http://localhost:${BLUE_PORT}/actuator/health"
+                sshagent(['EC2_CREDENTIAL']) {
+                    withCredentials([
+                        string(credentialsId: 'AWS_IP', variable: 'AWS_IP'),
+                        string(credentialsId: 'SSH_HOST', variable: 'SSH_HOST')
+                    ]) {
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ${SSH_HOST}@${AWS_IP} ./deploy.sh
+                            '''
+                    }
                 }
             }
         }
     }
 
     post {
+        success {
+            echo "Deployment success"
+        }
         failure {
             echo "Deployment failed. Consider implementing rollback logic."
         }
