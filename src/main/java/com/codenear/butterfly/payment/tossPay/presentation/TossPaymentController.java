@@ -8,6 +8,7 @@ import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestD
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.exception.PaymentException;
 import com.codenear.butterfly.payment.tossPay.application.TossPaymentService;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.presentation.swagger.TossPaymentControllerSwagger;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,15 +34,15 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
     public ResponseEntity<ResponseDTO> pickupPaymentRequest(@RequestBody PickupPaymentRequestDTO paymentRequestDTO,
                                                             @AuthenticationPrincipal MemberDTO memberDTO
     ) {
-        tossPaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "pickup");
-        return ResponseUtil.createSuccessResponse(null);
+        ReadyResponseDTO ready = tossPaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "pickup");
+        return ResponseUtil.createSuccessResponse(ready);
     }
 
     @PostMapping("/ready/delivery")
     public ResponseEntity<ResponseDTO> deliveryPaymentRequest(@RequestBody DeliveryPaymentRequestDTO paymentRequestDTO,
                                                               @AuthenticationPrincipal MemberDTO memberDTO) {
-        tossPaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "deliver");
-        return ResponseUtil.createSuccessResponse(null);
+        ReadyResponseDTO ready = tossPaymentService.paymentReady(paymentRequestDTO, memberDTO.getId(), "deliver");
+        return ResponseUtil.createSuccessResponse(ready);
     }
 
     @GetMapping("/approve")

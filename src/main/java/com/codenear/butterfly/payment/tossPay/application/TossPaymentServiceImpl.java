@@ -22,6 +22,7 @@ import com.codenear.butterfly.payment.kakaoPay.domain.repository.CancelPaymentRe
 import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
+import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.util.TossPaymentUtil;
 import com.codenear.butterfly.point.domain.PointRepository;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -66,13 +68,14 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
      *
      * @param memberId              사용자 아이디
      * @param basePaymentRequestDTO 결제 데이터
+     * @return ReadyResponseDTO
      */
     @Transactional
     @Override
-    public void paymentReady(BasePaymentRequestDTO basePaymentRequestDTO, Long memberId, String orderType) {
+    public ReadyResponseDTO paymentReady(BasePaymentRequestDTO basePaymentRequestDTO, Long memberId, String orderType) {
         Member member = super.loadByMember(memberId);
         super.validateRemainingPointForPurchase(member, basePaymentRequestDTO.getPoint());
-        String orderId = basePaymentRequestDTO.getOrderId();
+        String orderId = UUID.randomUUID().toString();
         paymentRedisRepository.savePaymentStatus(memberId, PaymentStatus.READY.name());
         paymentRedisRepository.reserveStock(basePaymentRequestDTO.getProductName(), basePaymentRequestDTO.getQuantity(), orderId);
 
@@ -82,11 +85,15 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
 
         if (basePaymentRequestDTO.getTotal() == 0) {
             super.approveFreeResponse(memberId, basePaymentRequestDTO, orderId);
+            return null;
         }
 
         Map<String, String> parameters = tossPaymentUtil.preConfirmParameter(basePaymentRequestDTO.getQuantity(), basePaymentRequestDTO.getTotal());
         paymentRedisRepository.addMultipleToHashSet(memberId, parameters);
 
+        return ReadyResponseDTO.builder()
+                .orderId(orderId)
+                .build();
     }
 
     @Override

@@ -21,7 +21,4 @@ public abstract class BasePaymentRequestDTO {
 
     @Schema(description = "사용 포인트", example = "500")
     private int point;
-
-    @Schema(description = "주문 아이디 (토스결제 해당)")
-    private String orderId;
 }
