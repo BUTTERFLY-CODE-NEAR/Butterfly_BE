@@ -1,12 +1,10 @@
 package com.codenear.butterfly.payment.tossPay.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
-import com.codenear.butterfly.payment.exception.PaymentException;
 import com.codenear.butterfly.payment.tossPay.application.TossPaymentService;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,31 +42,22 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
     }
 
     @GetMapping("/approve")
-    public void tossPaymentConfirm(@AuthenticationPrincipal MemberDTO memberDTO,
-                                   @RequestParam("paymentKey") String paymentKey,
-                                   @RequestParam("orderId") String orderId,
-                                   @RequestParam("amount") int amount,
-                                   HttpServletResponse response) {
+    public ResponseEntity<ResponseDTO> tossPaymentConfirm(@AuthenticationPrincipal MemberDTO memberDTO,
+                                                          @RequestParam("paymentKey") String paymentKey,
+                                                          @RequestParam("orderId") String orderId,
+                                                          @RequestParam("amount") int amount,
+                                                          HttpServletResponse response) {
         tossPaymentService.confirm(memberDTO.getId(), paymentKey, orderId, amount);
-        try {
-            response.sendRedirect("butterfly://kakaopay/success");
-        } catch (IOException e) {
-            throw new PaymentException(ErrorCode.PAYMENT_REDIRECT_FAILED, null);
-        }
+        return ResponseUtil.createSuccessResponse(null);
     }
 
     @GetMapping("/fail")
-    public void tossPaymentFail(@RequestParam("memberId") Long memberId,
-                                @RequestParam("productName") String productName,
-                                @RequestParam("quantity") int quantity,
-                                HttpServletResponse response) {
+    public ResponseEntity<ResponseDTO> tossPaymentFail(@RequestParam("memberId") Long memberId,
+                                                       @RequestParam("productName") String productName,
+                                                       @RequestParam("quantity") int quantity,
+                                                       HttpServletResponse response) {
         tossPaymentService.failPayment(memberId, productName, quantity);
-
-        try {
-            response.sendRedirect("butterfly://kakaopay/fail");
-        } catch (IOException e) {
-            throw new PaymentException(ErrorCode.PAYMENT_REDIRECT_FAILED, null);
-        }
+        return ResponseUtil.createSuccessResponse(null);
     }
 
     @PostMapping("/cancel")
