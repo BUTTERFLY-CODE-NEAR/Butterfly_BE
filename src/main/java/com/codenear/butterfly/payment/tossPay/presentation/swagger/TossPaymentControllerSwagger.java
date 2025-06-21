@@ -43,18 +43,18 @@ public interface TossPaymentControllerSwagger {
                         }
                     """)
     ))
-    void tossPaymentConfirm(@AuthenticationPrincipal MemberDTO memberDTO,
-                            @RequestParam("paymentKey") String paymentKey,
-                            @RequestParam("orderId") String orderId,
-                            @RequestParam("amount") int amount,
-                            HttpServletResponse response);
+    ResponseEntity<ResponseDTO> tossPaymentConfirm(@AuthenticationPrincipal MemberDTO memberDTO,
+                                                   @RequestParam("paymentKey") String paymentKey,
+                                                   @RequestParam("orderId") String orderId,
+                                                   @RequestParam("amount") int amount,
+                                                   HttpServletResponse response);
 
     @Operation(summary = "결제 실패", description = "결제 실패 API")
     @ApiResponse(responseCode = "402", description = "결제 실패")
-    void tossPaymentFail(@RequestParam("memberId") Long memberId,
-                         @RequestParam("productName") String productName,
-                         @RequestParam("quantity") int quantity,
-                         HttpServletResponse response);
+    ResponseEntity<ResponseDTO> tossPaymentFail(@RequestParam("memberId") Long memberId,
+                                                @RequestParam("productName") String productName,
+                                                @RequestParam("quantity") int quantity,
+                                                HttpServletResponse response);
 
     @Operation(summary = "결제 취소", description = "결제 취소 API")
     void tossPaymentCancel(@RequestBody TossPaymentCancelRequestDTO cancelRequestDTO,
