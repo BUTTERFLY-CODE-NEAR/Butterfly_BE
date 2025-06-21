@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ReadyResponseDTO {
+    private Long memberId;
     private String orderId;
 }

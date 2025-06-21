@@ -92,6 +92,7 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
         paymentRedisRepository.addMultipleToHashSet(memberId, parameters);
 
         return ReadyResponseDTO.builder()
+                .memberId(memberId)
                 .orderId(orderId)
                 .build();
     }
