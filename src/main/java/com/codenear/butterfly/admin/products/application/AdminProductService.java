@@ -84,8 +84,16 @@ public class AdminProductService {
         saveKeywordForRedis(keywords);
     }
 
-    public List<ProductInventory> loadAllProducts() {
-        return productRepository.findAll();
+    /**
+     * 전체 상품 조회
+     *
+     * @return 상품 목록 전체
+     */
+    public List<ProductInventory> loadAllProducts(String productType) {
+        if ("ALL".equals(productType)) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByProductType(productType);
     }
 
     @Transactional

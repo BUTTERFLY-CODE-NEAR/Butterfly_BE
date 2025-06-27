@@ -27,7 +27,16 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">상품 목록</h6>
-                        <div class="d-flex">
+                        <div class="d-flex align-items-center">
+                            <div class="form-group mb-0 mr-3">
+                                <label for="productTypeFilter" class="sr-only">상품 타입 필터</label>
+                                <select class="form-control" id="productTypeFilter" onchange="filterProducts()">
+                                    <option value="ALL" th:selected="${selectedType == null or selectedType == 'ALL'}">전체</option>
+                                    <option value="INVENTORY" th:selected="${selectedType == 'INVENTORY'}">일반 상품</option>
+                                    <option value="SMALL_BUSINESS" th:selected="${selectedType == 'SMALL_BUSINESS'}">소상공인 상품</option>
+                                </select>
+                            </div>
+
                             <a th:href="@{/admin/products/new}" class="btn btn-primary">상품 추가</a>
 
                             <form th:action="@{/admin/products/push}" method="post" style="display: inline;"
@@ -42,7 +51,7 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>상품명</th>
+                                    <th>상품 타입</th> <th>상품명</th>
                                     <th>회사명</th>
                                     <th>카테고리</th>
                                     <th>원가</th>
@@ -55,9 +64,13 @@
                                 <tbody>
                                 <tr th:each="product : ${products}">
                                     <td th:text="${product.id}">1</td>
+                                    <td>
+                                        <span th:if="${product instanceof T(com.codenear.butterfly.product.domain.SmallBusinessProduct)}">소상공인</span>
+                                        <span th:unless="${product instanceof T(com.codenear.butterfly.product.domain.SmallBusinessProduct)}">일반 상품</span>
+                                    </td>
                                     <td th:text="${product.productName}">상품명</td>
                                     <td th:text="${product.companyName}">회사명</td>
-                                    <td th:text="${product.category.value}">카테고리</td>
+                                    <td th:text="${product.category?.value}">카테고리</td>
                                     <td th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')}">10000</td>
                                     <td th:text="${#numbers.formatDecimal(product.saleRate, 1, 'COMMA', 1, 'POINT')} + '%'">10.0</td>
                                     <td th:text="${product.stockQuantity}">100</td>
@@ -77,6 +90,8 @@
                                         </form>
                                     </td>
                                 </tr>
+                                <tr th:if="${#lists.isEmpty(products)}">
+                                    <td colspan="10" class="text-center">상품이 없습니다.</td> </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -88,5 +103,19 @@
 </div>
 
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
+
+<script>
+    // 상품 타입 필터
+    function filterProducts() {
+        const selectElement = document.getElementById('productTypeFilter');
+        const selectedValue = selectElement.value;
+        let url = '/admin/products'; // 기본 URL
+
+        if (selectedValue && selectedValue !== 'ALL') {
+            url += '?type=' + selectedValue; // 'ALL'이 아니면 type 파라미터 추가
+        }
+        window.location.href = url; // 새로운 URL로 이동하여 페이지 재로드
+    }
+</script>
 </body>
 </html>
