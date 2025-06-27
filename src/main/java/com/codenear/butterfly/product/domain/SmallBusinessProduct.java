@@ -34,5 +34,6 @@ public class SmallBusinessProduct extends ProductInventory {
     @Override
     public void update(ProductUpdateRequest request) {
         super.update(request);
+        this.orderType = request.getMealType();
     }
 }

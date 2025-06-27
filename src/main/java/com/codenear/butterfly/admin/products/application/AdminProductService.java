@@ -107,7 +107,13 @@ public class AdminProductService {
         if (product.getStockQuantity() == 0 && request.getStockQuantity() > 0) {
             sendRestockNotification(product);
         }
-        product.update(request);
+        
+        if (product instanceof SmallBusinessProduct smallBusinessProduct) {
+            smallBusinessProduct.update(request);
+        } else {
+            product.update(request);
+        }
+
         List<Keyword> newKeywords = request.getKeywords().stream()
                 .map(Keyword::new)
                 .toList();
@@ -123,7 +129,7 @@ public class AdminProductService {
                 .map(Keyword::getKeyword)
                 .collect(Collectors.joining(", "));
 
-        return new ProductEditResponse(product, keywordString);
+        return ProductEditResponse.from(product, keywordString);
     }
 
     @Transactional(readOnly = true)

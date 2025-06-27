@@ -1,6 +1,7 @@
 package com.codenear.butterfly.admin.products.dto;
 
 import com.codenear.butterfly.product.domain.Category;
+import com.codenear.butterfly.product.domain.SBMealType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductUpdateRequest {
+    private String productType;
     private String productName;
     private String companyName;
     private String description;
@@ -33,6 +35,7 @@ public class ProductUpdateRequest {
     private List<String> keywords;
     private List<DiscountRateRequest> discountRates;
     private List<MultipartFile> descriptionImages;
+    private SBMealType mealType;
 
     public Category getCategory() {
         return Category.fromValue(category);

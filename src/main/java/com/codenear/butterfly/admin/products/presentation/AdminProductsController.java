@@ -70,6 +70,8 @@ public class AdminProductsController {
         model.addAttribute("product", response.product());
         model.addAttribute("keywordString", response.keywordString());
         model.addAttribute("categories", adminProductService.getCategories());
+        model.addAttribute("productType", response.productType());
+        model.addAttribute("mealType", response.mealType());
         return "admin/products/product-edit";
     }
 
