@@ -1,5 +1,6 @@
 package com.codenear.butterfly.admin.products.dto;
 
+import com.codenear.butterfly.product.domain.SBMealType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductCreateRequest {
+    private String productType;
     private List<MultipartFile> productImage;
     private String productName;
     private String companyName;
@@ -33,5 +35,6 @@ public class ProductCreateRequest {
     private String deliveryInformation;
     private List<MultipartFile> descriptionImages;
     private List<DiscountRateRequest> discountRates = new ArrayList<DiscountRateRequest>();
+    private SBMealType orderType;
 }
 

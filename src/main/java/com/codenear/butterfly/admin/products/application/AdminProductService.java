@@ -11,6 +11,7 @@ import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRedisRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRepository;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.global.exception.ErrorCode.PRODUCT_NOT_SELECTED;
 import static com.codenear.butterfly.notify.NotifyMessage.NEW_PRODUCT;
 import static com.codenear.butterfly.notify.NotifyMessage.RESTOCK_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
@@ -57,11 +59,23 @@ public class AdminProductService {
 
         String deliveryInformation = request.getDeliveryInformation().isEmpty() ? "6시 이후 순차배송" : request.getDeliveryInformation();
 
-        ProductInventory product = ProductInventory.builder()
-                .createRequest(request)
-                .deliveryInformation(deliveryInformation)
-                .keywords(keywords)
-                .build();
+        ProductInventory product;
+
+        // productType (일반, 소상공인)
+        switch (request.getProductType()) {
+            case "INVENTORY" -> product = ProductInventory.builder()
+                    .createRequest(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .build();
+            case "SMALL_BUSINESS" -> product = SmallBusinessProduct.createSBBuilder()
+                    .request(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .buildCreateSB();
+            default -> throw new ProductException(PRODUCT_NOT_SELECTED, PRODUCT_NOT_SELECTED.getMessage());
+        }
+
         productRepository.save(product);
         kakaoPaymentRedisRepository.saveStockQuantity(request.getProductName(), request.getStockQuantity());
 
