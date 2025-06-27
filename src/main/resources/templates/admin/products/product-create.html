@@ -34,7 +34,7 @@
 
                             <div class="form-group hidden-field" id="mealTypeGroup">
                                 <label>식사 타입</label>
-                                <select class="form-control" name="orderType">
+                                <select class="form-control" name="mealType">
                                     <option value="">식사 타입을 선택하세요</option>
                                     <option value="LUNCH">점심</option>
                                     <option value="DINNER">저녁</option>
@@ -154,9 +154,9 @@
     // DOM 요소 캐싱
     const productTypeSelect = document.getElementById("productType");
     const mealTypeGroup = document.getElementById("mealTypeGroup");
-    const mealTypeSelect = mealTypeGroup.querySelector('select[name="orderType"]'); // mealType select 요소
+    const mealTypeSelect = mealTypeGroup.querySelector('select[name="mealType"]'); // mealType select 요소
 
-    // 초기 상태 설정: OrderType 필드 숨김
+    // 초기 상태 설정: mealType 필드 숨김
     mealTypeGroup.classList.add("hidden-field");
 
     // 상품 타입 변경 이벤트 리스너

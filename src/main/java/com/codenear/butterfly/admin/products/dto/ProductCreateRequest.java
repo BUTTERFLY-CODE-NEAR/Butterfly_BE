@@ -35,6 +35,6 @@ public class ProductCreateRequest {
     private String deliveryInformation;
     private List<MultipartFile> descriptionImages;
     private List<DiscountRateRequest> discountRates = new ArrayList<DiscountRateRequest>();
-    private SBMealType orderType;
+    private SBMealType mealType;
 }
 

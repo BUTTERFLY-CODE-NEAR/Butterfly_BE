@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SmallBusinessProduct extends ProductInventory {
     @Enumerated(EnumType.STRING)
-    private SBMealType orderType;
+    private SBMealType mealType;
 
     @Builder(builderMethodName = "createSBBuilder", buildMethodName = "buildCreateSB")
     public SmallBusinessProduct(ProductCreateRequest request,
@@ -28,12 +28,12 @@ public class SmallBusinessProduct extends ProductInventory {
                                 List<Keyword> keywords,
                                 List<ProductImage> descriptionImages) {
         super(request, deliveryInformation, productImage, keywords, descriptionImages);
-        this.orderType = request.getOrderType();
+        this.mealType = request.getMealType();
     }
 
     @Override
     public void update(ProductUpdateRequest request) {
         super.update(request);
-        this.orderType = request.getMealType();
+        this.mealType = request.getMealType();
     }
 }

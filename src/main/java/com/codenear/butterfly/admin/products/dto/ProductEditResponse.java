@@ -16,8 +16,9 @@ public record ProductEditResponse(
 
         if (product instanceof SmallBusinessProduct smallBusinessProduct) {
             type = "SMALL_BUSINESS";
-            mealType = smallBusinessProduct.getOrderType();
+            mealType = smallBusinessProduct.getMealType();
         }
+
         return new ProductEditResponse(product, keywordString, type, mealType);
     }
 }
