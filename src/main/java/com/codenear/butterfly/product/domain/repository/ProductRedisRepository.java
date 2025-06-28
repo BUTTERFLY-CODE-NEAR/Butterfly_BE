@@ -34,4 +34,13 @@ public class ProductRedisRepository {
             redisTemplateByNumeric.expire(SMALL_BUSINESS_PRODUCT_IDS_KEY, 1000, TimeUnit.SECONDS);
         }
     }
+
+    /**
+     * 소상공인 상품 아이디 리스트 조회
+     *
+     * @return 아이디 리스트
+     */
+    public List<Long> loadSmallBusinessProductIds() {
+        return redisTemplateByNumeric.opsForList().range(SMALL_BUSINESS_PRODUCT_IDS_KEY, 0, -1);
+    }
 }

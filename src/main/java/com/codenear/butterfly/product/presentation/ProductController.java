@@ -44,6 +44,11 @@ public class ProductController implements ProductControllerSwagger {
         }
     }
 
+    @GetMapping("/sb")
+    public ResponseEntity<ResponseDTO> getSmallBusinessProducts(@AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(productViewService.getSmallBusinessProducts(memberDTO));
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<ResponseDTO> productDetail(@PathVariable(value = "productId") Long productId,
                                                      @AuthenticationPrincipal MemberDTO memberDTO) {
