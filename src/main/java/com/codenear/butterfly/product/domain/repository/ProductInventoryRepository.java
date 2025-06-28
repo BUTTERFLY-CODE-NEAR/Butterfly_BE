@@ -2,8 +2,11 @@ package com.codenear.butterfly.product.domain.repository;
 
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SBMealType;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,5 +22,10 @@ public interface ProductInventoryRepository extends JpaRepository<ProductInvento
     List<ProductInventory> findAllByProductNameIn(Set<String> productNames);
 
     @Query(value = "select P.* from product P where P.product_type = :productType", nativeQuery = true)
-    List<ProductInventory> findByProductType(String productType);
+    List<ProductInventory> findByProductType(@Param(value = "productType") String productType);
+
+    @Query(value = "SELECT SB.id from SmallBusinessProduct SB where SB.mealType = :mealType")
+    List<Long> findIdsByMealType(@Param(value = "mealType") SBMealType mealType);
+
+    List<SmallBusinessProduct> findByIdIn(List<Long> productIds);
 }

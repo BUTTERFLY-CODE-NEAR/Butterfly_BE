@@ -11,6 +11,7 @@ import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SBMealType;
 import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRedisRepository;
@@ -85,15 +86,25 @@ public class AdminProductService {
     }
 
     /**
-     * 전체 상품 조회
+     * ALL : 전체 상품 조회 / LUNCH : 소상공인 점심 상품 조회 / DINNER : 소상공인 저녁 상품 조회
      *
-     * @return 상품 목록 전체
+     * @return 상품 목록
      */
     public List<ProductInventory> loadAllProducts(String productType) {
         if ("ALL".equals(productType)) {
             return productRepository.findAll();
         }
         return productRepository.findByProductType(productType);
+    }
+
+    /**
+     * MealType별 상품 목록 조회
+     *
+     * @param mealType 판매 시간 (LUNCH,DINNER)
+     * @return 점심/저녁 상품 목록
+     */
+    public List<Long> loadSmallBusinessProductsByMealType(SBMealType mealType) {
+        return productRepository.findIdsByMealType(mealType);
     }
 
     @Transactional
@@ -107,7 +118,7 @@ public class AdminProductService {
         if (product.getStockQuantity() == 0 && request.getStockQuantity() > 0) {
             sendRestockNotification(product);
         }
-        
+
         if (product instanceof SmallBusinessProduct smallBusinessProduct) {
             smallBusinessProduct.update(request);
         } else {
