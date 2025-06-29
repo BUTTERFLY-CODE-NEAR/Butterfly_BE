@@ -11,6 +11,8 @@ import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SBMealType;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRedisRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRepository;
@@ -30,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.global.exception.ErrorCode.PRODUCT_NOT_SELECTED;
 import static com.codenear.butterfly.notify.NotifyMessage.NEW_PRODUCT;
 import static com.codenear.butterfly.notify.NotifyMessage.RESTOCK_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
@@ -57,11 +60,23 @@ public class AdminProductService {
 
         String deliveryInformation = request.getDeliveryInformation().isEmpty() ? "6시 이후 순차배송" : request.getDeliveryInformation();
 
-        ProductInventory product = ProductInventory.builder()
-                .createRequest(request)
-                .deliveryInformation(deliveryInformation)
-                .keywords(keywords)
-                .build();
+        ProductInventory product;
+
+        // productType (일반, 소상공인)
+        switch (request.getProductType()) {
+            case "INVENTORY" -> product = ProductInventory.builder()
+                    .createRequest(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .build();
+            case "SMALL_BUSINESS" -> product = SmallBusinessProduct.createSBBuilder()
+                    .request(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .buildCreateSB();
+            default -> throw new ProductException(PRODUCT_NOT_SELECTED, PRODUCT_NOT_SELECTED.getMessage());
+        }
+
         productRepository.save(product);
         kakaoPaymentRedisRepository.saveStockQuantity(request.getProductName(), request.getStockQuantity());
 
@@ -70,8 +85,26 @@ public class AdminProductService {
         saveKeywordForRedis(keywords);
     }
 
-    public List<ProductInventory> loadAllProducts() {
-        return productRepository.findAll();
+    /**
+     * ALL : 전체 상품 조회 / LUNCH : 소상공인 점심 상품 조회 / DINNER : 소상공인 저녁 상품 조회
+     *
+     * @return 상품 목록
+     */
+    public List<ProductInventory> loadAllProducts(String productType) {
+        if ("ALL".equals(productType)) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByProductType(productType);
+    }
+
+    /**
+     * MealType별 상품 목록 조회
+     *
+     * @param mealType 판매 시간 (LUNCH,DINNER)
+     * @return 점심/저녁 상품 목록
+     */
+    public List<Long> loadSmallBusinessProductsByMealType(SBMealType mealType) {
+        return productRepository.findIdsByMealType(mealType);
     }
 
     @Transactional
@@ -85,7 +118,13 @@ public class AdminProductService {
         if (product.getStockQuantity() == 0 && request.getStockQuantity() > 0) {
             sendRestockNotification(product);
         }
-        product.update(request);
+
+        if (product instanceof SmallBusinessProduct smallBusinessProduct) {
+            smallBusinessProduct.update(request);
+        } else {
+            product.update(request);
+        }
+
         List<Keyword> newKeywords = request.getKeywords().stream()
                 .map(Keyword::new)
                 .toList();
@@ -101,7 +140,7 @@ public class AdminProductService {
                 .map(Keyword::getKeyword)
                 .collect(Collectors.joining(", "));
 
-        return new ProductEditResponse(product, keywordString);
+        return ProductEditResponse.from(product, keywordString);
     }
 
     @Transactional(readOnly = true)

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>CODE NEAR</title>
+    <title>CODE NEAR - 대시보드</title>
 
     <!-- 템플릿용 사용자 정의 폰트 -->
     <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
@@ -33,30 +33,328 @@
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                 <!-- 사이드바 토글 (상단바) -->
                 <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                    <i className='fa fa-bars'></i>
+                    <i class="fa fa-bars"></i>
                 </button>
             </nav>
 
             <!-- 페이지 콘텐츠 시작 -->
-            <div className='container-fluid'>
+            <div class="container-fluid">
 
                 <!-- 페이지 제목 -->
-                <h1 className='h3 mb-4 text-gray-800'>대시보드</h1>
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-tachometer-alt mr-2"></i>대시보드
+                    </h1>
+                </div>
 
-                <!-- 대시보드 콘텐츠 위치 -->
+                <!-- 알림 메시지 -->
+                <div th:if="${message}" th:class="|alert alert-${messageType} alert-dismissible fade show|" role="alert">
+                    <span th:text="${message}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+
+                <!-- 스케줄 관리 섹션 -->
+                <div class="row">
+                    <!-- 점심 스케줄 카드 -->
+                    <div class="col-xl-6 col-md-6 mb-4">
+                        <div class="card schedule-card lunch-card shadow">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <div class="meal-icon">
+                                        <i class="fas fa-sun"></i>
+                                    </div>
+                                    <h5 class="card-title mb-3">소상공인 점심 스케줄</h5>
+
+                                    <div class="schedule-status">
+                                        <div class="current-time" th:if="${scheduleInfo != null and scheduleInfo.lunchStartCron != null}">
+                                            시작 시간: <span th:text="${#strings.arraySplit(scheduleInfo.lunchStartCron, ' ')[2] + ':' + #strings.arraySplit(scheduleInfo.lunchStartCron, ' ')[1]}">12:00</span>
+                                        </div>
+                                        <div class="current-time" th:if="${scheduleInfo != null and scheduleInfo.lunchEndCron != null}">
+                                            종료 시간: <span th:text="${#strings.arraySplit(scheduleInfo.lunchEndCron, ' ')[2] + ':' + #strings.arraySplit(scheduleInfo.lunchEndCron, ' ')[1]}">14:00</span>
+                                        </div>
+                                        <div class="current-time" th:unless="${scheduleInfo != null and scheduleInfo.lunchStartCron != null}">
+                                            설정되지 않음
+                                        </div>
+                                    </div>
+
+                                    <form th:action="@{/admin/schedule/lunch}" method="post" class="mt-4" onsubmit="prepareCronExpressions(event, 'lunch')">
+                                        <input type="hidden" name="cronStartExpression" id="lunchStartCron">
+                                        <input type="hidden" name="cronEndExpression" id="lunchEndCron">
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-6">
+                                                <label class="text-dark">시작 시간</label>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="lunchStartHour" name="lunchStartHour"
+                                                               min="0" max="23" placeholder="시"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.lunchStartCron != null} ? ${#strings.arraySplit(scheduleInfo.lunchStartCron, ' ')[2]} : ''"
+                                                               required>
+                                                    </div>
+                                                    <div class="col-auto align-self-center">
+                                                        <span class="h5">:</span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="lunchStartMinute" name="lunchStartMinute"
+                                                               min="0" max="59" placeholder="분"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.lunchStartCron != null} ? ${#strings.arraySplit(scheduleInfo.lunchStartCron, ' ')[1]} : ''"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="text-dark">종료 시간</label>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="lunchEndHour" name="lunchEndHour"
+                                                               min="0" max="23" placeholder="시"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.lunchEndCron != null} ? ${#strings.arraySplit(scheduleInfo.lunchEndCron, ' ')[2]} : ''"
+                                                               required>
+                                                    </div>
+                                                    <div class="col-auto align-self-center">
+                                                        <span class="h5">:</span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="lunchEndMinute" name="lunchEndMinute"
+                                                               min="0" max="59" placeholder="분"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.lunchEndCron != null} ? ${#strings.arraySplit(scheduleInfo.lunchEndCron, ' ')[1]} : ''"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-update text-white mt-3">
+                                            <i class="fas fa-clock mr-2"></i>점심 스케줄 저장
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 저녁 스케줄 카드 -->
+                    <div class="col-xl-6 col-md-6 mb-4">
+                        <div class="card schedule-card dinner-card shadow">
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <div class="meal-icon">
+                                        <i class="fas fa-moon"></i>
+                                    </div>
+                                    <h5 class="card-title mb-3">소상공인 저녁 스케줄</h5>
+
+                                    <div class="schedule-status">
+                                        <div class="current-time" th:if="${scheduleInfo != null and scheduleInfo.dinnerStartCron != null}">
+                                            시작 시간: <span th:text="${#strings.arraySplit(scheduleInfo.dinnerStartCron, ' ')[2] + ':' + #strings.arraySplit(scheduleInfo.dinnerStartCron, ' ')[1]}">18:00</span>
+                                        </div>
+                                        <div class="current-time" th:if="${scheduleInfo != null and scheduleInfo.dinnerEndCron != null}">
+                                            종료 시간: <span th:text="${#strings.arraySplit(scheduleInfo.dinnerEndCron, ' ')[2] + ':' + #strings.arraySplit(scheduleInfo.dinnerEndCron, ' ')[1]}">20:00</span>
+                                        </div>
+                                        <div class="current-time" th:unless="${scheduleInfo != null and scheduleInfo.dinnerStartCron != null}">
+                                            설정되지 않음
+                                        </div>
+                                    </div>
+
+                                    <form th:action="@{/admin/schedule/dinner}" method="post" class="mt-4" onsubmit="prepareCronExpressions(event, 'dinner')">
+                                        <input type="hidden" name="cronStartExpression" id="dinnerStartCron">
+                                        <input type="hidden" name="cronEndExpression" id="dinnerEndCron">
+                                        <div class="row justify-content-center">
+                                            <div class="col-md-6">
+                                                <label class="text-dark">시작 시간</label>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="dinnerStartHour" name="dinnerStartHour"
+                                                               min="0" max="23" placeholder="시"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.dinnerStartCron != null} ? ${#strings.arraySplit(scheduleInfo.dinnerStartCron, ' ')[2]} : ''"
+                                                               required>
+                                                    </div>
+                                                    <div class="col-auto align-self-center">
+                                                        <span class="h5">:</span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="dinnerStartMinute" name="dinnerStartMinute"
+                                                               min="0" max="59" placeholder="분"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.dinnerStartCron != null} ? ${#strings.arraySplit(scheduleInfo.dinnerStartCron, ' ')[1]} : ''"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="text-dark">종료 시간</label>
+                                                <div class="row justify-content-center">
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="dinnerEndHour" name="dinnerEndHour"
+                                                               min="0" max="23" placeholder="시"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.dinnerEndCron != null} ? ${#strings.arraySplit(scheduleInfo.dinnerEndCron, ' ')[2]} : ''"
+                                                               required>
+                                                    </div>
+                                                    <div class="col-auto align-self-center">
+                                                        <span class="h5">:</span>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <input type="number" class="form-control time-input"
+                                                               id="dinnerEndMinute" name="dinnerEndMinute"
+                                                               min="0" max="59" placeholder="분"
+                                                               th:value="${scheduleInfo != null and scheduleInfo.dinnerEndCron != null} ? ${#strings.arraySplit(scheduleInfo.dinnerEndCron, ' ')[1]} : ''"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-update text-white mt-3">
+                                            <i class="fas fa-clock mr-2"></i>저녁 스케줄 저장
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 스케줄러 상태 정보 -->
+                <div class="row" th:if="${scheduleInfo != null}">
+                    <div class="col-12">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-info-circle mr-2"></i>스케줄러 상태
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>점심 시작 스케줄 상태:</strong>
+                                            <span th:if="${scheduleInfo.lunchStartSchedulerActive}" class="text-success">
+                                                <i class="fas fa-check-circle mr-1"></i>활성
+                                            </span>
+                                            <span th:unless="${scheduleInfo.lunchStartSchedulerActive}" class="text-danger">
+                                                <i class="fas fa-times-circle mr-1"></i>비활성
+                                            </span>
+                                        </p>
+                                        <p><strong>점심 종료 스케줄 상태:</strong>
+                                            <span th:if="${scheduleInfo.lunchEndSchedulerActive}" class="text-success">
+                                                <i class="fas fa-check-circle mr-1"></i>활성
+                                            </span>
+                                            <span th:unless="${scheduleInfo.lunchEndSchedulerActive}" class="text-danger">
+                                                <i class="fas fa-times-circle mr-1"></i>비활성
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>저녁 시작 스케줄 상태:</strong>
+                                            <span th:if="${scheduleInfo.dinnerStartSchedulerActive}" class="text-success">
+                                                <i class="fas fa-check-circle mr-1"></i>활성
+                                            </span>
+                                            <span th:unless="${scheduleInfo.dinnerStartSchedulerActive}" class="text-danger">
+                                                <i class="fas fa-times-circle mr-1"></i>비활성
+                                            </span>
+                                        </p>
+                                        <p><strong>저녁 종료 스케줄 상태:</strong>
+                                            <span th:if="${scheduleInfo.dinnerEndSchedulerActive}" class="text-success">
+                                                <i class="fas fa-check-circle mr-1"></i>활성
+                                            </span>
+                                            <span th:unless="${scheduleInfo.dinnerEndSchedulerActive}" class="text-danger">
+                                                <i class="fas fa-times-circle mr-1"></i>비활성
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
+            <!-- 페이지 콘텐츠 끝 -->
+
         </div>
+        <!-- 메인 콘텐츠 끝 -->
+
     </div>
+    <!-- 콘텐츠 래퍼 끝 -->
+
 </div>
+<!-- 페이지 래퍼 끝 -->
 
 <!-- 맨 위로 스크롤 버튼 -->
-<a class='scroll-to-top rounded' href='#page-top'>
-    <i class='fas fa-angle-up'></i>
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
 </a>
 
 <!-- 스크립트 포함 -->
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
+
+<script>
+    // 현재 시간을 기본값으로 설정하는 기능
+    function setCurrentTimeAsDefault() {
+        const lunchStartHourInput = document.getElementById('lunchStartHour');
+        const lunchStartMinuteInput = document.getElementById('lunchStartMinute');
+        const lunchEndHourInput = document.getElementById('lunchEndHour');
+        const lunchEndMinuteInput = document.getElementById('lunchEndMinute');
+        const dinnerStartHourInput = document.getElementById('dinnerStartHour');
+        const dinnerStartMinuteInput = document.getElementById('dinnerStartMinute');
+        const dinnerEndHourInput = document.getElementById('dinnerEndHour');
+        const dinnerEndMinuteInput = document.getElementById('dinnerEndMinute');
+
+        // 서버에서 제공된 값이 없으면 기본값 설정
+        if (!lunchStartHourInput.value) lunchStartHourInput.value = 12;
+        if (!lunchStartMinuteInput.value) lunchStartMinuteInput.value = 0;
+        if (!lunchEndHourInput.value) lunchEndHourInput.value = 14;
+        if (!lunchEndMinuteInput.value) lunchEndMinuteInput.value = 0;
+        if (!dinnerStartHourInput.value) dinnerStartHourInput.value = 18;
+        if (!dinnerStartMinuteInput.value) dinnerStartMinuteInput.value = 0;
+        if (!dinnerEndHourInput.value) dinnerEndHourInput.value = 20;
+        if (!dinnerEndMinuteInput.value) dinnerEndMinuteInput.value = 0;
+    }
+
+    // Cron 표현식 생성
+    function prepareCronExpressions(event, type) {
+        event.preventDefault();
+        const form = event.target;
+        const startHourInput = form.querySelector(`#${type}StartHour`);
+        const startMinuteInput = form.querySelector(`#${type}StartMinute`);
+        const endHourInput = form.querySelector(`#${type}EndHour`);
+        const endMinuteInput = form.querySelector(`#${type}EndMinute`);
+        const startCronInput = form.querySelector(`#${type}StartCron`);
+        const endCronInput = form.querySelector(`#${type}EndCron`);
+
+        const startHour = parseInt(startHourInput.value);
+        const startMinute = parseInt(startMinuteInput.value);
+        const endHour = parseInt(endHourInput.value);
+        const endMinute = parseInt(endMinuteInput.value);
+
+        // 유효성 검사
+        if (startHour < 0 || startHour > 23 || endHour < 0 || endHour > 23) {
+            alert('시간은 0~23 사이의 값을 입력해주세요.');
+            return;
+        }
+        if (startMinute < 0 || startMinute > 59 || endMinute < 0 || endMinute > 59) {
+            alert('분은 0~59 사이의 값을 입력해주세요.');
+            return;
+        }
+        if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
+            alert(`${type === 'lunch' ? '점심' : '저녁'} 시작 시간은 종료 시간보다 빠르거나 같을 수 없습니다.`);
+            return;
+        }
+
+        // Cron 표현식 생성 (예: "0 0 12 * * ?" for 12:00 daily)
+        startCronInput.value = `0 ${startMinute} ${startHour} * * ?`;
+        endCronInput.value = `0 ${endMinute} ${endHour} * * ?`;
+
+        // 폼 제출
+        form.submit();
+    }
+
+    // 페이지 로드 시 기본값 설정
+    document.addEventListener('DOMContentLoaded', setCurrentTimeAsDefault);
+</script>
 
 </body>
 </html>

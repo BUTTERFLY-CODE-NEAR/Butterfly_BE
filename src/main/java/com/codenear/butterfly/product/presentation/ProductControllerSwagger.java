@@ -1,7 +1,6 @@
 package com.codenear.butterfly.product.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
-import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
@@ -37,6 +36,22 @@ public interface ProductControllerSwagger {
     ResponseEntity<ResponseDTO> productInfoByCategory(@RequestParam("category") String category,
                                                       @AuthenticationPrincipal MemberDTO memberDTO);
 
+    @Operation(summary = "소상공인 상품 리스트 (점심/저녁)", description = "점심/저녁 시간대에 따른 소상공인 물품 리스트 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> getSmallBusinessProducts(@AuthenticationPrincipal MemberDTO memberDTO);
+
+    @Operation(summary = "소상공인 상품 판매 시간", description = "점심/저녁 판매 시간 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> getMealTime(@AuthenticationPrincipal MemberDTO memberDTO);
+
     @Operation(summary = "상품 상세 정보", description = "상품 상세 정보 API")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
@@ -67,12 +82,12 @@ public interface ProductControllerSwagger {
             @ApiResponse(responseCode = "409", description = "Conflict (Duplicate)")
     })
     ResponseEntity<ResponseDTO> addFavorite(@PathVariable(value = "productId") Long productId,
-                                                   @AuthenticationPrincipal MemberDTO memberDTO);
+                                            @AuthenticationPrincipal MemberDTO memberDTO);
 
     @Operation(summary = "찜 목록 삭제", description = "찜 목록 삭제 Api")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Success"),
     })
     ResponseEntity<ResponseDTO> removeFavorite(@PathVariable(value = "productId") Long productId,
-                                            @AuthenticationPrincipal MemberDTO memberDTO);
+                                               @AuthenticationPrincipal MemberDTO memberDTO);
 }

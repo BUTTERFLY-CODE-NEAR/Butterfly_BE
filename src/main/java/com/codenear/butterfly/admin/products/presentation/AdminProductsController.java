@@ -8,14 +8,19 @@ import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.product.domain.Category;
-import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.exception.ProductException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -49,11 +54,13 @@ public class AdminProductsController {
     }
 
     @GetMapping
-    public String showProductList(Model model) {
-        List<ProductInventory> products = adminProductService.loadAllProducts();
+    public String showProductList(Model model,
+                                  @RequestParam(name = "type", required = false, defaultValue = "ALL") String productType) {
+        List<ProductInventory> products = adminProductService.loadAllProducts(productType);
         List<Category> categories = adminProductService.getCategories();
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
+        model.addAttribute("selectedType", productType);
         return "admin/products/product-list";
     }
 
@@ -63,6 +70,8 @@ public class AdminProductsController {
         model.addAttribute("product", response.product());
         model.addAttribute("keywordString", response.keywordString());
         model.addAttribute("categories", adminProductService.getCategories());
+        model.addAttribute("productType", response.productType());
+        model.addAttribute("mealType", response.mealType());
         return "admin/products/product-edit";
     }
 

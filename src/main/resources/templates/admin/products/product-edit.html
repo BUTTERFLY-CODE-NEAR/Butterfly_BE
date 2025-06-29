@@ -9,6 +9,12 @@
     <link th:href="@{/sb-admin/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link th:href="@{/sb-admin/css/sb-admin-2.min.css}" rel="stylesheet">
+    <style>
+        /* 숨김 처리될 요소에 적용할 스타일 */
+        .hidden-field {
+            display: none;
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -25,6 +31,14 @@
                         <form th:action="@{/admin/products/{id}/edit(id=${product.id})}" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_method" value="PUT" />
                             <input type="hidden" name="id" th:value="${product.id}" />
+                            <input type="hidden" name="productType" th:value="${productType}" id="productTypeHidden"> <div class="form-group" id="mealTypeGroup">
+                            <label>식사 타입</label>
+                            <select class="form-control" name="mealType">
+                                <option value="">식사 타입을 선택하세요</option>
+                                <option value="LUNCH" th:selected="${mealType != null and mealType.name() == 'LUNCH'}">점심</option>
+                                <option value="DINNER" th:selected="${mealType != null and mealType.name() == 'DINNER'}">저녁</option>
+                            </select>
+                        </div>
 
                             <div class="form-group" >
                                 <label>현재 상품 이미지</label>
@@ -174,6 +188,22 @@
 <th:block th:replace="~{fragments/scripts :: body}"></th:block>
 </body>
 <script th:inline="javascript">
+    // 상품 타입에 따라 MealType 필드 가시성 제어
+    document.addEventListener('DOMContentLoaded', function() {
+        const productType = /*[[${productType}]]*/ 'INVENTORY'; // 컨트롤러에서 받은 productType 값
+        const mealTypeGroup = document.getElementById('mealTypeGroup');
+        const mealTypeSelect = mealTypeGroup.querySelector('select[name="mealType"]');
+
+        if (productType === 'SMALL_BUSINESS') {
+            mealTypeGroup.classList.remove('hidden-field');
+            mealTypeSelect.setAttribute('required', 'required');
+        } else {
+            mealTypeGroup.classList.add('hidden-field');
+            mealTypeSelect.removeAttribute('required');
+        }
+    });
+
+    // 기존 할인율 구간 추가/삭제 로직 (변화 없음)
     function getProductIdFromUrl() {
         const pathSegments = window.location.pathname.split('/');
         const productIdIndex = pathSegments.indexOf('products') + 1;
