@@ -44,6 +44,14 @@ public interface ProductControllerSwagger {
     })
     ResponseEntity<ResponseDTO> getSmallBusinessProducts(@AuthenticationPrincipal MemberDTO memberDTO);
 
+    @Operation(summary = "소상공인 상품 판매 시간", description = "점심/저녁 판매 시간 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
+                    content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    ResponseEntity<ResponseDTO> getMealTime(@AuthenticationPrincipal MemberDTO memberDTO);
+
     @Operation(summary = "상품 상세 정보", description = "상품 상세 정보 API")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
