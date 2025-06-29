@@ -7,7 +7,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,17 +21,18 @@ public class ProductRedisRepository {
      * @param mealType 판매 시간 (LUNCH,DINNER)
      */
     public void saveCurrentSmallBusinessProductIds(SBMealType mealType) {
-        // TTL시간이 걸려있지만 최신화 예방 차원에서 이전 데이터 제거
-        redisTemplateByNumeric.delete(SMALL_BUSINESS_PRODUCT_IDS_KEY);
-
         List<Long> productIds = productService.loadSmallBusinessProductsByMealType(mealType);
         if (!productIds.isEmpty()) {
             // Redis List의 오른쪽(끝)에 모든 ID를 한 번에 추가
             redisTemplateByNumeric.opsForList().rightPushAll(SMALL_BUSINESS_PRODUCT_IDS_KEY, productIds);
-
-            // Redis List 키에 TTL 설정
-            redisTemplateByNumeric.expire(SMALL_BUSINESS_PRODUCT_IDS_KEY, 1000, TimeUnit.SECONDS);
         }
+    }
+
+    /**
+     * 소상공인 상품 캐시 삭제
+     */
+    public void clearCurrentSmallBusinessProductIds() {
+        redisTemplateByNumeric.delete(SMALL_BUSINESS_PRODUCT_IDS_KEY);
     }
 
     /**
