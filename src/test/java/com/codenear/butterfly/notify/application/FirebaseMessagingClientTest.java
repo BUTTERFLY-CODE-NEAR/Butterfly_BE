@@ -1,18 +1,19 @@
 package com.codenear.butterfly.notify.application;
 
-import static org.mockito.Mockito.verify;
-
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class FirebaseMessagingClientTest {
@@ -35,7 +36,7 @@ class FirebaseMessagingClientTest {
                 .build();
 
         // when
-        firebaseMessagingClient.sendMessage(message);
+        firebaseMessagingClient.sendMessage(message, null);
 
         // then
         verify(firebaseMessaging)
@@ -54,7 +55,7 @@ class FirebaseMessagingClientTest {
                 .build();
 
         // when
-        firebaseMessagingClient.sendMessage(message);
+        firebaseMessagingClient.sendMessage(message, null);
 
         // then
         verify(firebaseMessaging)
