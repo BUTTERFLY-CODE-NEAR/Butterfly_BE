@@ -9,13 +9,17 @@ import com.codenear.butterfly.notify.fcm.infrastructure.FCMRepository;
 import com.codenear.butterfly.notify.fcm.infrastructure.FirebaseMessagingClient;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-import java.util.List;
+import com.mysema.commons.lang.Pair;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FCMMessageService {
 
     private final FCMRepository fcmRepository;
@@ -28,7 +32,6 @@ public class FCMMessageService {
         if (!isConsentGiven(message, memberId)) {
             return;
         }
-        
         List<FCM> fcms = fcmRepository.findByMemberId(memberId);
         sendPushNotifications(message, fcms);
         alarmService.addSingleAlarm(message, fcms.get(0).getMember());
@@ -37,15 +40,19 @@ public class FCMMessageService {
     @Transactional
     public void sendTopic(NotifyMessage message, String topic) {
         Message topicMessage = createTopicMessage(message, topic);
-        firebaseMessagingClient.sendMessage(topicMessage);
+        firebaseMessagingClient.sendMessage(topicMessage, null);
         alarmService.addConsentBasedAlarms(message);
     }
 
     private void sendPushNotifications(final NotifyMessage message, final List<FCM> fcms) {
-        List<Message> messages = fcms.stream()
-                .map(fcm -> createFCMMessage(message, fcm.getToken()))
+        // FCM 리스트를 Message 객체 리스트로 변환
+        List<Pair<Message, FCM>> messagePairs = fcms.stream()
+                .map(fcm -> Pair.of(createFCMMessage(message, fcm.getToken()), fcm))
                 .toList();
-        messages.forEach(firebaseMessagingClient::sendMessage);
+        // 각 메시지를 전송하며 유효하지 않은 토큰 처리
+        messagePairs.forEach(pair -> {
+            firebaseMessagingClient.sendMessage(pair.getFirst(), pair.getSecond().getToken());
+        });
     }
 
     private boolean isConsentGiven(NotifyMessage message, Long memberId) {
