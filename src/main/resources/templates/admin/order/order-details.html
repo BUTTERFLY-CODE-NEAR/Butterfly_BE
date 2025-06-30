@@ -283,8 +283,9 @@
                     throw new Error('일괄 처리 중 오류가 발생했습니다.');
                 })
                 .then(data => {
-                    if (data.success) {
+                    if (data.code === 200) {
                         // 성공 시 페이지 새로고침
+                        alert(data.message);
                         window.location.reload();
                     } else {
                         alert('일괄 처리 중 오류가 발생했습니다: ' + data.message);
