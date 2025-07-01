@@ -19,8 +19,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.codenear.butterfly.notify.NotifyMessage.PRODUCT_ARRIVAL;
 import static com.codenear.butterfly.notify.NotifyMessage.REWARD_POINT;
@@ -75,7 +79,7 @@ public class AdminOrderDetailsService {
                 });
 
         int refundPoint = calculateRefundPoint(product, order);
-        if (refundPoint > 0){
+        if (refundPoint > 0) {
             point.increasePoint(refundPoint);
         }
         sendRewordMessage(refundPoint, order.getMember().getId());
@@ -137,31 +141,36 @@ public class AdminOrderDetailsService {
         }
     }
 
+    /**
+     * 일괄 주문 상태 변경
+     *
+     * @param orderIds 변경할 주문 아이디
+     * @param status   변경 상태
+     * @return 변경된 주문 개수
+     */
     @Transactional
-    public int bulkCompleteOrders(List<Long> orderIds) {
+    public int bulkChangeOrderStatus(List<Long> orderIds, OrderStatus status) {
         int updatedCnt = orderDetailsRepository.updateOrderStatusInBulk(
-                orderIds, OrderStatus.DELIVERY, OrderStatus.COMPLETED);
+                orderIds, status);
 
-        if (updatedCnt > 0) {
-            List<OrderDetails> updatedOrders = orderDetailsRepository.findAllById(orderIds).stream()
-                    .filter(order -> OrderStatus.COMPLETED.equals(order.getOrderStatus()))
-                    .collect(Collectors.toList());
-
+        if (OrderStatus.COMPLETED.equals(status) && updatedCnt > 0) {
+            List<OrderDetails> updatedOrders = new ArrayList<>(orderDetailsRepository.findAllById(orderIds));
             processPointsAndNotificationsBatch(updatedOrders);
         }
 
         return updatedCnt;
     }
+
     private void processPointsAndNotificationsBatch(List<OrderDetails> orders) {
         // 관련 상품 정보 한 번에 조회
         Set<String> productNames = new HashSet<>();
-        for (OrderDetails order : orders){
+        for (OrderDetails order : orders) {
             productNames.add(order.getProductName());
         }
 
         List<ProductInventory> products = productInventoryRepository.findAllByProductNameIn(productNames);
         Map<String, ProductInventory> productMap = new HashMap<>();
-        for (ProductInventory product : products){
+        for (ProductInventory product : products) {
             productMap.put(product.getProductName(), product);
         }
 

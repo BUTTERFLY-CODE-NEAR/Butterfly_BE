@@ -19,8 +19,7 @@ public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Long
     Page<OrderDetails> findByOrderStatus(OrderStatus status, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE OrderDetails o SET o.orderStatus = :newStatus WHERE o.id IN :orderIds AND o.orderStatus = :currentStatus")
+    @Query("UPDATE OrderDetails o SET o.orderStatus = :newStatus WHERE o.id IN :orderIds")
     int updateOrderStatusInBulk(@Param("orderIds") List<Long> orderIds,
-                                @Param("currentStatus") OrderStatus currentStatus,
                                 @Param("newStatus") OrderStatus newStatus);
 }
