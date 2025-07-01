@@ -38,23 +38,26 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <!--배송 중 일괄 배송 완료 -->
-                        <div class="mb-3" id="bulkActionContainer" th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
-                            <div class="d-flex align-items-center">
+                        <div class="mb-3" id="bulkActionContainer">
+                            <div class="d-flex align-items-center" th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}">
                                 <div class="custom-control custom-checkbox mr-2">
                                     <input type="checkbox" class="custom-control-input" id="selectAll">
                                     <label class="custom-control-label" for="selectAll">전체 선택</label>
                                 </div>
                                 <button id="bulkCompleteBtn" class="btn btn-success btn-sm ml-2" disabled>
-                                    <i class="fas fa-check"></i> 선택 항목 일괄 배송 완료
+                                    <i class="fas fa-check"></i>
+                                    <span th:if="${param.status[0] == 'DELIVERY'}">선택 항목 일괄 배송 완료</span>
+                                    <span th:if="${param.status[0] == 'READY'}">선택 항목 일괄 배송 중</span>
                                 </button>
                             </div>
                         </div>
+
 
                         <div class="table-responsive">
                             <table class="table table-bordered" id="orderTable">
                                 <thead>
                                 <tr>
-                                    <th th:if="${param.status != null && param.status[0] == 'DELIVERY'}" width="5%">
+                                    <th th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}" width="5%">
                                         <span class="sr-only">선택</span>
                                     </th>
                                     <th>주문일</th>
@@ -68,7 +71,7 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="order : ${orders}">
-                                    <td th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
+                                    <td th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input order-checkbox"
                                                    th:id="'order-' + ${order.id}"
@@ -219,7 +222,7 @@
 
         const currentStatus = [[${param.status != null ? param.status[0] : null}]];
         console.log(currentStatus)
-        if (currentStatus === 'DELIVERY') {
+        if (currentStatus === 'DELIVERY' || currentStatus === 'READY') {
             const selectAllCheckbox = document.getElementById('selectAll');
             const orderCheckboxes = document.querySelectorAll('.order-checkbox');
             const bulkCompleteBtn = document.getElementById('bulkCompleteBtn');
@@ -266,15 +269,18 @@
             confirmBulkCompleteBtn.addEventListener('click', function() {
                 const selectedOrderIds = Array.from(document.querySelectorAll('.order-checkbox:checked'))
                     .map(checkbox => checkbox.getAttribute('data-order-id'));
-
+                const targetStatus = currentStatus === 'DELIVERY' ? 'COMPLETED' : 'DELIVERY';
                 // AJAX 요청으로 일괄 처리
-                fetch('/admin/bulk-complete-orders', {
-                    method: 'POST',
+                fetch('/admin/orders/status', {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
                     },
-                    body: JSON.stringify({orderIds: selectedOrderIds})
+                    body: JSON.stringify({
+                        orderIds: selectedOrderIds,
+                        status: targetStatus
+                    })
                 })
                 .then(response => {
                     if (response.ok) {
