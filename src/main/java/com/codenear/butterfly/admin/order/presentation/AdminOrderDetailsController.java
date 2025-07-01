@@ -1,6 +1,7 @@
 package com.codenear.butterfly.admin.order.presentation;
 
 import com.codenear.butterfly.admin.order.application.AdminOrderDetailsService;
+import com.codenear.butterfly.admin.order.dto.BulkCompleteDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -65,18 +66,17 @@ public class AdminOrderDetailsController {
         return "redirect:/admin/delivery-status";
     }
 
-    @PostMapping("/bulk-complete-orders")
+    @PatchMapping("/orders/status")
     @ResponseBody
-    public ResponseEntity<ResponseDTO> bulkCompleteOrders(@RequestBody Map<String, List<Long>> requestBody) {
-        List<Long> orderIds = requestBody.get("orderIds");
-
+    public ResponseEntity<ResponseDTO> bulkCompleteOrders(@RequestBody BulkCompleteDTO bulkCompleteDTO) {
+        List<Long> orderIds = bulkCompleteDTO.orderIds();
         if (orderIds == null || orderIds.isEmpty()) {
             return ResponseUtil.createErrorResponse(ErrorCode.PRODUCT_NOT_SELECTED, null);
         }
 
         try {
-            int processedCount = adminOrderDetailsService.bulkCompleteOrders(orderIds);
-            String message = "총 " + processedCount + "개의 주문이 배송 완료 처리되었습니다.";
+            int processedCount = adminOrderDetailsService.bulkChangeOrderStatus(orderIds, bulkCompleteDTO.status());
+            String message = String.format("총 %s개의 주문이 %s로 변경되었습니다.", processedCount, bulkCompleteDTO.status());
             return ResponseUtil.createSuccessResponse(message, null);
         } catch (Exception e) {
             return ResponseUtil.createErrorResponse(ErrorCode.SERVER_ERROR, null);
