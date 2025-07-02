@@ -4,6 +4,7 @@ import com.codenear.butterfly.product.domain.Option;
 import com.codenear.butterfly.product.domain.Price;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.dto.OptionDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductImageDTO;
@@ -25,7 +26,7 @@ public class ProductMapper {
                 product.getCurrentDiscountRate()
         );
         List<ProductImageDTO> mainImageDTOs = toProductImageDTOList(product.getProductImage());
-        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, mainImageDTOs);
+        return new ProductViewDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, mainImageDTOs, product instanceof SmallBusinessProduct);
     }
 
     public static ProductDetailDTO toProductDetailDTO(ProductInventory product, boolean isFavorite, Float appliedGauge) {
