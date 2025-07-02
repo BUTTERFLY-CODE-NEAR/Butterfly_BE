@@ -3,6 +3,7 @@ package com.codenear.butterfly.product.presentation;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.domain.Category;
+import com.codenear.butterfly.product.domain.dto.MealScheduleTimeDTO;
 import com.codenear.butterfly.product.domain.dto.ProductDetailDTO;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +48,7 @@ public interface ProductControllerSwagger {
     @Operation(summary = "소상공인 상품 판매 시간", description = "점심/저녁 판매 시간 API")
     @ApiResponses({
             @ApiResponse(responseCode = "body", description = "응답 메시지 예시",
-                    content = @Content(schema = @Schema(implementation = ProductViewDTO.class))),
+                    content = @Content(schema = @Schema(implementation = MealScheduleTimeDTO.class))),
             @ApiResponse(responseCode = "200", description = "Success")
     })
     ResponseEntity<ResponseDTO> getMealTime(@AuthenticationPrincipal MemberDTO memberDTO);
