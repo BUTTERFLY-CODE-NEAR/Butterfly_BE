@@ -36,7 +36,7 @@ public class ProductMapper {
                 .toList();
         List<ProductImageDTO> mainImageDTOs = toProductImageDTOList(product.getProductImage());
         List<ProductImageDTO> descriptionImageDTOs = toProductImageDTOList(product.getDescriptionImages());
-        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs, mainImageDTOs);
+        return new ProductDetailDTO(product, price, isFavorite, calculateFinalSaleRate(product), nextSaleRate(product), appliedGauge, optionDTOs, descriptionImageDTOs, mainImageDTOs, product instanceof SmallBusinessProduct);
     }
 
     private static BigDecimal calculateFinalSaleRate(ProductInventory product) {

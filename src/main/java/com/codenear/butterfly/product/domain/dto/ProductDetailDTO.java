@@ -27,7 +27,8 @@ public record ProductDetailDTO(
         @Schema(description = "신청 게이지") Float appliedGauge,
         @Schema(description = "배송 정보") String deliveryInformation,
         @Schema(description = "품절 여부") Boolean isSoldOut,
-        @Schema(description = "상품 설명 이미지 리스트") List<ProductImageDTO> descriptionImages
+        @Schema(description = "상품 설명 이미지 리스트") List<ProductImageDTO> descriptionImages,
+        @Schema(description = "소상공인 상품 여부") boolean isSmallBusinessProduct
 ) {
     public ProductDetailDTO(ProductInventory product,
                             Price price,
@@ -37,12 +38,13 @@ public record ProductDetailDTO(
                             Float appliedGauge,
                             List<OptionDTO> option,
                             List<ProductImageDTO> descriptionImages,
-                            List<ProductImageDTO> mainImages) {
+                            List<ProductImageDTO> mainImages,
+                            boolean isSmallBusinessProduct) {
         this(product.getId(), product.getCompanyName(), product.getProductName(), mainImages,
                 price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, option, product.getDescription(), product.getProductVolume(),
                 product.getExpirationDate(), appliedGauge, product.getDeliveryInformation(), product.isSoldOut(),
-                descriptionImages);
+                descriptionImages, isSmallBusinessProduct);
 
     }
 }
