@@ -63,6 +63,10 @@ public class MemberService {
 
     }
 
+    @CacheEvict(value = "userCache", key = "#memberId")
+    public void evictMemberCache(Long memberId) {
+    }
+
     public Member loadMemberByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(ErrorCode.SERVER_ERROR, null));
