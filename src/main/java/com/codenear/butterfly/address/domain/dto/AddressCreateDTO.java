@@ -22,4 +22,10 @@ public class AddressCreateDTO {
 
     @Schema(description = "현관 비밀번호", example = "#1234")
     private String entrancePassword;
+
+    @Schema(description = "위도", example = "37.30574")
+    private double latitude;
+
+    @Schema(description = "경도", example = "127.92251")
+    private double longitude;
 }
