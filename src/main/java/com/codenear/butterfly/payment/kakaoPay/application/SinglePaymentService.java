@@ -1,6 +1,6 @@
 package com.codenear.butterfly.payment.kakaoPay.application;
 
-import com.codenear.butterfly.address.domain.AddressRepository;
+import com.codenear.butterfly.address.domain.repository.AddressRepository;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
