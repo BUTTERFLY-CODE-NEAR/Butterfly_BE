@@ -1,7 +1,7 @@
 package com.codenear.butterfly.payment.application;
 
 import com.codenear.butterfly.address.domain.Address;
-import com.codenear.butterfly.address.domain.AddressRepository;
+import com.codenear.butterfly.address.domain.repository.AddressRepository;
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.HashMapUtil;
 import com.codenear.butterfly.member.domain.Member;

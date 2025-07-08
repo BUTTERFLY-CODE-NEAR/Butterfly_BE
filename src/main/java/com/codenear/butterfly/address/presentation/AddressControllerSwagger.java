@@ -4,6 +4,7 @@ import com.codenear.butterfly.address.domain.dto.AddressAddResponseDTO;
 import com.codenear.butterfly.address.domain.dto.AddressCreateDTO;
 import com.codenear.butterfly.address.domain.dto.AddressResponse;
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
+import com.codenear.butterfly.address.domain.dto.SpotResponseDTO;
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,4 +54,8 @@ public interface AddressControllerSwagger {
 
     @Operation(summary = "주소 삭제", description = "주소 삭제 API (메인 주소 삭제 : 마지막 주소로 메인 변경)")
     ResponseEntity<ResponseDTO> deleteAddress(@PathVariable Long addressId, @AuthenticationPrincipal MemberDTO memberDTO);
+
+    @Operation(summary = "가까운 스팟 반환", description = "사용자의 메인 주소를 기준으로 가장 가까운 스팟 반환 API")
+    @ApiResponse(responseCode = "200", description = "SpotResponseDTO", content = @Content(schema = @Schema(implementation = SpotResponseDTO.class)))
+    ResponseEntity<ResponseDTO> getNearSpot(@PathVariable Long addressId);
 }

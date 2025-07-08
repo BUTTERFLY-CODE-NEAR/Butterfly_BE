@@ -11,17 +11,21 @@ public record AddressResponse(
         @Schema(description = "상세 주소") String detailedAddress,
         @Schema(description = "현관 비밀번호") String entrancePassword,
         @Schema(description = "배달비") Integer deliveryFee,
-        @Schema(description = "메인 주소 여부") boolean isMainAddress) {
+        @Schema(description = "메인 주소 여부") boolean isMainAddress,
+        @Schema(description = "위도") double latitude,
+        @Schema(description = "경도") double longitude) {
 
-    public static AddressResponse fromEntity(Address address) {
+    public static AddressResponse fromEntity(Address address, Integer deliveryFee) {
         return new AddressResponse(
                 address.getId(),
                 address.getAddressName(),
                 address.getAddress(),
                 address.getDetailedAddress(),
                 address.getEntrancePassword(),
-                address.getDeliveryFee(),
-                address.isMainAddress()
+                deliveryFee,
+                address.isMainAddress(),
+                address.getLatitude(),
+                address.getLongitude()
         );
     }
 }
