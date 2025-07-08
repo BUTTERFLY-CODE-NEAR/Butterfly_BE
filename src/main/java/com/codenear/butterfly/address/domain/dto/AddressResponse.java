@@ -15,14 +15,14 @@ public record AddressResponse(
         @Schema(description = "위도") double latitude,
         @Schema(description = "경도") double longitude) {
 
-    public static AddressResponse fromEntity(Address address) {
+    public static AddressResponse fromEntity(Address address, Integer deliveryFee) {
         return new AddressResponse(
                 address.getId(),
                 address.getAddressName(),
                 address.getAddress(),
                 address.getDetailedAddress(),
                 address.getEntrancePassword(),
-                address.getDeliveryFee(),
+                deliveryFee,
                 address.isMainAddress(),
                 address.getLatitude(),
                 address.getLongitude()

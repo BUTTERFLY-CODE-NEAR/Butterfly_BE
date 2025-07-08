@@ -34,10 +34,6 @@ public class Address {
 
     private String entrancePassword; // 현관 비밀번호
 
-    private int distance;
-
-    private Integer deliveryFee;
-
     @Setter
     private boolean isMainAddress;
 
@@ -49,11 +45,10 @@ public class Address {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void updateAddress(AddressUpdateDTO addressUpdateDTO, Integer deliveryFee) {
+    public void updateAddress(AddressUpdateDTO addressUpdateDTO) {
         this.addressName = addressUpdateDTO.getAddressName();
         this.address = addressUpdateDTO.getAddress();
         this.detailedAddress = addressUpdateDTO.getDetailedAddress();
         this.entrancePassword = addressUpdateDTO.getEntrancePassword();
-        this.deliveryFee = deliveryFee;
     }
 }

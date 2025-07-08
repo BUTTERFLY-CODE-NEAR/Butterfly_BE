@@ -41,14 +41,14 @@ public class AddressService {
         moveMainAddress(addresses); // 메인 주소 가장 상단 배치
 
         return addresses.stream()
-                .map(address -> AddressResponse.fromEntity(address))
+                .map(address -> AddressResponse.fromEntity(address, calculateDeliveryFee(address)))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
     public AddressResponse getAddress(Long addressId) {
         Address address = loadAddress(addressId);
 
-        return AddressResponse.fromEntity(address);
+        return AddressResponse.fromEntity(address, calculateDeliveryFee(address));
     }
 
     public AddressAddResponseDTO createAddress(AddressCreateDTO addressCreateDTO, MemberDTO memberDTO) {
@@ -74,8 +74,8 @@ public class AddressService {
         if (!address.getMember().getId().equals(memberDTO.getId())) {
             throw new AddressException(SERVER_ERROR, null);
         }
-        
-        address.updateAddress(addressUpdateDTO, deliveryFee);
+
+        address.updateAddress(addressUpdateDTO);
     }
 
     /**
@@ -144,7 +144,15 @@ public class AddressService {
                 });
     }
 
-    private Integer calculateDeliveryFee(int distance) {
+    private Integer calculateDeliveryFee(Address address) {
+        List<Spot> spots = spotRepository.findAll();
+
+        Spot nearSpot = spots.stream()
+                .min(Comparator.comparingInt(spot ->
+                        calculateDistance(address.getLatitude(), address.getLongitude(), spot)))
+                .orElse(null);
+
+        int distance = calculateDistance(address.getLatitude(), address.getLongitude(), nearSpot);
 
         if (distance <= 300) {
             return 1000;
