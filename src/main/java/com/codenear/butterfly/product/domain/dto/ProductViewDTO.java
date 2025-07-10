@@ -15,7 +15,6 @@ public record ProductViewDTO(
         @Schema(description = "상품 이미지") List<ProductImageDTO> productImage,
         @Schema(description = "상품 원가") Integer originalPrice,
         @Schema(description = "할인률 (%)") BigDecimal saleRate,
-        @Schema(description = "다음 할인율 (%)") BigDecimal nextSaleRate,
         @Schema(description = "상품 할인가") Integer salePrice,
         @Schema(description = "현재 구매 수량") Integer purchaseParticipantCount,
         @Schema(description = "최대 구매 수량") Integer maxPurchaseCount,
@@ -29,12 +28,11 @@ public record ProductViewDTO(
                           Price price,
                           boolean isFavorite,
                           BigDecimal saleRate,
-                          BigDecimal nextSaleRate,
                           Float appliedGauge,
                           List<ProductImageDTO> productImages,
                           boolean isSmallBusinessProduct) {
         this(product.getId(), product.getCompanyName(), product.getProductName(), productImages,
-                price.originalPrice(), saleRate, nextSaleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
+                price.originalPrice(), saleRate, price.calculateSalePrice(), product.getPurchaseParticipantCount(),
                 product.getMaxPurchaseCount(), isFavorite, product.isSoldOut(), appliedGauge, product.getDeliveryInformation(), isSmallBusinessProduct);
     }
 }
