@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class RabbitMQConsumer {
-    private final int DEFAULT_MAX_PURCHASE_NUM = 5;
     private final ProductInventoryRepository productInventoryRepository;
 
     /**
@@ -33,7 +32,7 @@ public class RabbitMQConsumer {
             ProductInventory product = productInventoryRepository.findProductByProductName(message.getProductName());
             // 예약된 재고를 최종 차감
             product.decreaseQuantity(message.getQuantity());
-            product.increasePurchaseParticipantCount(message.getQuantity(), DEFAULT_MAX_PURCHASE_NUM);
+            product.increasePurchaseParticipantCount(message.getQuantity());
 
             // 메시지 처리 성공 시 ack
             channel.basicAck(rabbitMessage.getMessageProperties().getDeliveryTag(), false);
@@ -53,7 +52,7 @@ public class RabbitMQConsumer {
             ProductInventory product = productInventoryRepository.findProductByProductName(message.getProductName());
             // 취소된 주문 재고 추가
             product.increaseQuantity(message.getQuantity());
-            product.decreasePurchaseParticipantCount(message.getQuantity(), DEFAULT_MAX_PURCHASE_NUM);
+            product.decreasePurchaseParticipantCount(message.getQuantity());
 
             // 메시지 처리 성공 시 ack
             channel.basicAck(rabbitMessage.getMessageProperties().getDeliveryTag(), false);
