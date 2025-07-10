@@ -50,5 +50,7 @@ public class Address {
         this.address = addressUpdateDTO.getAddress();
         this.detailedAddress = addressUpdateDTO.getDetailedAddress();
         this.entrancePassword = addressUpdateDTO.getEntrancePassword();
+        this.latitude = addressUpdateDTO.getLatitude();
+        this.longitude = addressUpdateDTO.getLongitude();
     }
 }

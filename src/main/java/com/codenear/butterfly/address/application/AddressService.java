@@ -60,9 +60,10 @@ public class AddressService {
                 .detailedAddress(addressCreateDTO.getDetailedAddress())
                 .entrancePassword(addressCreateDTO.getEntrancePassword())
                 .isMainAddress(member.getAddresses().isEmpty()) // 첫 주소 등록 시, 메인 주소로 설정
+                .latitude(addressCreateDTO.getLatitude())
+                .longitude(addressCreateDTO.getLongitude())
                 .member(member)
                 .build();
-
         Address saveAddress = addressRepository.save(address);
 
         return new AddressAddResponseDTO(saveAddress.getId());
