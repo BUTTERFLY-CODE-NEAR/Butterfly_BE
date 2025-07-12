@@ -5,6 +5,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.member.domain.Member;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.application.PaymentCancel;
 import com.codenear.butterfly.payment.application.PaymentService;
 import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.PaymentRedisField;
@@ -15,6 +16,7 @@ import com.codenear.butterfly.payment.domain.dto.handler.CancelFreePaymentHandle
 import com.codenear.butterfly.payment.domain.dto.handler.CancelHandler;
 import com.codenear.butterfly.payment.domain.dto.handler.CancelPaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.request.BasePaymentRequestDTO;
+import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
@@ -23,7 +25,6 @@ import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRe
 import com.codenear.butterfly.payment.tossPay.domain.dto.CancelResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ConfirmResponseDTO;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
-import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.util.TossPaymentUtil;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.ProductInventory;
@@ -39,7 +40,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @Slf4j
-public class TossPaymentServiceImpl extends PaymentService implements TossPaymentService {
+public class TossPaymentServiceImpl extends PaymentService implements TossPaymentService, PaymentCancel {
     private final PaymentRedisRepository paymentRedisRepository;
     private final TossPaymentUtil<Object> tossPaymentUtil;
     private final ProductInventoryRepository productInventoryRepository;
@@ -119,7 +120,7 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
     }
 
     @Override
-    public void cancelPayment(TossPaymentCancelRequestDTO cancelRequestDTO) {
+    public void cancel(CancelRequestDTO cancelRequestDTO) {
         OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
 
         CancelHandler handler;
@@ -132,6 +133,11 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
             handler = new CancelFreePaymentHandler(orderDetails);
         }
         super.processPaymentCancel(handler, orderDetails.getMember().getId());
+    }
+
+    @Override
+    public String getProvider() {
+        return "TOSS";
     }
 
     @Override

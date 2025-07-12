@@ -3,6 +3,7 @@ package com.codenear.butterfly.payment.kakaoPay.application;
 import com.codenear.butterfly.address.domain.repository.AddressRepository;
 import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.application.PaymentCancel;
 import com.codenear.butterfly.payment.application.PaymentService;
 import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.dto.handler.CancelFreePaymentHandler;
@@ -25,7 +26,7 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class CancelPaymentService extends PaymentService {
+public class CancelPaymentService extends PaymentService implements PaymentCancel {
     private final OrderDetailsRepository orderDetailsRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
 
@@ -45,7 +46,8 @@ public class CancelPaymentService extends PaymentService {
         this.kakaoPaymentUtil = kakaoPaymentUtil;
     }
 
-    public void cancelKakaoPay(CancelRequestDTO cancelRequestDTO) {
+    @Override
+    public void cancel(CancelRequestDTO cancelRequestDTO) {
 
         OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
 
@@ -60,5 +62,10 @@ public class CancelPaymentService extends PaymentService {
         }
 
         super.processPaymentCancel(handler, orderDetails.getMember().getId());
+    }
+
+    @Override
+    public String getProvider() {
+        return "KAKAO";
     }
 }
