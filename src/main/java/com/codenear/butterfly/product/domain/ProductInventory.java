@@ -150,6 +150,14 @@ public class ProductInventory extends Product {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 신청 재고 초기화
+     */
+    public void resetQuantity() {
+        this.stockQuantity = this.stockQuantity + this.purchaseParticipantCount;
+        this.purchaseParticipantCount = 0;
+    }
+
     private double calculateParticipationRate() {
         return ((double) purchaseParticipantCount / (purchaseParticipantCount + stockQuantity)) * 100;
     }
