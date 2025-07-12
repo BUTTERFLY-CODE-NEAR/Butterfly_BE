@@ -1,6 +1,6 @@
 package com.codenear.butterfly.payment.util;
 
-import com.codenear.butterfly.payment.kakaoPay.application.SinglePaymentService;
+import com.codenear.butterfly.payment.kakaoPay.application.KakaoPaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 
 @Component
 public class RedisExpiredKeyListener extends KeyExpirationEventMessageListener {
-    private final SinglePaymentService singlePaymentService;
+    private final KakaoPaymentServiceImpl singlePaymentService;
 
     @Autowired
-    public RedisExpiredKeyListener(RedisMessageListenerContainer listenerContainer, SinglePaymentService singlePaymentService) {
+    public RedisExpiredKeyListener(RedisMessageListenerContainer listenerContainer, KakaoPaymentServiceImpl singlePaymentService) {
         super(listenerContainer);
         this.singlePaymentService = singlePaymentService;
     }

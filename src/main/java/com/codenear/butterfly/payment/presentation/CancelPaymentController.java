@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.presentation.cancelPayment;
+package com.codenear.butterfly.payment.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.util.ResponseUtil;

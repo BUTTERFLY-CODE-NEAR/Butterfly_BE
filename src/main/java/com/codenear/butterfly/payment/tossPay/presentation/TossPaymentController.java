@@ -7,7 +7,6 @@ import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestD
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.tossPay.application.TossPaymentService;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
-import com.codenear.butterfly.payment.tossPay.presentation.swagger.TossPaymentControllerSwagger;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
