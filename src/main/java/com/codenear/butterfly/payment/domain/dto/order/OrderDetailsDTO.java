@@ -12,6 +12,7 @@ public record OrderDetailsDTO(
         @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") String productImage,
         @Schema(description = "총 결제 금액") Integer total,
         @Schema(description = "상품 수량") Integer quantity,
-        @Schema(description = "주문 상태", example = "배송 중") OrderStatus orderStatus
+        @Schema(description = "주문 상태", example = "배송 중") OrderStatus orderStatus,
+        @Schema(description = "결제 아이디") String tid
 ) {
 }
