@@ -21,7 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "SinglePay", description = "**카카오페이 단건결제 API**")
+@Tag(name = "KakaoPay", description = "**카카오페이 단건결제 API**")
 public interface KakaoPayControllerSwagger {
 
     @Operation(summary = "직거래 결제 준비", description = "직거래 결제 준비 API")
