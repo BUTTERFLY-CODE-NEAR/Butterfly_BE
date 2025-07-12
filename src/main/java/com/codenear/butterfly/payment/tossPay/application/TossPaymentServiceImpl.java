@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Transactional
 @Slf4j
 public class TossPaymentServiceImpl extends PaymentService implements TossPaymentService {
     private final PaymentRedisRepository paymentRedisRepository;
@@ -70,7 +71,6 @@ public class TossPaymentServiceImpl extends PaymentService implements TossPaymen
      * @param basePaymentRequestDTO 결제 데이터
      * @return ReadyResponseDTO
      */
-    @Transactional
     @Override
     public ReadyResponseDTO paymentReady(BasePaymentRequestDTO basePaymentRequestDTO, Long memberId, String orderType) {
         Member member = super.loadByMember(memberId);
