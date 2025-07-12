@@ -1,8 +1,12 @@
 package com.codenear.butterfly.product.util;
 
+import com.codenear.butterfly.admin.products.application.AdminProductService;
 import com.codenear.butterfly.admin.products.dto.ScheduleUpdateRequest;
+import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.product.domain.SBMealType;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.dto.MealSchedulerInfoDTO;
+import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
 import com.codenear.butterfly.product.domain.repository.ProductRedisRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
@@ -27,13 +32,22 @@ public class SBProductScheduler {
     private static final String DINNER_START_KEY = "dinnerStart";
     private static final String DINNER_END_KEY = "dinnerEnd";
     private final ProductRedisRepository productRedisRepository;
+    private final PaymentRedisRepository paymentRedisRepository;
+    private final ProductInventoryRepository productRepository;
+    private final AdminProductService adminProductService;
     private final TaskScheduler taskScheduler;
     private final Map<String, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
     private final Map<String, String> cronExpressions = new HashMap<>();
 
     @Autowired
-    public SBProductScheduler(ProductRedisRepository productRedisRepository) {
+    public SBProductScheduler(ProductRedisRepository productRedisRepository,
+                              PaymentRedisRepository paymentRedisRepository,
+                              ProductInventoryRepository productRepository,
+                              AdminProductService adminProductService) {
         this.productRedisRepository = productRedisRepository;
+        this.paymentRedisRepository = paymentRedisRepository;
+        this.productRepository = productRepository;
+        this.adminProductService = adminProductService;
         this.taskScheduler = createDedicatedTaskScheduler();
         // 기본값 초기화
         cronExpressions.put(LUNCH_START_KEY, "0 0 0 * * *"); // 점심 시작 (00:00)
@@ -190,6 +204,9 @@ public class SBProductScheduler {
         try {
             log.info("{} 상품 업데이트 스케줄러 실행: {}", mealType.name(), LocalDate.now());
             productRedisRepository.saveCurrentSmallBusinessProductIds(mealType);
+            List<SmallBusinessProduct> products = getSBProduct(mealType);
+
+            products.forEach(product -> paymentRedisRepository.saveStockQuantity(product.getProductName(), product.getStockQuantity()));
         } catch (Exception e) {
             log.error("{} 상품 업데이트 중 오류 발생", mealType.name(), e);
         }
@@ -202,8 +219,21 @@ public class SBProductScheduler {
         try {
             log.info("{} 상품 삭제 스케줄러 실행: {}", mealType.name(), LocalDate.now());
             productRedisRepository.clearCurrentSmallBusinessProductIds();
+
+            List<SmallBusinessProduct> products = getSBProduct(mealType);
+
+            products.forEach(product -> {
+                product.resetQuantity();
+                paymentRedisRepository.removeRemainderProduct(product.getProductName());
+                productRepository.save(product);
+            });
         } catch (Exception e) {
             log.error("{} 상품 캐시 삭제 중 오류 발생", mealType.name(), e);
         }
+    }
+
+    private List<SmallBusinessProduct> getSBProduct(SBMealType mealType) {
+        List<Long> productIds = adminProductService.loadSmallBusinessProductsByMealType(mealType);
+        return productRepository.findByIdIn(productIds);
     }
 }
