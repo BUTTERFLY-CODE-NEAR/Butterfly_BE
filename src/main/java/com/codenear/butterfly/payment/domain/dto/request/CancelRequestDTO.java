@@ -11,4 +11,8 @@ public class CancelRequestDTO {
     String orderCode;
     @Schema(description = "결제 취소 금액", example = "30000")
     String cancelAmount;
+    @Schema(description = "취소 사유", example = "단순변심")
+    String cancelReason;
+    @Schema(description = "결제 아이디")
+    String tid;
 }
