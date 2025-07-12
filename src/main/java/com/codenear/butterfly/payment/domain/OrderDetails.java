@@ -110,6 +110,7 @@ public class OrderDetails {
         this.orderType = orderType;
         this.orderCode = generateOrderCode();
         this.createdAt = LocalDateTime.now();
+        this.tid = String.format("CODENEAR_%s", generateOrderCode());
         this.total = basePaymentRequestDTO.getTotal();
         this.productName = basePaymentRequestDTO.getProductName();
         this.productImage = getThumbnail(product.getProductImage());

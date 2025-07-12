@@ -6,8 +6,6 @@ import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.application.PaymentCancel;
 import com.codenear.butterfly.payment.application.PaymentService;
 import com.codenear.butterfly.payment.domain.OrderDetails;
-import com.codenear.butterfly.payment.domain.dto.handler.CancelFreePaymentHandler;
-import com.codenear.butterfly.payment.domain.dto.handler.CancelHandler;
 import com.codenear.butterfly.payment.domain.dto.handler.CancelPaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
 import com.codenear.butterfly.payment.domain.repository.CancelPaymentRepository;
@@ -27,7 +25,6 @@ import java.util.Map;
 @Service
 @Transactional
 public class KakaoCancelService extends PaymentService implements PaymentCancel {
-    private final OrderDetailsRepository orderDetailsRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
 
     public KakaoCancelService(SinglePaymentRepository singlePaymentRepository,
@@ -42,26 +39,15 @@ public class KakaoCancelService extends PaymentService implements PaymentCancel 
                               CancelPaymentRepository cancelPaymentRepository,
                               KakaoPaymentUtil<Object> kakaoPaymentUtil) {
         super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, paymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade, cancelPaymentRepository);
-        this.orderDetailsRepository = orderDetailsRepository;
         this.kakaoPaymentUtil = kakaoPaymentUtil;
     }
 
     @Override
-    public void cancel(CancelRequestDTO cancelRequestDTO) {
+    public void cancel(CancelRequestDTO cancelRequestDTO, OrderDetails orderDetails) {
+        Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
+        CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
 
-        OrderDetails orderDetails = orderDetailsRepository.findByOrderCode(cancelRequestDTO.getOrderCode());
-
-        CancelHandler handler;
-        if (orderDetails.getTotal() != 0) {
-            Map<String, Object> parameters = kakaoPaymentUtil.getKakaoPayCancelParameters(orderDetails, cancelRequestDTO);
-            CancelResponseDTO cancelResponseDTO = kakaoPaymentUtil.sendRequest("/cancel", parameters, CancelResponseDTO.class);
-
-            handler = new CancelPaymentHandler(cancelResponseDTO, orderDetails);
-        } else {
-            handler = new CancelFreePaymentHandler(orderDetails);
-        }
-
-        super.processPaymentCancel(handler, orderDetails.getMember().getId());
+        super.processPaymentCancel(new CancelPaymentHandler<CancelResponseDTO>(cancelResponseDTO, orderDetails), orderDetails.getMember().getId());
     }
 
     @Override
