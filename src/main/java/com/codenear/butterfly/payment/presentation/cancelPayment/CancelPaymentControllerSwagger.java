@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.kakaoPay.presentation.cancelPayment;
+package com.codenear.butterfly.payment.presentation.cancelPayment;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
