@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.kakaoPay.presentation.singlepay;
+package com.codenear.butterfly.payment.kakaoPay.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.global.exception.ErrorCode;
@@ -9,7 +9,7 @@ import com.codenear.butterfly.payment.domain.dto.order.OrderDTO;
 import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.exception.PaymentException;
-import com.codenear.butterfly.payment.kakaoPay.application.SinglePaymentService;
+import com.codenear.butterfly.payment.kakaoPay.application.KakaoPaymentServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,9 +27,9 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/payment")
 @RequiredArgsConstructor
-public class SinglePayController implements SinglePayControllerSwagger {
+public class KakaoPayController implements KakaoPayControllerSwagger {
 
-    private final SinglePaymentService singlePaymentService;
+    private final KakaoPaymentServiceImpl singlePaymentService;
     private final OrderDetailsService orderDetailsService;
 
     @PostMapping("/ready/pickup")

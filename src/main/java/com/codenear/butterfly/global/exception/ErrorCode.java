@@ -41,6 +41,7 @@ public enum ErrorCode {
     // 402 (PAYMENT_REQUIRED)
     PAY_FAILED(40200, "결제가 실패하였습니다.", PAYMENT_REQUIRED),
     PAYMENT_REDIRECT_FAILED(40201, "페이지 이동에 실패하였습니다", PAYMENT_REQUIRED),
+    PAYMENT_NOT_FOUND_PROVIDER(40202, "지원하지 않는 결제수단입니다.", PAYMENT_REQUIRED),
 
     // 403 (FORBIDDEN)
     INVALID_EMAIL_OR_PASSWORD(40300, "아이디 혹은 비밀번호가 틀렸습니다.", FORBIDDEN),
@@ -54,7 +55,7 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND_BY_PHONE(40405, "일치하는 회원 정보가 없습니다.", NOT_FOUND),
     MEMBER_NOT_FOUND_BY_EMAIL(40406, "일치하는 회원 정보가 없습니다.", NOT_FOUND),
     MEMBER_NOT_FOUND_BY_EMAIL_AND_PLATFORM(40407, "일치하는 회원 정보가 없습니다.", NOT_FOUND),
-    PRODUCT_NOT_SELECTED(40408,"처리할 주문이 선택되지 않았습니다.", NOT_FOUND),
+    PRODUCT_NOT_SELECTED(40408, "처리할 주문이 선택되지 않았습니다.", NOT_FOUND),
 
     // 409 (CONFLICT)
     EMAIL_ALREADY_IN_USE(40900, "이메일이 중복되었습니다.", CONFLICT),

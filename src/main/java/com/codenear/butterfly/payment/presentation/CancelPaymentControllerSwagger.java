@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.kakaoPay.presentation.cancelPayment;
+package com.codenear.butterfly.payment.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "CancelPayment", description = "**카카오페이 결제취소 API**")
+@Tag(name = "CancelPayment", description = "**결제취소 API**")
 public interface CancelPaymentControllerSwagger {
 
     @Operation(summary = "결제 취소(환불)", description = "결제 취소 API")

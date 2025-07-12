@@ -38,7 +38,8 @@ public class OrderDetailsService {
                 orderDetails.getProductImage(),
                 orderDetails.getTotal(),
                 orderDetails.getQuantity(),
-                orderDetails.getOrderStatus()
+                orderDetails.getOrderStatus(),
+                orderDetails.getTid()
         );
     }
 }
