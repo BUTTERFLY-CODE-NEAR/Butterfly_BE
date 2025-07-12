@@ -7,7 +7,6 @@ import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestD
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.tossPay.application.TossPaymentService;
 import com.codenear.butterfly.payment.tossPay.domain.dto.ReadyResponseDTO;
-import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import com.codenear.butterfly.payment.tossPay.presentation.swagger.TossPaymentControllerSwagger;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -58,11 +57,5 @@ public class TossPaymentController implements TossPaymentControllerSwagger {
                                                        HttpServletResponse response) {
         tossPaymentService.failPayment(memberId, productName, quantity);
         return ResponseUtil.createSuccessResponse(null);
-    }
-
-    @PostMapping("/cancel")
-    public void tossPaymentCancel(@RequestBody TossPaymentCancelRequestDTO cancelRequestDTO,
-                                  @AuthenticationPrincipal MemberDTO memberDTO) {
-        tossPaymentService.cancelPayment(cancelRequestDTO);
     }
 }

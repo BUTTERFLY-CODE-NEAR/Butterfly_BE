@@ -5,7 +5,6 @@ import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.payment.domain.dto.request.DeliveryPaymentRequestDTO;
 import com.codenear.butterfly.payment.domain.dto.request.PickupPaymentRequestDTO;
 import com.codenear.butterfly.payment.exception.PaymentException;
-import com.codenear.butterfly.payment.tossPay.domain.dto.TossPaymentCancelRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -55,8 +54,4 @@ public interface TossPaymentControllerSwagger {
                                                 @RequestParam("productName") String productName,
                                                 @RequestParam("quantity") int quantity,
                                                 HttpServletResponse response);
-
-    @Operation(summary = "결제 취소", description = "결제 취소 API")
-    void tossPaymentCancel(@RequestBody TossPaymentCancelRequestDTO cancelRequestDTO,
-                           @AuthenticationPrincipal MemberDTO memberDTO);
 }
