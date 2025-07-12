@@ -2,8 +2,8 @@ package com.codenear.butterfly.payment.application;
 
 import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
+import com.codenear.butterfly.payment.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.exception.PaymentException;
-import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,11 @@ public class PaymentCancelService {
     private final List<PaymentCancel> cancelServices;
     private final SinglePaymentRepository singlePaymentRepository;
 
+    /**
+     * 결제 취소 분기처리
+     *
+     * @param request 결제 취소 DTO
+     */
     public void cancelPayment(CancelRequestDTO request) {
         String provider = getProvider(request.getTid());
         PaymentCancel cancelService = cancelServices.stream()
@@ -25,6 +30,12 @@ public class PaymentCancelService {
         cancelService.cancel(request);
     }
 
+    /**
+     * provider를 가져온다 (TOSS, KAKAO, SinglePayment)
+     *
+     * @param tid
+     * @return
+     */
     private String getProvider(String tid) {
         return singlePaymentRepository.findProviderByTid(tid);
     }
