@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.kakaoPay.presentation.singlepay;
+package com.codenear.butterfly.payment.kakaoPay.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "SinglePay", description = "**카카오페이 단건결제 API**")
-public interface SinglePayControllerSwagger {
+public interface KakaoPayControllerSwagger {
 
     @Operation(summary = "직거래 결제 준비", description = "직거래 결제 준비 API")
     ResponseEntity<ResponseDTO> pickupPaymentRequest(@RequestBody PickupPaymentRequestDTO paymentRequestDTO,

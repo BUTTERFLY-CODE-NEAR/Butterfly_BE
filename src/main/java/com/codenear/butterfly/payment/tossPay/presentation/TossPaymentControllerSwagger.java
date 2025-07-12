@@ -1,4 +1,4 @@
-package com.codenear.butterfly.payment.tossPay.presentation.swagger;
+package com.codenear.butterfly.payment.tossPay.presentation;
 
 import com.codenear.butterfly.global.dto.ResponseDTO;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;

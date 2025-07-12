@@ -10,11 +10,11 @@ import com.codenear.butterfly.payment.domain.dto.handler.CancelFreePaymentHandle
 import com.codenear.butterfly.payment.domain.dto.handler.CancelHandler;
 import com.codenear.butterfly.payment.domain.dto.handler.CancelPaymentHandler;
 import com.codenear.butterfly.payment.domain.dto.request.CancelRequestDTO;
+import com.codenear.butterfly.payment.domain.repository.CancelPaymentRepository;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
+import com.codenear.butterfly.payment.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.domain.dto.CancelResponseDTO;
-import com.codenear.butterfly.payment.kakaoPay.domain.repository.CancelPaymentRepository;
-import com.codenear.butterfly.payment.kakaoPay.domain.repository.SinglePaymentRepository;
 import com.codenear.butterfly.payment.kakaoPay.util.KakaoPaymentUtil;
 import com.codenear.butterfly.point.domain.PointRepository;
 import com.codenear.butterfly.product.domain.repository.ProductInventoryRepository;
@@ -26,21 +26,21 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class CancelPaymentService extends PaymentService implements PaymentCancel {
+public class KakaoCancelService extends PaymentService implements PaymentCancel {
     private final OrderDetailsRepository orderDetailsRepository;
     private final KakaoPaymentUtil<Object> kakaoPaymentUtil;
 
-    public CancelPaymentService(SinglePaymentRepository singlePaymentRepository,
-                                AddressRepository addressRepository,
-                                OrderDetailsRepository orderDetailsRepository,
-                                MemberRepository memberRepository,
-                                ProductInventoryRepository productInventoryRepository,
-                                PaymentRedisRepository paymentRedisRepository,
-                                PointRepository pointRepository,
-                                ApplicationEventPublisher applicationEventPublisher,
-                                FCMFacade fcmFacade,
-                                CancelPaymentRepository cancelPaymentRepository,
-                                KakaoPaymentUtil<Object> kakaoPaymentUtil) {
+    public KakaoCancelService(SinglePaymentRepository singlePaymentRepository,
+                              AddressRepository addressRepository,
+                              OrderDetailsRepository orderDetailsRepository,
+                              MemberRepository memberRepository,
+                              ProductInventoryRepository productInventoryRepository,
+                              PaymentRedisRepository paymentRedisRepository,
+                              PointRepository pointRepository,
+                              ApplicationEventPublisher applicationEventPublisher,
+                              FCMFacade fcmFacade,
+                              CancelPaymentRepository cancelPaymentRepository,
+                              KakaoPaymentUtil<Object> kakaoPaymentUtil) {
         super(singlePaymentRepository, addressRepository, orderDetailsRepository, memberRepository, productInventoryRepository, paymentRedisRepository, pointRepository, applicationEventPublisher, fcmFacade, cancelPaymentRepository);
         this.orderDetailsRepository = orderDetailsRepository;
         this.kakaoPaymentUtil = kakaoPaymentUtil;
