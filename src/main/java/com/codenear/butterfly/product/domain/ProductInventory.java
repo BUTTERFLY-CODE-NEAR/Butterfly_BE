@@ -153,9 +153,13 @@ public class ProductInventory extends Product {
     /**
      * 신청 재고 초기화
      */
-    public void resetQuantity() {
+    public void resetQuantity(List<DiscountRate> discountRate) {
         this.stockQuantity = this.stockQuantity + this.purchaseParticipantCount;
         this.purchaseParticipantCount = 0;
+        this.maxPurchaseCount = discountRate.stream()
+                .min(Comparator.comparingDouble(DiscountRate::getMinParticipationRate))
+                .map(rate -> (int) Math.floor((this.stockQuantity + this.purchaseParticipantCount) * (rate.getMaxParticipationRate() / 100.0)))
+                .orElse(1);
     }
 
     private double calculateParticipationRate() {

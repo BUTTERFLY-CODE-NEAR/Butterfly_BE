@@ -223,7 +223,7 @@ public class SBProductScheduler {
             List<SmallBusinessProduct> products = getSBProduct(mealType);
 
             products.forEach(product -> {
-                product.resetQuantity();
+                product.resetQuantity(product.getDiscountRates());
                 paymentRedisRepository.removeRemainderProduct(product.getProductName());
                 productRepository.save(product);
             });

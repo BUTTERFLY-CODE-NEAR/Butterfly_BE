@@ -4,6 +4,7 @@ import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.ProductInventory;
 import com.codenear.butterfly.product.domain.SBMealType;
 import com.codenear.butterfly.product.domain.SmallBusinessProduct;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,5 +28,6 @@ public interface ProductInventoryRepository extends JpaRepository<ProductInvento
     @Query(value = "SELECT SB.id from SmallBusinessProduct SB where SB.mealType = :mealType")
     List<Long> findIdsByMealType(@Param(value = "mealType") SBMealType mealType);
 
+    @EntityGraph(attributePaths = {"discountRates"})
     List<SmallBusinessProduct> findByIdIn(List<Long> productIds);
 }

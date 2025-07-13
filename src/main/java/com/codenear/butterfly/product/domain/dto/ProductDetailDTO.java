@@ -12,7 +12,7 @@ public record ProductDetailDTO(
         @Schema(description = "상품 ID") Long productId,
         @Schema(description = "상품 제조사 및 판매처") String companyName,
         @Schema(description = "상품 이름") String productName,
-        @Schema(description = "상품 이미지", example = "http://example.com/profile.jpg") List<ProductImageDTO> productImage,
+        @Schema(description = "상품 이미지") List<ProductImageDTO> productImage,
         @Schema(description = "상품 원가") Integer originalPrice,
         @Schema(description = "할인률 (%)") BigDecimal saleRate,
         @Schema(description = "상품 할인가") Integer salePrice,
