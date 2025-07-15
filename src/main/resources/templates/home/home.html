@@ -23,7 +23,6 @@
         <span>나비</span>
     </div>
     <nav>
-        <a href="#about">소개</a>
         <a href="#services">서비스</a>
         <a href="#notice">공지</a>
         <a href="#contact">문의</a>
@@ -60,13 +59,13 @@
         <div class="service-card" data-aos="fade-up" data-aos-delay="200">
             <img th:src="@{/home/assets/explain-3.png}" alt="포인트 적립">
             <h3>“할인된 만큼 포인트 백!”</h3>
-            <p>선결제해도 할인 적용 후 포인트로 돌려받아요</p>
+            <p>선결제해도 모인만큼 포인트로 돌려받자</p>
         </div>
 
         <div class="service-card" data-aos="fade-up" data-aos-delay="300">
             <img th:src="@{/home/assets/explain-4.png}" alt="소규모 픽업">
             <h3>“소규모 공동구매로 픽업 가능!”</h3>
-            <p>배송비 걱정 없는 소규모 이웃 공동구매</p>
+            <p>배송비도 나누는 소규모 이웃 공동구매</p>
         </div>
     </div>
 </section>
@@ -90,7 +89,11 @@
 </section>
 
 <footer>
-    <p><strong>㈜코드니어</strong><br>Copyright ⓒ CODE NEAR. All Rights Reserved<br><small>사업자 등록번호: 설립예정 | 대표: 송민주</small></p>
+    <p><strong>㈜코드니어</strong>
+        <br>Copyright ⓒ CODE NEAR. All Rights Reserved<br>
+        <small>주소: 서울특별시 서초구 사임당로8길 13 4층 402-엘260호 | 사업자 등록번호: 184-88-03356<br>
+            대표이사: 송민주 | 문의: 82+10-4564-1198</small>
+    </p>
 </footer>
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -98,8 +101,8 @@
 <script>
     AOS.init();
 
-    const notices = [  // ✅ 변수명 수정: notice → notices
-        {id: 1, title:'[법인 설립] 6월 20일 주식회사 코드니어 법인설립 예정', date: '2025.06.17'},
+    const notices = [
+        {id: 1, title:'[법인 설립] 6월 30일 주식회사 코드니어 법인설립', date: '2025.06.30'},
         {id: 2, title:'[신규 런칭] 나비 서비스 런칭 안내', date: '2025.06.10'}
     ];
 
