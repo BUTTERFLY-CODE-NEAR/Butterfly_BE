@@ -1,5 +1,7 @@
 package com.codenear.butterfly.sms.application;
 
+import com.codenear.butterfly.sms.domain.dto.CloudSmsResponseDTO;
+
 public interface SmsService {
-    void sendSMS(String phoneNumber, String message);
+    CloudSmsResponseDTO sendSMS(String phoneNumber, String message);
 }

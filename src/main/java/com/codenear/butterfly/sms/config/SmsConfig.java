@@ -1,5 +1,6 @@
 package com.codenear.butterfly.sms.config;
 
+import com.codenear.butterfly.sms.domain.dto.CloudSmsResponseDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -32,22 +33,22 @@ public class SmsConfig {
     @Value("${cloud-sms.host}")
     private String host;
 
-    public void sendRequest(Map<String, Object> parameters) {
+    public CloudSmsResponseDTO sendRequest(Map<String, Object> parameters) {
         String urlPath = "/sms/v2/services/" + serviceId + "/messages";
         String url = host + urlPath;
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(parameters, getHeaders(urlPath));
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.postForObject(url, requestEntity, Void.class);
+        return restTemplate.postForObject(url, requestEntity, CloudSmsResponseDTO.class);
     }
 
-    public void sendSms(String to, String content) {
+    public CloudSmsResponseDTO sendSms(String to, String content) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("type", "SMS");
         parameters.put("from", phone);
         parameters.put("content", content);
         parameters.put("messages", Collections.singletonList(Map.of("to", to)));
 
-        sendRequest(parameters);
+        return sendRequest(parameters);
     }
 
     private HttpHeaders getHeaders(String requestType) {
