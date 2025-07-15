@@ -5,7 +5,6 @@ import com.codenear.butterfly.member.domain.repository.member.MemberRepository;
 import com.codenear.butterfly.member.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,12 +25,12 @@ public class MemberDataAccess {
         return memberRepository.findByPhoneNumber(phoneNumber);
     }
 
-    @Cacheable(value = "memberCache", key = "#p0")
+    @CacheEvict(value = "userCache", key = "#p0")
     public Member findByMemberId(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(SERVER_ERROR, null));
     }
-    
+
     public Member save(Member member) {
         return memberRepository.save(member);
     }
@@ -46,7 +45,7 @@ public class MemberDataAccess {
         return linkedAccounts;
     }
 
-    @CacheEvict(cacheNames = {"userCache", "memberCache"}, key = "#p0")
+    @CacheEvict(value = {"userCache"}, key = "#p0")
     public void evictMemberCache(Long memberId) {
     }
 }

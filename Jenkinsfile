@@ -60,6 +60,9 @@ pipeline {
 
                     // Push Docker Image
                     sh "docker push ${DOCKER_USERNAME}/codenear-butterfly"
+
+                    // Docker Image Organize
+                    sh "docker image prune -f"
                 }
             }
         }
