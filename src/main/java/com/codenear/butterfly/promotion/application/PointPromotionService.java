@@ -1,17 +1,16 @@
 package com.codenear.butterfly.promotion.application;
 
-import static com.codenear.butterfly.notify.NotifyMessage.CITATION_PROMOTION;
-
-import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.member.domain.Member;
+import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.promotion.domain.PointPromotion;
 import com.codenear.butterfly.promotion.domain.Recipient;
 import com.codenear.butterfly.promotion.domain.repository.RecipientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.codenear.butterfly.notify.NotifyMessage.CITATION_PROMOTION;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,6 @@ public class PointPromotionService {
     private final RecipientRepository recipientRepository;
     private final FCMFacade fcmFacade;
 
-    @Transactional
     public void processPromotion(Member member) {
         PointPromotion promotion = promotionDataAccess.findPointPromotion(PROMOTION_ID);
         if (!isPromotionApplicable(member.getPhoneNumber(), promotion)) return;
