@@ -61,16 +61,16 @@ public class CredentialService {
                         new CertifyRequest(null, request.getIdentifier(), request.getCertifyCode());
                 certifyService.checkCertifyCode(certifyRequest, CertifyType.CERTIFY_EMAIL);
             }
-        };
+        }
     }
 
-    @CacheEvict(value = "userCache, memberCache", key = "#request.identifier")
+    @CacheEvict(value = "userCache", key = "#request.identifier")
     public void resetPassword(ResetPasswordRequestDTO request) {
         Member member = switch (request.getType()) {
             case PHONE -> loadMemberByPhoneNumber(request.getIdentifier());
             case EMAIL -> loadMemberByEmail(request.getIdentifier());
         };
-        
+
         String encodedPassword = passwordEncoder.encode(request.getNewPassword());
         member.updatePassword(encodedPassword);
 

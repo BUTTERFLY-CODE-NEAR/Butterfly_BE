@@ -6,14 +6,16 @@ import com.codenear.butterfly.certify.exception.CertifyException;
 import com.codenear.butterfly.global.util.RandomUtil;
 import com.codenear.butterfly.mail.application.MailService;
 import com.codenear.butterfly.sms.application.SmsService;
-import java.util.concurrent.TimeUnit;
-
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import static com.codenear.butterfly.global.exception.ErrorCode.*;
+import java.util.concurrent.TimeUnit;
+
+import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_EXPIRED;
+import static com.codenear.butterfly.global.exception.ErrorCode.CERTIFY_CODE_MISMATCH;
+import static com.codenear.butterfly.global.exception.ErrorCode.VALIDATION_FAILED;
 
 @Service
 @RequiredArgsConstructor
