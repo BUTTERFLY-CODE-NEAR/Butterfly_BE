@@ -5,6 +5,7 @@ import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.member.domain.dto.MemberDTO;
 import com.codenear.butterfly.product.application.CategoryService;
 import com.codenear.butterfly.product.application.FavoriteService;
+import com.codenear.butterfly.product.application.MealScheduleService;
 import com.codenear.butterfly.product.application.ProductViewService;
 import com.codenear.butterfly.product.domain.dto.ProductViewDTO;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ProductController implements ProductControllerSwagger {
     private final CategoryService categoryService;
     private final ProductViewService productViewService;
     private final FavoriteService favoriteService;
+    private final MealScheduleService mealScheduleService;
 
     @GetMapping("/categories")
     public ResponseEntity<ResponseDTO> categoryInfo() {
@@ -42,6 +44,16 @@ public class ProductController implements ProductControllerSwagger {
         } else {
             return ResponseUtil.createSuccessResponse(productViewService.getProductsByCategory(category, memberDTO));
         }
+    }
+
+    @GetMapping("/sb")
+    public ResponseEntity<ResponseDTO> getSmallBusinessProducts(@AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(productViewService.getSmallBusinessProducts(memberDTO));
+    }
+
+    @GetMapping("/sb/meal-time")
+    public ResponseEntity<ResponseDTO> getMealTime(@AuthenticationPrincipal MemberDTO memberDTO) {
+        return ResponseUtil.createSuccessResponse(mealScheduleService.getMealScheduleTime());
     }
 
     @GetMapping("/{productId}")

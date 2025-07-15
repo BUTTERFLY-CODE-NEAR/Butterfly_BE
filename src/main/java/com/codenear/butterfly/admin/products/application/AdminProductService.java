@@ -4,13 +4,15 @@ import com.codenear.butterfly.admin.products.dto.ProductCreateRequest;
 import com.codenear.butterfly.admin.products.dto.ProductEditResponse;
 import com.codenear.butterfly.admin.products.dto.ProductUpdateRequest;
 import com.codenear.butterfly.global.exception.ErrorCode;
-import com.codenear.butterfly.kakaoPay.domain.repository.KakaoPaymentRedisRepository;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
+import com.codenear.butterfly.payment.domain.repository.PaymentRedisRepository;
 import com.codenear.butterfly.product.domain.Category;
 import com.codenear.butterfly.product.domain.Keyword;
 import com.codenear.butterfly.product.domain.Product;
 import com.codenear.butterfly.product.domain.ProductImage;
 import com.codenear.butterfly.product.domain.ProductInventory;
+import com.codenear.butterfly.product.domain.SBMealType;
+import com.codenear.butterfly.product.domain.SmallBusinessProduct;
 import com.codenear.butterfly.product.domain.repository.FavoriteRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRedisRepository;
 import com.codenear.butterfly.product.domain.repository.KeywordRepository;
@@ -26,10 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.codenear.butterfly.consent.domain.ConsentType.MARKETING;
+import static com.codenear.butterfly.global.exception.ErrorCode.PRODUCT_NOT_SELECTED;
 import static com.codenear.butterfly.notify.NotifyMessage.NEW_PRODUCT;
+import static com.codenear.butterfly.notify.NotifyMessage.RESTOCK_PRODUCT;
 import static com.codenear.butterfly.s3.domain.S3Directory.PRODUCT_IMAGE;
 
 @Service
@@ -41,47 +46,84 @@ public class AdminProductService {
     private final ProductInventoryRepository productRepository;
     private final FavoriteRepository favoriteRepository;
     private final ProductImageRepository productImageRepository;
-    private final KakaoPaymentRedisRepository kakaoPaymentRedisRepository;
+    private final PaymentRedisRepository kakaoPaymentRedisRepository;
     private final KeywordRedisRepository keywordRedisRepository;
     private final KeywordRepository keywordRepository;
 
     @Transactional
     public void createProduct(ProductCreateRequest request) {
-        List<Keyword> keywords = request.keywords().stream()
+        List<Keyword> keywords = Optional.ofNullable(request.getKeywords())
+                .orElse(List.of())
+                .stream()
                 .map(Keyword::new)
                 .toList();
 
-        String deliveryInformation = request.deliveryInformation();
-        if (deliveryInformation.isEmpty()) {
-            deliveryInformation = "6시 이후 순차배송";
+        String deliveryInformation = request.getDeliveryInformation().isEmpty() ? "6시 이후 순차배송" : request.getDeliveryInformation();
+
+        ProductInventory product;
+
+        // productType (일반, 소상공인)
+        switch (request.getProductType()) {
+            case "INVENTORY" -> product = ProductInventory.builder()
+                    .createRequest(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .build();
+            case "SMALL_BUSINESS" -> product = SmallBusinessProduct.createSBBuilder()
+                    .request(request)
+                    .deliveryInformation(deliveryInformation)
+                    .keywords(keywords)
+                    .buildCreateSB();
+            default -> throw new ProductException(PRODUCT_NOT_SELECTED, PRODUCT_NOT_SELECTED.getMessage());
         }
 
-        ProductInventory product = ProductInventory.builder()
-                .createRequest(request)
-                .deliveryInformation(deliveryInformation)
-                .keywords(keywords)
-                .build();
         productRepository.save(product);
-        kakaoPaymentRedisRepository.saveStockQuantity(request.productName(), request.stockQuantity());
+        kakaoPaymentRedisRepository.saveStockQuantity(request.getProductName(), request.getStockQuantity());
 
-        saveImage(request.productImage(), product, ProductImage.ImageType.MAIN);
-        saveImage(request.descriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
+        saveImage(request.getProductImage(), product, ProductImage.ImageType.MAIN);
+        saveImage(request.getDescriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
         saveKeywordForRedis(keywords);
     }
 
-    public List<ProductInventory> loadAllProducts() {
-        return productRepository.findAll();
+    /**
+     * ALL : 전체 상품 조회 / LUNCH : 소상공인 점심 상품 조회 / DINNER : 소상공인 저녁 상품 조회
+     *
+     * @return 상품 목록
+     */
+    public List<ProductInventory> loadAllProducts(String productType) {
+        if ("ALL".equals(productType)) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByProductType(productType);
+    }
+
+    /**
+     * MealType별 상품 목록 조회
+     *
+     * @param mealType 판매 시간 (LUNCH,DINNER)
+     * @return 점심/저녁 상품 목록
+     */
+    public List<Long> loadSmallBusinessProductsByMealType(SBMealType mealType) {
+        return productRepository.findIdsByMealType(mealType);
     }
 
     @Transactional
     public void updateProduct(Long id, ProductUpdateRequest request) {
-        Product product = findById(id);
+        ProductInventory product = findById(id);
 
         updateImage(request.getProductImage(), product, ProductImage.ImageType.MAIN);
         updateImage(request.getDescriptionImages(), product, ProductImage.ImageType.DESCRIPTION);
 
         List<Keyword> existingKeywords = keywordRepository.findAllByProductId(id);
-        product.update(request);
+        if (product.getStockQuantity() == 0 && request.getStockQuantity() > 0) {
+            sendRestockNotification(product);
+        }
+
+        if (product instanceof SmallBusinessProduct smallBusinessProduct) {
+            smallBusinessProduct.update(request);
+        } else {
+            product.update(request);
+        }
 
         List<Keyword> newKeywords = request.getKeywords().stream()
                 .map(Keyword::new)
@@ -98,7 +140,7 @@ public class AdminProductService {
                 .map(Keyword::getKeyword)
                 .collect(Collectors.joining(", "));
 
-        return new ProductEditResponse(product, keywordString);
+        return ProductEditResponse.from(product, keywordString);
     }
 
     @Transactional(readOnly = true)
@@ -187,5 +229,20 @@ public class AdminProductService {
         if (!keywords.isEmpty()) {
             keywordRedisRepository.saveKeyword(keywords);
         }
+    }
+
+    /**
+     * 재입고 알림 발송
+     *
+     * @param product 상품
+     */
+    private void sendRestockNotification(Product product) {
+        product.getRestocks()
+                .forEach(restock -> {
+                    if (!restock.getIsNotified()) {
+                        fcmFacade.sendMessage(RESTOCK_PRODUCT, restock.getMember().getId());
+                        restock.sendNotification();
+                    }
+                });
     }
 }

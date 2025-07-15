@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURL = request.getRequestURI();
 
-        if (securityProperties.isWhitelisted(requestURL)) {
+        if (securityProperties.isWhitelisted(requestURL) && request.getHeader(AUTHORIZATION_HEADER) == null) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -2,8 +2,19 @@ package com.codenear.butterfly.address.domain;
 
 import com.codenear.butterfly.address.domain.dto.AddressUpdateDTO;
 import com.codenear.butterfly.member.domain.Member;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Builder
@@ -23,22 +34,23 @@ public class Address {
 
     private String entrancePassword; // 현관 비밀번호
 
-    private int distance;
-
-    private Integer deliveryFee;
-
     @Setter
     private boolean isMainAddress;
+
+    private double latitude;
+
+    private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void updateAddress(AddressUpdateDTO addressUpdateDTO, Integer deliveryFee) {
+    public void updateAddress(AddressUpdateDTO addressUpdateDTO) {
         this.addressName = addressUpdateDTO.getAddressName();
         this.address = addressUpdateDTO.getAddress();
         this.detailedAddress = addressUpdateDTO.getDetailedAddress();
         this.entrancePassword = addressUpdateDTO.getEntrancePassword();
-        this.deliveryFee = deliveryFee;
+        this.latitude = addressUpdateDTO.getLatitude();
+        this.longitude = addressUpdateDTO.getLongitude();
     }
 }

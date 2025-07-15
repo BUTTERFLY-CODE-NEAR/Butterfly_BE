@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.codenear.butterfly.notify.NotifyMessage.INQUIRY_ANSWERED;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,10 +54,9 @@ class FCMMessageServiceTest {
         fcmMessageService.sendNotificationMessage(INQUIRY_ANSWERED, memberId);
         System.out.println("Message ConsentType: " + INQUIRY_ANSWERED.getConsentType());
 
-
         // then
         verify(fcmRepository).findByMemberId(memberId);
-        verify(firebaseMessagingClient).sendMessage(any(Message.class));
+        verify(firebaseMessagingClient).sendMessage(any(Message.class), eq("dummy_token"));
     }
 
     @Test
@@ -71,7 +71,7 @@ class FCMMessageServiceTest {
 
         // then
         verify(fcmRepository, never()).findByMemberId(memberId);
-        verify(firebaseMessagingClient, never()).sendMessage(any(Message.class));
+        verify(firebaseMessagingClient, never()).sendMessage(any(Message.class), eq("dummy_token"));
     }
 
     private void mockFCMRepository(Long memberId) {

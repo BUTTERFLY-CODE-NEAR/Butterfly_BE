@@ -22,7 +22,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">주문 관리</h6>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="statusFilterDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-filter"></i> 상태 필터: <span id="currentFilter" th:text="${param.status != null ? T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).valueOf(param.status).getStatus() : '전체'}">전체</span>
+                            <i class="fas fa-filter"></i> 상태 필터: <span id="currentFilter" th:text="${param.status != null ? T(com.codenear.butterfly.payment.domain.dto.OrderStatus).valueOf(param.status).getStatus() : '전체'}">전체</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="statusFilterDropdown">
                             <a class="dropdown-item filter-status" href="#" data-status="ALL">전체</a>
@@ -38,23 +38,26 @@
                 <div class="card shadow mb-4">
                     <div class="card-body">
                         <!--배송 중 일괄 배송 완료 -->
-                        <div class="mb-3" id="bulkActionContainer" th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
-                            <div class="d-flex align-items-center">
+                        <div class="mb-3" id="bulkActionContainer">
+                            <div class="d-flex align-items-center" th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}">
                                 <div class="custom-control custom-checkbox mr-2">
                                     <input type="checkbox" class="custom-control-input" id="selectAll">
                                     <label class="custom-control-label" for="selectAll">전체 선택</label>
                                 </div>
                                 <button id="bulkCompleteBtn" class="btn btn-success btn-sm ml-2" disabled>
-                                    <i class="fas fa-check"></i> 선택 항목 일괄 배송 완료
+                                    <i class="fas fa-check"></i>
+                                    <span th:if="${param.status[0] == 'DELIVERY'}">선택 항목 일괄 배송 완료</span>
+                                    <span th:if="${param.status[0] == 'READY'}">선택 항목 일괄 배송 중</span>
                                 </button>
                             </div>
                         </div>
+
 
                         <div class="table-responsive">
                             <table class="table table-bordered" id="orderTable">
                                 <thead>
                                 <tr>
-                                    <th th:if="${param.status != null && param.status[0] == 'DELIVERY'}" width="5%">
+                                    <th th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}" width="5%">
                                         <span class="sr-only">선택</span>
                                     </th>
                                     <th>주문일</th>
@@ -68,7 +71,7 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="order : ${orders}">
-                                    <td th:if="${param.status != null && param.status[0] == 'DELIVERY'}">
+                                    <td th:if="${param.status != null && (param.status[0] == 'DELIVERY' || param.status[0] == 'READY')}">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input order-checkbox"
                                                    th:id="'order-' + ${order.id}"
@@ -102,16 +105,16 @@
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage - 1})}" aria-label="Previous">
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage - 1}, status=${param.status})}" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
                                     <li class="page-item" th:each="page : ${#numbers.sequence(0, totalPages - 1)}"
                                         th:classappend="${page == currentPage} ? 'active'">
-                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${page})}" th:text="${page + 1}"></a>
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${page}, status=${param.status})}" th:text="${page + 1}"></a>
                                     </li>
                                     <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage + 1})}" aria-label="Next">
+                                        <a class="page-link" th:href="@{/admin/delivery-status(page=${currentPage + 1}, status=${param.status})}" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -142,7 +145,7 @@
                     <div class="form-group">
                         <label for="orderStatus">새 상태 선택</label>
                         <select class="form-control" id="orderStatus" name="orderStatus">
-                            <option th:each="status : ${T(com.codenear.butterfly.kakaoPay.domain.dto.OrderStatus).values()}"
+                            <option th:each="status : ${T(com.codenear.butterfly.payment.domain.dto.OrderStatus).values()}"
                                     th:value="${status}"
                                     th:text="${status.getStatus()}">
                                 상태
@@ -219,7 +222,7 @@
 
         const currentStatus = [[${param.status != null ? param.status[0] : null}]];
         console.log(currentStatus)
-        if (currentStatus === 'DELIVERY') {
+        if (currentStatus === 'DELIVERY' || currentStatus === 'READY') {
             const selectAllCheckbox = document.getElementById('selectAll');
             const orderCheckboxes = document.querySelectorAll('.order-checkbox');
             const bulkCompleteBtn = document.getElementById('bulkCompleteBtn');
@@ -266,15 +269,18 @@
             confirmBulkCompleteBtn.addEventListener('click', function() {
                 const selectedOrderIds = Array.from(document.querySelectorAll('.order-checkbox:checked'))
                     .map(checkbox => checkbox.getAttribute('data-order-id'));
-
+                const targetStatus = currentStatus === 'DELIVERY' ? 'COMPLETED' : 'DELIVERY';
                 // AJAX 요청으로 일괄 처리
-                fetch('/admin/bulk-complete-orders', {
-                    method: 'POST',
+                fetch('/admin/orders/status', {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
                     },
-                    body: JSON.stringify({orderIds: selectedOrderIds})
+                    body: JSON.stringify({
+                        orderIds: selectedOrderIds,
+                        status: targetStatus
+                    })
                 })
                 .then(response => {
                     if (response.ok) {
@@ -283,8 +289,9 @@
                     throw new Error('일괄 처리 중 오류가 발생했습니다.');
                 })
                 .then(data => {
-                    if (data.success) {
+                    if (data.code === 200) {
                         // 성공 시 페이지 새로고침
+                        alert(data.message);
                         window.location.reload();
                     } else {
                         alert('일괄 처리 중 오류가 발생했습니다: ' + data.message);
