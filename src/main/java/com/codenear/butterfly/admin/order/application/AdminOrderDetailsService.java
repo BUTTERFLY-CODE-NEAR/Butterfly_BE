@@ -5,6 +5,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.notify.fcm.application.FCMFacade;
 import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.dto.OrderStatus;
+import com.codenear.butterfly.payment.domain.dto.OrderType;
 import com.codenear.butterfly.payment.domain.repository.OrderDetailsRepository;
 import com.codenear.butterfly.point.domain.Point;
 import com.codenear.butterfly.point.domain.PointRepository;
@@ -38,14 +39,15 @@ public class AdminOrderDetailsService {
     private final ProductInventoryRepository productInventoryRepository;
     private final FCMFacade fcmFacade;
 
-    public Page<OrderDetails> getAllOrders(int page) {
+    public Page<OrderDetails> getAllOrders(int page, OrderType orderType) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        return orderDetailsRepository.findAll(pageable);
+
+        return orderType != null ? orderDetailsRepository.findAllByOrderType(orderType, pageable) : orderDetailsRepository.findAll(pageable);
     }
 
-    public Page<OrderDetails> getOrdersByStatus(OrderStatus status, int page) {
+    public Page<OrderDetails> getOrdersByStatus(OrderStatus status, int page, OrderType orderType) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        return orderDetailsRepository.findByOrderStatus(status, pageable);
+        return orderType != null ? orderDetailsRepository.findByOrderStatusAndOrderType(status, pageable, orderType) : orderDetailsRepository.findByOrderStatus(status, pageable);
     }
 
     @Transactional
