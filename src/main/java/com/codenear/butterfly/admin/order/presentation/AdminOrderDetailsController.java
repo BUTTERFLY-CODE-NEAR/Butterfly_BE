@@ -7,6 +7,7 @@ import com.codenear.butterfly.global.exception.ErrorCode;
 import com.codenear.butterfly.global.util.ResponseUtil;
 import com.codenear.butterfly.payment.domain.OrderDetails;
 import com.codenear.butterfly.payment.domain.dto.OrderStatus;
+import com.codenear.butterfly.payment.domain.dto.OrderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -33,22 +34,23 @@ public class AdminOrderDetailsController {
     public String orderListPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false, value = "orderType") String type,
             Model model
     ) {
         Page<OrderDetails> orders;
+        OrderType orderType = type != null && !type.isEmpty() ? OrderType.valueOf(type) : null;
 
-        if (status != null && !status.equals("ALL")) {
+        if (status != null && !status.isEmpty()) {
             OrderStatus orderStatus = OrderStatus.valueOf(status);
-            orders = adminOrderDetailsService.getOrdersByStatus(orderStatus, page);
+            orders = adminOrderDetailsService.getOrdersByStatus(orderStatus, page, orderType);
         } else {
-            orders = adminOrderDetailsService.getAllOrders(page);
+            orders = adminOrderDetailsService.getAllOrders(page, orderType);
         }
 
         model.addAttribute("orders", orders);
         model.addAttribute("currentPage", orders.getNumber());
         model.addAttribute("totalPages", orders.getTotalPages());
         model.addAttribute("orderStatuses", OrderStatus.values());
-
         return "admin/order/order-details";
     }
 
