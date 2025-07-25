@@ -235,6 +235,8 @@ public class PaymentService {
         // DB 재고 업데이트를 위해 RabbitMQ 메시지 전송
         InventoryDecreaseMessageDTO message = new InventoryDecreaseMessageDTO(handler.getProductName(), handler.getQuantity());
         applicationEventPublisher.publishEvent(message);
+
+        fcmFacade.sendMessage(NotifyMessage.ORDER_SUCCESS, memberId);
     }
 
     /**
